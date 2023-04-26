@@ -1,0 +1,25 @@
+# TODO: Determine a MSRV and use that here instead
+image: rustdocker/rust:stable
+
+stages:
+  - build
+  - test
+  - lint
+
+build:
+  stage: build
+  script:
+    cargo build
+
+test:
+  stage: test
+  needs: 
+  - build
+  script:
+    cargo test --verbose
+
+lint:
+  stage: lint
+  script:
+    cargo clippy --all-targets --all-features -- -D warnings
+    cargo fmt --check
