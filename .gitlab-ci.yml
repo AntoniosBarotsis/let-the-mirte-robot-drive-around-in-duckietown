@@ -4,6 +4,7 @@ image: rustdocker/rust:stable
 stages:
   - build
   - test
+  - install-lint
   - lint
 
 build:
@@ -18,8 +19,16 @@ test:
   script:
     cargo test --verbose
 
+install-lint:
+  stage: install-lint
+  script:
+    rustup component add clippy
+    rustup component add rustfmt
+
 lint:
   stage: lint
+  needs:
+    - install-lint
   script:
     cargo clippy --all-targets --all-features -- -D warnings
     cargo fmt --check
