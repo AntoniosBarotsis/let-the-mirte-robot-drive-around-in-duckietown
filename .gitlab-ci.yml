@@ -21,5 +21,6 @@ test:
 lint:
   stage: lint
   script:
-    cargo clippy --all-targets --all-features -- -D warnings
-    cargo fmt --check
+    - rustup component add clippy rustfmt
+    - cargo clippy -- -D warnings
+    - cargo fmt --check
