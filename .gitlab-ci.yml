@@ -1,0 +1,26 @@
+# TODO: Determine a MSRV and use that here instead
+image: rust:1.69.0
+
+stages:
+  - build
+  - test
+  - lint
+
+build:
+  stage: build
+  script:
+    cargo build
+
+test:
+  stage: test
+  needs: 
+  - build
+  script:
+    cargo test --verbose
+
+lint:
+  stage: lint
+  script:
+    - rustup component add clippy rustfmt
+    - cargo clippy -- -D warnings
+    - cargo fmt --check
