@@ -2,14 +2,22 @@
 image: rust:1.69.0
 
 stages:
+  - pre-build
   - build
   - test
   - lint
 
+pre-build:
+  stage: pre-build
+  script:
+    apt-get update && apt-get install libopencv-dev clang libclang-dev -y
+
 build:
+  needs: 
+  - pre-build
   stage: build
   script:
-    cargo build
+    cargo build --all-features
 
 test:
   stage: test
@@ -20,7 +28,9 @@ test:
 
 lint:
   stage: lint
+  needs: 
+  - build
   script:
     - rustup component add clippy rustfmt
-    - cargo clippy -- -D warnings
+    - cargo clippy --all-features -- -D warnings
     - cargo fmt --check
