@@ -10,7 +10,7 @@ cache:
     files:
       - Cargo.lock
   paths:
-    - .cargo/bin
+    - $CI_PROJECT_DIR/.cargo/bin
     - .cargo/registry/index
     - .cargo/registry/cache
     - target/debug/deps
