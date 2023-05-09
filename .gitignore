@@ -13,3 +13,5 @@ target/
 *.pdb
 
 mirte-rs/Cargo.lock
+
+assets/output.jpg

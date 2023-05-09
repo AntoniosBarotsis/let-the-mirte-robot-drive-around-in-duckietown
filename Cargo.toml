@@ -2,4 +2,8 @@
 
 members = [
   "mirte-rs",
+  "cv",
 ]
+
+[profile.release.package.cv]
+codegen-units = 1
