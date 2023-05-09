@@ -2,19 +2,14 @@
 image: rust:1.69.0
 
 stages:
-  - pre-build
   - build
   - test
   - lint
 
-pre-build:
-  stage: pre-build
-  script:
-    apt-get update && apt-get install libopencv-dev clang libclang-dev -y
+before_script:
+  - apt-get update && apt-get install libopencv-dev clang libclang-dev -y
 
 build:
-  needs: 
-  - pre-build
   stage: build
   script:
     cargo build --all-features
