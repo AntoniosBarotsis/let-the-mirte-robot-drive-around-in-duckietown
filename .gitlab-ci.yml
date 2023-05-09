@@ -1,6 +1,21 @@
 # TODO: Determine a MSRV and use that here instead
 image: rust:1.69.0
 
+variables:
+  CARGO_HOME: $CI_PROJECT_DIR/.cargo
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+
+cache:
+  key:
+    files:
+      - Cargo.lock
+  paths:
+    - .cargo/bin
+    - .cargo/registry/index
+    - .cargo/registry/cache
+    - target/debug/deps
+    - target/debug/build
+
 stages:
   - build
   - test
