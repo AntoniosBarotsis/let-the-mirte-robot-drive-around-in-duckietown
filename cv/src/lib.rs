@@ -12,7 +12,7 @@ pub mod cv_error;
 pub mod image_part;
 
 /// Crops the image in half to reduce needed computation.
-/// 
+///
 /// The specified image part is the one ***kept*** in the resulting image.
 fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   let half_height = img.size().map_err(|e| CvError::Other(e.message))?.height / 2;
