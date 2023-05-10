@@ -48,9 +48,29 @@ pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
 ///
 /// This method should be used for testing/debugging only.
 ///
-/// ## Examples
+/// # Examples
 ///
-/// You can find an example usage in `../examples/plot_lines.rs`.
+/// ```
+/// use cv::{cv_error::CvError, process_image};
+///
+/// use opencv::prelude::{MatTrait, MatTraitConstManual};
+/// use opencv::{
+///   core::Vector,
+///   imgcodecs::{self, imread, imwrite, IMREAD_GRAYSCALE},
+/// };
+///
+/// // We need to import the image as grayscale because the FastLineDetector requires it.
+/// let img = imread("../assets/input_real.jpg", IMREAD_GRAYSCALE).expect("open image");
+
+/// let output = process_image(img).unwrap();
+
+/// // Save output image.
+/// let saved = imwrite("../assets/output.jpg", &output, &Vector::default())
+///   .map_err(|e| CvError::IoError(e.message)).unwrap();
+///
+/// // Make sure that the image was saved correctly
+/// assert!(saved);
+/// ```
 pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
   let lines = detect_lines(img.clone())?;
   let mut cropped_image = crop_image(&mut img)?;
