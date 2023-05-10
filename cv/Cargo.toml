@@ -6,7 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# TODO: Maybe we can remove `imgcodecs` later. It is used to write images to disk for now.
 opencv = { version = "0.81.2", default-features = false, features = ["imgproc", "ximgproc"] }
 thiserror = "1.0.40"
 
