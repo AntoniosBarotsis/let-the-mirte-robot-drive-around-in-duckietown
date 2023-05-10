@@ -22,6 +22,8 @@ fn crop_image(img: &mut Mat) -> Result<Mat, CvError> {
 
 /// Performs line detection in the passed image. Returns a list of 4d-vectors containing
 /// the line coordinates in a `x1, y1, x2, y2` format.
+///
+/// The image must be in grayscale.
 pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
   let img = crop_image(&mut img)?;
 
@@ -41,6 +43,10 @@ pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
 }
 
 /// Detects lines in the input image, plots them and returns the result.
+///
+/// The image must be in grayscale.
+///
+/// This method should be used for testing/debugging only.
 ///
 /// ## Examples
 ///
