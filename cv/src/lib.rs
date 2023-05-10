@@ -1,4 +1,5 @@
 use cv_error::CvError;
+use image_part::ImagePart;
 use opencv::prelude::{MatTrait, MatTraitConstManual};
 use opencv::{
   core::{Point, Scalar, Vec4f, Vector},
@@ -8,14 +9,19 @@ use opencv::{
 };
 
 pub mod cv_error;
+pub mod image_part;
 
-/// Crops the top half of the image to reduce needed computation.
-fn crop_image(img: &mut Mat) -> Result<Mat, CvError> {
+/// Crops the image in half to reduce needed computation.
+/// 
+/// The specified image part is the one ***kept*** in the resulting image.
+fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   let half_height = img.size().map_err(|e| CvError::Other(e.message))?.height / 2;
 
-  let crop = img
-    .adjust_roi(-half_height, 0, 0, 0)
-    .map_err(|e| CvError::Other(e.message))?;
+  let crop = match keep {
+    ImagePart::Top => img.adjust_roi(0, -half_height, 0, 0),
+    ImagePart::Bottom => img.adjust_roi(-half_height, 0, 0, 0),
+  }
+  .map_err(|e| CvError::Other(e.message))?;
 
   Ok(crop)
 }
@@ -25,7 +31,7 @@ fn crop_image(img: &mut Mat) -> Result<Mat, CvError> {
 ///
 /// The image must be in grayscale.
 pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
-  let img = crop_image(&mut img)?;
+  let img = crop_image(&mut img, ImagePart::Bottom)?;
 
   // Parameter values mostly taken from
   // https://docs.opencv.org/4.x/df/ded/group__ximgproc__fast__line__detector.html
@@ -73,7 +79,7 @@ pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
 /// ```
 pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
   let lines = detect_lines(img.clone())?;
-  let mut cropped_image = crop_image(&mut img)?;
+  let mut cropped_image = crop_image(&mut img, ImagePart::Bottom)?;
 
   // Lines contain a list of 4d vectors that, as stated in `FastLineDetector::detect`, holds the
   // values for `x1, y1, x2, y2`.
