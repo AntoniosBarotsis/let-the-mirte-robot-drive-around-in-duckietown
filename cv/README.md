@@ -26,7 +26,13 @@ There is one doctest example provided which reads in [an image](../assets/input_
 from Mirte and draws the detected lines in a new file in the same directory. You can run this with
 `cargo test`.
 
-Additionally, there is [a benchmark](./benches/benchmarks/detect_lines.rs) provided which measures
+Additionally, there are examples in the [`examples`](./examples/) directory which you can run with
+
+```sh
+$ cargo run --example <FILE NAME>
+```
+
+Lastly, there is [a benchmark](./benches/benchmarks/detect_lines.rs) provided which measures
 both the time it takes to detect the lines in one image as well as 30 (to simulate 30fps video).
 You can run the benchmark with `cargo bench -p cv`, then open
 `./target/criterion/report/index.html` in your browser.

@@ -11,7 +11,7 @@ thiserror = "1.0.40"
 
 [dev-dependencies]
 criterion = { version = "0.4", features = ["html_reports"] }
-opencv = { version = "0.81.2", default-features = false, features = ["imgproc", "imgcodecs", "ximgproc"] }
+opencv = { version = "0.81.2", default-features = false, features = ["imgproc", "imgcodecs", "ximgproc", "highgui"] }
 
 [[bench]]
 name = "bench_main"
