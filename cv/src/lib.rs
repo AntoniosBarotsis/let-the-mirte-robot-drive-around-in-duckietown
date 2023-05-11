@@ -1,11 +1,14 @@
 use cv_error::CvError;
 use image_part::ImagePart;
-use opencv::prelude::{MatTrait, MatTraitConstManual};
 use opencv::{
   core::{Point, Scalar, Vec4f, Vector},
   imgproc::{line, LINE_AA},
   prelude::Mat,
   ximgproc::FastLineDetector,
+};
+use opencv::{
+  prelude::{MatTrait, MatTraitConstManual},
+  ximgproc::create_fast_line_detector,
 };
 
 pub mod cv_error;
@@ -35,9 +38,8 @@ pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
 
   // Parameter values mostly taken from
   // https://docs.opencv.org/4.x/df/ded/group__ximgproc__fast__line__detector.html
-  let mut fast_line_detector =
-    opencv::ximgproc::create_fast_line_detector(10, 1.41, 50.0, 50.0, 3, true)
-      .map_err(|_e| CvError::LineDetectorCreation)?;
+  let mut fast_line_detector = create_fast_line_detector(20, 1.41, 150.0, 350.0, 3, true)
+    .map_err(|_e| CvError::LineDetectorCreation)?;
 
   let mut lines = Vector::<Vec4f>::default();
 
