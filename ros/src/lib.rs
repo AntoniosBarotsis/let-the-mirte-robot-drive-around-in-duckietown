@@ -29,7 +29,7 @@ where
   // Create subscriber
   // The subscriber is stopped when the returned object is destroyed
   let _subscriber_raii = rosrust::subscribe("/webcam/image_raw", 1, move |img: Image| {
-    rosrust::ros_info!("{}", img.encoding);
+    rosrust::ros_info!("Image received.");
 
     callback(img);
   })
