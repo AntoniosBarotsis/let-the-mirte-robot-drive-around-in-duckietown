@@ -2,9 +2,9 @@ use cv_bridge::msgs::sensor_msgs::Image;
 pub use cv_bridge::CvImage;
 
 /// This reads an image from the ROS `/webcam/image_raw` topic and runs the callback on it.
-/// 
+///
 /// Note that it blocks the current thread and shifts execution to inside the callback.
-/// 
+///
 /// # Example
 ///
 /// ```no_run
