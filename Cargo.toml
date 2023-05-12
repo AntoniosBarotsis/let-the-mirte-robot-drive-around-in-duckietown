@@ -3,6 +3,7 @@
 members = [
   "mirte-rs",
   "cv",
+  "ros",
 ]
 
 [profile.release.package.cv]
