@@ -19,3 +19,13 @@ source ~/.bashrc
 # Run the following to verify that the installation worked
 rostopic list
 ```
+
+## Running Outside of Mirte
+
+- Get Mirte's IP
+- Set `ROS_MASTER_URI=http://<mirte's ip>:11311`
+- Run `rostopic info /webcam/image_raw` and get the Publisher's url (should look something like
+  `http://Mirte-3E973C:43205/`)
+- Add the hostname (`Mirte-3E973C` from the previous example) to your `/etc/hosts` file like so:
+  `<mirte's ip><TAB><mirte's hostname>`
+- Running `rostopic echo /webcam/image_raw` should now fill your terminal with numbers
