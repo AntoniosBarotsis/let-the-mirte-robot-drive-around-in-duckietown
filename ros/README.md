@@ -4,9 +4,7 @@ This will contain all of the code needed to interact with ROS.
 
 ## Compiling
 
-Make sure you have ROS installed (we are once again not using Windows).
-
-The following should get you started
+Make sure you have ROS Noetic installed, the following should get you started:
 
 ```sh
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -18,9 +16,13 @@ source ~/.bashrc
 
 # Run the following to verify that the installation worked
 rostopic list
+# It should print something like "ERROR: Unable to communicate with master!"
 ```
 
 ## Running Outside of Mirte
+
+It is also decently easy to run the code from your workstation and have it communicate with Mirte
+instead of running it on Mirte itself.
 
 - Get Mirte's IP
 - Set `ROS_MASTER_URI=http://<mirte's ip>:11311`
