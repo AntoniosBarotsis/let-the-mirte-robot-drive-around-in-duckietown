@@ -114,6 +114,7 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
   Ok(cropped_image)
 }
 
+/// Performs line detection and shows the image in a window.
 pub fn show_in_window(img: &Mat) {
   let mut img_rgb = Mat::default();
 
@@ -123,11 +124,13 @@ pub fn show_in_window(img: &Mat) {
   opencv::imgproc::cvt_color(
     &img.clone(),
     &mut img_rgb,
-    opencv::imgproc::COLOR_BGR2RGB,
+    opencv::imgproc::COLOR_BGR2GRAY,
     0,
   )
   .expect("BGR to RGB conversion.");
 
-  opencv::highgui::imshow("img_rgb", &img_rgb).expect("open window");
-  let _res = opencv::highgui::wait_key(0).expect("keep window open");
+  if let Ok(lines) = process_image(img_rgb.clone()) {
+    opencv::highgui::imshow("img_rgb", &lines).expect("open window");
+    let _res = opencv::highgui::wait_key(0).expect("keep window open");
+  }
 }
