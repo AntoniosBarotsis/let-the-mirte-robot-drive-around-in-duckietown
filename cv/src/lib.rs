@@ -3,13 +3,14 @@ use image_part::ImagePart;
 use opencv::{
   core::{Point, Scalar, Vec4f, Vector},
   imgproc::{line, LINE_AA},
-  prelude::Mat,
   ximgproc::FastLineDetector,
 };
 use opencv::{
   prelude::{MatTrait, MatTraitConstManual},
   ximgproc::create_fast_line_detector,
 };
+
+pub use opencv::prelude::Mat;
 
 pub mod cv_error;
 pub mod image_part;
@@ -111,4 +112,17 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
   }
 
   Ok(cropped_image)
+}
+
+/// Performs line detection and shows the image in a window.
+pub fn show_in_window(img: &Mat) {
+  let mut img_grayscale = Mat::default();
+
+  opencv::imgproc::cvt_color(&img, &mut img_grayscale, opencv::imgproc::COLOR_BGR2GRAY, 0)
+    .expect("BGR to RGB conversion.");
+
+  if let Ok(lines) = process_image(img_grayscale) {
+    opencv::highgui::imshow("img_rgb", &lines).expect("open window");
+    let _res = opencv::highgui::wait_key(0).expect("keep window open");
+  }
 }
