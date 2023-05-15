@@ -22,7 +22,8 @@ rostopic list
 ## Running Outside of Mirte
 
 It is also decently easy to run the code from your workstation and have it communicate with Mirte
-instead of running it on Mirte itself.
+instead of running it on Mirte itself. For this to work, your workstation and Mirte must be
+connected to the same WiFi.
 
 - Get Mirte's IP
 - Set `ROS_MASTER_URI=http://<mirte's ip>:11311`
