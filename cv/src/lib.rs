@@ -116,20 +116,12 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
 
 /// Performs line detection and shows the image in a window.
 pub fn show_in_window(img: &Mat) {
-  let mut img_rgb = Mat::default();
+  let mut img_grayscale = Mat::default();
 
-  // This clone here, although seemingly useless, fixes a weird bug that causes artifacts to appear
-  // during the color conversion. For more details, refer to:
-  // https://github.com/twistedfall/opencv-rust/issues/277
-  opencv::imgproc::cvt_color(
-    &img.clone(),
-    &mut img_rgb,
-    opencv::imgproc::COLOR_BGR2GRAY,
-    0,
-  )
-  .expect("BGR to RGB conversion.");
+  opencv::imgproc::cvt_color(&img, &mut img_grayscale, opencv::imgproc::COLOR_BGR2GRAY, 0)
+    .expect("BGR to RGB conversion.");
 
-  if let Ok(lines) = process_image(img_rgb.clone()) {
+  if let Ok(lines) = process_image(img_grayscale) {
     opencv::highgui::imshow("img_rgb", &lines).expect("open window");
     let _res = opencv::highgui::wait_key(0).expect("keep window open");
   }
