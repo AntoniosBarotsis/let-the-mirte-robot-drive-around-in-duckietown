@@ -120,8 +120,13 @@ pub fn show_in_window(img: &Mat) {
   // This clone here, although seemingly useless, fixes a weird bug that causes artifacts to appear
   // during the color conversion. For more details, refer to:
   // https://github.com/twistedfall/opencv-rust/issues/277
-  opencv::imgproc::cvt_color(&img.clone(), &mut img_rgb, opencv::imgproc::COLOR_BGR2RGB, 0)
-    .expect("BGR to RGB conversion.");
+  opencv::imgproc::cvt_color(
+    &img.clone(),
+    &mut img_rgb,
+    opencv::imgproc::COLOR_BGR2RGB,
+    0,
+  )
+  .expect("BGR to RGB conversion.");
 
   opencv::highgui::imshow("img_rgb", &img_rgb).expect("open window");
   let _res = opencv::highgui::wait_key(0).expect("keep window open");

@@ -14,7 +14,8 @@ fn main() {
 
   // Save output image.
   let saved = imwrite("./assets/output.jpg", &output, &Vector::default())
-    .map_err(|e| CvError::IoError(e.message)).expect("Save works");
+    .map_err(|e| CvError::IoError(e.message))
+    .expect("Save works");
 
   // Make sure that the image was saved correctly
   assert!(saved);
