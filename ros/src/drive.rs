@@ -9,6 +9,11 @@ rosrust::rosmsg_include!(mirte_msgs / SetMotorSpeed);
 
 static CLIENT_INSTANCE: OnceCell<DriveClient> = OnceCell::new();
 
+/// Minimum value a motor can hold.
+pub const MOTOR_VALUE_MIN: i32 = 0;
+/// Maximum value a motor can hold.
+pub const MOTOR_VALUE_MAX: i32 = 100;
+
 /// Client responsible for interacting with the motors.
 #[allow(missing_debug_implementations)]
 pub struct DriveClient {
@@ -53,8 +58,20 @@ impl DriveClient {
     })
   }
 
-  /// Sets the motors' power levels.
+  /// Sets the motors' power levels. Both power values must be between [`MOTOR_VALUE_MIN`] and
+  /// [`MOTOR_VALUE_MAX`].
   pub fn drive(&self, left_power: i32, right_power: i32) -> Result<ClientMotorResponse, RosError> {
+    // Throw an error if either motor value is not between the allowed min and max.
+    if !(MOTOR_VALUE_MIN..=MOTOR_VALUE_MAX).contains(&left_power) {
+      return Err(RosError::InvalidMotorValue { actual: left_power });
+    }
+
+    if !(MOTOR_VALUE_MIN..=MOTOR_VALUE_MAX).contains(&right_power) {
+      return Err(RosError::InvalidMotorValue {
+        actual: right_power,
+      });
+    }
+
     let left_suceeded = self
       .client_left
       .req_async(SetMotorSpeedReq { speed: left_power })
