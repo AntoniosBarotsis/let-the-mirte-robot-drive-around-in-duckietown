@@ -2,7 +2,7 @@ use cv_error::CvError;
 use image_part::ImagePart;
 use opencv::{
   core::{Point, Scalar, Vec4f, Vector},
-  imgproc::{line, LINE_AA},
+  imgproc::{line, cvt_color, LINE_AA, COLOR_BGR2HSV},
   ximgproc::FastLineDetector,
 };
 use opencv::{
@@ -33,6 +33,12 @@ fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
 }
 
 pub fn detect_line_type(mut img: Mat) -> Result<Vec<Line>, CvError> {
+  let cropped_img = crop_image(&mut img, ImagePart::Bottom).expect("crop image");
+  let mut hsv_img = Mat::default();
+  cvt_color(&cropped_img, &mut hsv_img, COLOR_BGR2HSV, 0).expect("convert colour"); 
+
+  // extract the yellow pixels
+  
   todo!()
 }
 
