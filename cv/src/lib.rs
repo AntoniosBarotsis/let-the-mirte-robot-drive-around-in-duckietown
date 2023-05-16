@@ -1,15 +1,17 @@
 use cv_error::CvError;
 use image_part::ImagePart;
 use opencv::{
-  core::{Point, Scalar, Vec4f, Vector},
+  core::{in_range, Point, Scalar, Vec4f, Vector},
   imgproc::{line, cvt_color, LINE_AA, COLOR_BGR2HSV},
-  ximgproc::FastLineDetector,
+  ximgproc::FastLineDetector, Result,
 };
 use opencv::{
   prelude::{MatTrait, MatTraitConstManual},
   ximgproc::create_fast_line_detector,
 };
-use line::Line;
+use line::{
+  Line, HSV_WHITE, HSV_YELLOW, Color
+};
 
 pub use opencv::prelude::Mat;
 
@@ -32,14 +34,42 @@ fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   Ok(crop)
 }
 
-pub fn detect_line_type(mut img: Mat) -> Result<Vec<Line>, CvError> {
+fn get_lines(_img: Mat) -> Result<Vec<Line>, CvError> {
+  todo!()
+}
+
+fn get_color(colour: Color) -> &'static [[f64; 3]; 2] {
+  match colour {
+    Color::White => HSV_WHITE,
+    Color::Yellow => HSV_YELLOW
+  }
+}
+
+pub fn detect_line_type(mut img: Mat, colours: Vec<Color>) -> Result<Vec<Line>, CvError> {
   let cropped_img = crop_image(&mut img, ImagePart::Bottom).expect("crop image");
   let mut hsv_img = Mat::default();
   cvt_color(&cropped_img, &mut hsv_img, COLOR_BGR2HSV, 0).expect("convert colour"); 
 
-  // extract the yellow pixels
+  let mut lines: Vec<Line> = Vec::new();
+
+  for colour_enum in colours {
+    let colour = get_color(colour_enum);
+
+    // Extract the colours
+    let colour_low = Mat::from_slice::<f64>(&colour[0]).expect("get low colour");
+    let colour_high = Mat::from_slice::<f64>(&colour[1]).expect("get high colour");
+
+    let mut colour_img = Mat::default();
+
+    in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img).expect("colour in range");
+
+    // Get the lines of this colour
+    let mut new_lines = get_lines(colour_img).expect("get lines with colour");
+
+    lines.append(&mut new_lines);
+  }
   
-  todo!()
+  return Ok(lines)
 }
 
 /// Performs line detection in the passed image. Returns a list of 4d-vectors containing
@@ -130,7 +160,7 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
 pub fn show_in_window(img: &Mat) {
   let mut img_grayscale = Mat::default();
 
-  opencv::imgproc::cvt_color(&img, &mut img_grayscale, opencv::imgproc::COLOR_BGR2GRAY, 0)
+  cvt_color(&img, &mut img_grayscale, opencv::imgproc::COLOR_BGR2GRAY, 0)
     .expect("BGR to RGB conversion.");
 
   if let Ok(lines) = process_image(img_grayscale) {

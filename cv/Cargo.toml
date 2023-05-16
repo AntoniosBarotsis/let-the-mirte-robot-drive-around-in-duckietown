@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 opencv = { version = "0.76.4", default-features = false, features = ["imgproc", "ximgproc"] }
 thiserror = "1.0.40"
+vec3 = "0.2.1"
 
 [dev-dependencies]
 criterion = { version = "0.4", features = ["html_reports"] }
