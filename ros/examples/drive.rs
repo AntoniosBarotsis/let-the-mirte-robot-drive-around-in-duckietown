@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use ros::drive::DriveClient;
 
-/// Sets both motors to MAXIMUM POWER and goes vroom for 2 seconds before coming to a stop.
+/// Sets both motors to 100 and keeps them on for 2 seconds before coming to a stop.
 fn main() {
   let client = DriveClient::create().expect("Create client");
 
