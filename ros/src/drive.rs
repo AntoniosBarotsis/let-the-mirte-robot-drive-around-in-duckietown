@@ -30,6 +30,9 @@ pub struct ClientMotorResponse {
 
 impl DriveClient {
   /// Instantiates a new client.
+  ///
+  /// This function is only ran once internally and is therefore very cheap. Any subsequent calls
+  /// will return the cached result of the first call.
   pub fn create() -> Result<&'static Self, RosError> {
     // The client is initialized only once for performance reasons and also because `rosrust::init`
     // needs to be ran exactly once for the requests to work. Any more would cause a panic.
