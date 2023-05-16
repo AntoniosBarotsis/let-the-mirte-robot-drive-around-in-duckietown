@@ -1,3 +1,6 @@
+pub mod drive;
+pub mod ros_error;
+
 use cv_bridge::msgs::sensor_msgs::Image;
 pub use cv_bridge::CvImage;
 
