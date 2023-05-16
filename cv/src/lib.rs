@@ -9,11 +9,13 @@ use opencv::{
   prelude::{MatTrait, MatTraitConstManual},
   ximgproc::create_fast_line_detector,
 };
+use line::Line;
 
 pub use opencv::prelude::Mat;
 
 pub mod cv_error;
 pub mod image_part;
+pub mod line;
 
 /// Crops the image in half to reduce needed computation.
 ///
@@ -28,6 +30,10 @@ fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   .map_err(|e| CvError::Other(e.message))?;
 
   Ok(crop)
+}
+
+pub fn detect_line_type(mut img: Mat) -> Result<Vec<Line>, CvError> {
+  todo!()
 }
 
 /// Performs line detection in the passed image. Returns a list of 4d-vectors containing
