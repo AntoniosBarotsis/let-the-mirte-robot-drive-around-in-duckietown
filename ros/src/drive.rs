@@ -10,7 +10,7 @@ rosrust::rosmsg_include!(mirte_msgs / SetMotorSpeed);
 static CLIENT_INSTANCE: OnceCell<DriveClient> = OnceCell::new();
 
 /// Minimum value a motor can hold.
-pub const MOTOR_VALUE_MIN: i32 = 0;
+pub const MOTOR_VALUE_MIN: i32 = -100;
 /// Maximum value a motor can hold.
 pub const MOTOR_VALUE_MAX: i32 = 100;
 
