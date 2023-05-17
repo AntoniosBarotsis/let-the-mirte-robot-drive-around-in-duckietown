@@ -34,7 +34,15 @@ fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   Ok(crop)
 }
 
-fn get_lines(_img: Mat) -> Result<Vec<Line>, CvError> {
+fn get_lines(img: &Mat) -> Result<Vec<Line>, CvError> {
+  let mut fast_line_detector = create_fast_line_detector(20, 1.41, 150.0, 350.0, 3, true)
+    .map_err(|_e| CvError::LineDetectorCreation)?;
+
+  let mut lines = Vector::<Vec4f>::default();
+
+  fast_line_detector
+    .detect(&img, &mut lines)
+    .map_err(|_e| CvError::NoLinesDetected)?;
   todo!()
 }
 
@@ -64,12 +72,12 @@ pub fn detect_line_type(mut img: Mat, colours: Vec<Color>) -> Result<Vec<Line>, 
     in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img).expect("colour in range");
 
     // Get the lines of this colour
-    let mut new_lines = get_lines(colour_img).expect("get lines with colour");
+    let mut new_lines = get_lines(&colour_img).expect("get lines with colour");
 
     lines.append(&mut new_lines);
   }
   
-  return Ok(lines)
+  Ok(lines)
 }
 
 /// Performs line detection in the passed image. Returns a list of 4d-vectors containing
