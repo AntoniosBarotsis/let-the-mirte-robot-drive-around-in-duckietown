@@ -13,8 +13,8 @@ fn main() {
 
   std::thread::sleep(Duration::from_secs(2));
 
-  let left_power = MotorValue::try_from(100).expect("Left value");
-  let right_power = MotorValue::try_from(100).expect("Right value");
+  let left_power = MotorValue::try_from(0).expect("Left value");
+  let right_power = MotorValue::try_from(0).expect("Right value");
 
   let _res = client.drive(left_power, right_power).expect("Drive");
 }
