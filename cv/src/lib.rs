@@ -1,15 +1,14 @@
 use cv_error::CvError;
 use image_part::ImagePart;
+use line::{Colour, Line, Pos, HSV_WHITE, HSV_YELLOW};
 use opencv::{
   core::{in_range, Point, Scalar, Vec4f, Vector},
-  imgproc::{line, cvt_color, LINE_AA, COLOR_BGR2HSV},
-  ximgproc::FastLineDetector, Result,
+  imgproc::{cvt_color, line, COLOR_BGR2HSV, LINE_AA},
   // highgui::{imshow, wait_key},
   prelude::{MatTrait, MatTraitConstManual},
   ximgproc::create_fast_line_detector,
-};
-use line::{
-  Line, HSV_WHITE, HSV_YELLOW, Colour, Pos,
+  ximgproc::FastLineDetector,
+  Result,
 };
 use Colour::{White, Yellow};
 
@@ -47,7 +46,17 @@ fn get_lines(img: &Mat, colour: Colour) -> Result<Vec<Line>, CvError> {
   let mut line_vec: Vec<Line> = Vec::default();
 
   for line in lines {
-    line_vec.push(Line{colour, pos1: Pos{x: line[0], y: line[1]}, pos2: Pos{x: line[2], y: line[3]}});
+    line_vec.push(Line {
+      colour,
+      pos1: Pos {
+        x: line[0],
+        y: line[1],
+      },
+      pos2: Pos {
+        x: line[2],
+        y: line[3],
+      },
+    });
   }
   Ok(line_vec)
 }
@@ -55,7 +64,7 @@ fn get_lines(img: &Mat, colour: Colour) -> Result<Vec<Line>, CvError> {
 fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
   match colour {
     White => HSV_WHITE,
-    Yellow => HSV_YELLOW
+    Yellow => HSV_YELLOW,
   }
 }
 
@@ -63,7 +72,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
   let mut copy_img = Mat::copy(img).expect("copy image");
   let cropped_img = crop_image(&mut copy_img, ImagePart::Bottom).expect("crop image");
   let mut hsv_img = Mat::default();
-  cvt_color(&cropped_img, &mut hsv_img, COLOR_BGR2HSV, 0).expect("convert colour"); 
+  cvt_color(&cropped_img, &mut hsv_img, COLOR_BGR2HSV, 0).expect("convert colour");
 
   let mut lines: Vec<Line> = Vec::new();
 
@@ -86,7 +95,6 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
 
     lines.append(&mut new_lines);
   }
-  
   Ok(lines)
 }
 
@@ -153,7 +161,6 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
   // Lines contain a list of 4d vectors that, as stated in `FastLineDetector::detect`, holds the
   // values for `x1, y1, x2, y2`.
   for l in lines {
-
     // Truncation here is fine (and needed) as we are just drawing pixels on the screen.
     #[allow(clippy::cast_possible_truncation)]
     let start_point = Point::new(l.pos1.x as i32, l.pos1.y as i32);
@@ -166,16 +173,9 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
       White => Scalar::new(255.0, 255.0, 255.0, 0.0),
     };
 
-    line(
-      &mut draw_img,
-      start_point,
-      end_point,
-      colour,
-      5,
-      LINE_AA,
-      0,
-    )
-    .map_err(|_e| CvError::Drawing).expect("draw");
+    line(&mut draw_img, start_point, end_point, colour, 5, LINE_AA, 0)
+      .map_err(|_e| CvError::Drawing)
+      .expect("draw");
   }
 
   Ok(draw_img)
