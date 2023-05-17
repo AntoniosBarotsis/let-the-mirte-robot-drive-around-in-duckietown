@@ -70,6 +70,12 @@ fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
 
 pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, CvError> {
   let mut copy_img = Mat::copy(img).expect("copy image");
+  let _img_height = copy_img
+    .size()
+    .map_err(|e| CvError::Other(e.message))?
+    .height
+    / 2;
+
   let cropped_img = crop_image(&mut copy_img, ImagePart::Bottom).expect("crop image");
   let mut hsv_img = Mat::default();
   cvt_color(&cropped_img, &mut hsv_img, COLOR_BGR2HSV, 0).expect("convert colour");
