@@ -33,7 +33,7 @@ pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   Ok(crop)
 }
 
-fn get_lines(img: &Mat, colour: Colour) -> Result<Vec<Line>, CvError> {
+fn get_lines(img: &Mat, colour: Colour, half_height: f32) -> Result<Vec<Line>, CvError> {
   let mut fast_line_detector = create_fast_line_detector(20, 1.41, 150.0, 350.0, 3, true)
     .map_err(|_e| CvError::LineDetectorCreation)?;
 
@@ -50,11 +50,11 @@ fn get_lines(img: &Mat, colour: Colour) -> Result<Vec<Line>, CvError> {
       colour,
       pos1: Pos {
         x: line[0],
-        y: line[1],
+        y: line[1] + half_height,
       },
       pos2: Pos {
         x: line[2],
-        y: line[3],
+        y: line[3] + half_height,
       },
     });
   }
@@ -70,7 +70,7 @@ fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
 
 pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, CvError> {
   let mut copy_img = Mat::copy(img).expect("copy image");
-  let _img_height = copy_img
+  let img_height = copy_img
     .size()
     .map_err(|e| CvError::Other(e.message))?
     .height
@@ -97,7 +97,8 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
     // let _res = wait_key(0).expect("keep window open");
 
     // Get the lines of this colour
-    let mut new_lines = get_lines(&colour_img, colour_enum).expect("get lines with colour");
+    let mut new_lines =
+      get_lines(&colour_img, colour_enum, img_height as f32).expect("get lines with colour");
 
     lines.append(&mut new_lines);
   }
