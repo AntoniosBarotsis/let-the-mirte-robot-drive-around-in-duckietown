@@ -15,6 +15,7 @@ use Colour::{White, Yellow};
 pub use opencv::prelude::Mat;
 
 pub mod cv_error;
+pub mod draw_lines;
 pub mod image_part;
 pub mod line;
 
