@@ -4,14 +4,14 @@ use opencv::{
   core::{in_range, Point, Scalar, Vec4f, Vector},
   imgproc::{line, cvt_color, LINE_AA, COLOR_BGR2HSV},
   ximgproc::FastLineDetector, Result,
-};
-use opencv::{
+  // highgui::{imshow, wait_key},
   prelude::{MatTrait, MatTraitConstManual},
   ximgproc::create_fast_line_detector,
 };
 use line::{
-  Line, HSV_WHITE, HSV_YELLOW, Colour, Pos
+  Line, HSV_WHITE, HSV_YELLOW, Colour, Pos,
 };
+use Colour::{White, Yellow};
 
 pub use opencv::prelude::Mat;
 
@@ -22,7 +22,7 @@ pub mod line;
 /// Crops the image in half to reduce needed computation.
 ///
 /// The specified image part is the one ***kept*** in the resulting image.
-fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
+pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   let half_height = img.size().map_err(|e| CvError::Other(e.message))?.height / 2;
 
   let crop = match keep {
@@ -52,30 +52,34 @@ fn get_lines(img: &Mat, colour: Colour) -> Result<Vec<Line>, CvError> {
   Ok(line_vec)
 }
 
-fn get_colour(colour: Colour) -> &'static [[f64; 3]; 2] {
+fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
   match colour {
-    Colour::White => HSV_WHITE,
-    Colour::Yellow => HSV_YELLOW
+    White => HSV_WHITE,
+    Yellow => HSV_YELLOW
   }
 }
 
-pub fn detect_line_type(mut img: Mat, colours: Vec<Colour>) -> Result<Vec<Line>, CvError> {
-  let cropped_img = crop_image(&mut img, ImagePart::Bottom).expect("crop image");
+pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, CvError> {
+  let mut copy_img = Mat::copy(img).expect("copy image");
+  let cropped_img = crop_image(&mut copy_img, ImagePart::Bottom).expect("crop image");
   let mut hsv_img = Mat::default();
   cvt_color(&cropped_img, &mut hsv_img, COLOR_BGR2HSV, 0).expect("convert colour"); 
 
   let mut lines: Vec<Line> = Vec::new();
 
   for colour_enum in colours {
-    let colour = get_colour(colour_enum);
+    let colour: &[[u8; 3]; 2] = get_colour(colour_enum);
 
     // Extract the colours
-    let colour_low = Mat::from_slice::<f64>(&colour[0]).expect("get low colour");
-    let colour_high = Mat::from_slice::<f64>(&colour[1]).expect("get high colour");
+    let colour_low = Mat::from_slice::<u8>(&colour[0]).expect("get low colour");
+    let colour_high = Mat::from_slice::<u8>(&colour[1]).expect("get high colour");
 
     let mut colour_img = Mat::default();
 
     in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img).expect("colour in range");
+
+    // imshow("test", &colour_img).expect("open window");
+    // let _res = wait_key(0).expect("keep window open");
 
     // Get the lines of this colour
     let mut new_lines = get_lines(&colour_img, colour_enum).expect("get lines with colour");
@@ -137,47 +141,51 @@ pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
 /// assert!(saved);
 /// ```
 pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
-  let lines = detect_lines(img.clone())?;
-  let mut cropped_image = crop_image(&mut img, ImagePart::Bottom)?;
+  let now = std::time::Instant::now();
+
+  let colours = vec![Yellow, White];
+  let lines = detect_line_type(&img, colours).expect("process image");
+
+  println!("{:?}", now.elapsed());
+
+  let mut draw_img = crop_image(&mut img, ImagePart::Bottom).expect("crop image");
 
   // Lines contain a list of 4d vectors that, as stated in `FastLineDetector::detect`, holds the
   // values for `x1, y1, x2, y2`.
   for l in lines {
-    // Extract the 4 coordinates
-    let coords = l.0;
 
     // Truncation here is fine (and needed) as we are just drawing pixels on the screen.
     #[allow(clippy::cast_possible_truncation)]
-    let start_point = Point::new(coords[0] as i32, coords[1] as i32);
+    let start_point = Point::new(l.pos1.x as i32, l.pos1.y as i32);
     #[allow(clippy::cast_possible_truncation)]
-    let end_point = Point::new(coords[2] as i32, coords[3] as i32);
+    let end_point = Point::new(l.pos2.x as i32, l.pos2.y as i32);
 
     // OpenCV uses BGR (not RBG) so this is actually red (not that it matters since its greyscale).
-    let color = Scalar::new(0.0, 0.0, 255.0, 0.0);
+    let colour;
+
+    match l.colour {
+      Yellow => colour = Scalar::new(0.0, 255.0, 255.0, 0.0),
+      White => colour = Scalar::new(255.0, 255.0, 255.0, 0.0),
+    }
 
     line(
-      &mut cropped_image,
+      &mut draw_img,
       start_point,
       end_point,
-      color,
+      colour,
       5,
       LINE_AA,
       0,
     )
-    .map_err(|_e| CvError::Drawing)?;
+    .map_err(|_e| CvError::Drawing).expect("draw");
   }
 
-  Ok(cropped_image)
+  Ok(draw_img)
 }
 
 /// Performs line detection and shows the image in a window.
 pub fn show_in_window(img: &Mat) {
-  let mut img_grayscale = Mat::default();
-
-  cvt_color(&img, &mut img_grayscale, opencv::imgproc::COLOR_BGR2GRAY, 0)
-    .expect("BGR to RGB conversion.");
-
-  if let Ok(lines) = process_image(img_grayscale) {
+  if let Ok(lines) = process_image(img.clone()) {
     opencv::highgui::imshow("img_rgb", &lines).expect("open window");
     let _res = opencv::highgui::wait_key(0).expect("keep window open");
   }
