@@ -189,7 +189,11 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
 
 /// Performs line detection and shows the image in a window.
 pub fn show_in_window(img: &Mat) {
-  if let Ok(lines) = process_image(img.clone()) {
+  let mut img_rgb = Mat::default();
+
+  cvt_color(&img, &mut img_rgb, opencv::imgproc::COLOR_BGR2RGB, 0).expect("BGR to RGB conversion.");
+
+  if let Ok(lines) = process_image(img_rgb.clone()) {
     opencv::highgui::imshow("img_rgb", &lines).expect("open window");
     let _res = opencv::highgui::wait_key(0).expect("keep window open");
   }
