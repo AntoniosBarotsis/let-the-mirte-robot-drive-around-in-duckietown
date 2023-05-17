@@ -9,8 +9,8 @@ pub enum Colour {
 #[derive(Debug, Clone, Copy)]
 #[allow(dead_code)]
 pub struct Pos {
-  pub x: f32,
-  pub y: f32,
+  pub x: i32,
+  pub y: i32,
 }
 
 // Represents a line
