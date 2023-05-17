@@ -16,7 +16,7 @@ pub fn read_image(path: &str) -> Result<Mat, CvError> {
   imread(path, IMREAD_UNCHANGED).map_err(|e| CvError::IoError(e.to_string()))
 }
 
-pub fn draw_lines(mut img: &mut Mat, lines: Vec<Line>) {
+pub fn draw_lines(mut img: &mut Mat, lines: &Vec<Line>) {
   for l in lines {
     // Truncation here is fine (and needed) as we are just drawing pixels on the screen.
     #[allow(clippy::cast_possible_truncation)]
