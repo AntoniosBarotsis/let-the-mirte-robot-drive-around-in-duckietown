@@ -10,7 +10,7 @@ use opencv::{
   ximgproc::create_fast_line_detector,
 };
 use line::{
-  Line, HSV_WHITE, HSV_YELLOW, Color
+  Line, HSV_WHITE, HSV_YELLOW, Colour, Pos
 };
 
 pub use opencv::prelude::Mat;
@@ -34,7 +34,7 @@ fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   Ok(crop)
 }
 
-fn get_lines(img: &Mat) -> Result<Vec<Line>, CvError> {
+fn get_lines(img: &Mat, colour: Colour) -> Result<Vec<Line>, CvError> {
   let mut fast_line_detector = create_fast_line_detector(20, 1.41, 150.0, 350.0, 3, true)
     .map_err(|_e| CvError::LineDetectorCreation)?;
 
@@ -43,17 +43,23 @@ fn get_lines(img: &Mat) -> Result<Vec<Line>, CvError> {
   fast_line_detector
     .detect(&img, &mut lines)
     .map_err(|_e| CvError::NoLinesDetected)?;
-  todo!()
+
+  let mut line_vec: Vec<Line> = Vec::default();
+
+  for line in lines {
+    line_vec.push(Line{colour, pos1: Pos{x: line[0], y: line[1]}, pos2: Pos{x: line[2], y: line[3]}});
+  }
+  Ok(line_vec)
 }
 
-fn get_color(colour: Color) -> &'static [[f64; 3]; 2] {
+fn get_colour(colour: Colour) -> &'static [[f64; 3]; 2] {
   match colour {
-    Color::White => HSV_WHITE,
-    Color::Yellow => HSV_YELLOW
+    Colour::White => HSV_WHITE,
+    Colour::Yellow => HSV_YELLOW
   }
 }
 
-pub fn detect_line_type(mut img: Mat, colours: Vec<Color>) -> Result<Vec<Line>, CvError> {
+pub fn detect_line_type(mut img: Mat, colours: Vec<Colour>) -> Result<Vec<Line>, CvError> {
   let cropped_img = crop_image(&mut img, ImagePart::Bottom).expect("crop image");
   let mut hsv_img = Mat::default();
   cvt_color(&cropped_img, &mut hsv_img, COLOR_BGR2HSV, 0).expect("convert colour"); 
@@ -61,7 +67,7 @@ pub fn detect_line_type(mut img: Mat, colours: Vec<Color>) -> Result<Vec<Line>, 
   let mut lines: Vec<Line> = Vec::new();
 
   for colour_enum in colours {
-    let colour = get_color(colour_enum);
+    let colour = get_colour(colour_enum);
 
     // Extract the colours
     let colour_low = Mat::from_slice::<f64>(&colour[0]).expect("get low colour");
@@ -72,7 +78,7 @@ pub fn detect_line_type(mut img: Mat, colours: Vec<Color>) -> Result<Vec<Line>, 
     in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img).expect("colour in range");
 
     // Get the lines of this colour
-    let mut new_lines = get_lines(&colour_img).expect("get lines with colour");
+    let mut new_lines = get_lines(&colour_img, colour_enum).expect("get lines with colour");
 
     lines.append(&mut new_lines);
   }
