@@ -7,7 +7,7 @@ use opencv::{
 
 use crate::{
   cv_error::CvError,
-  line::Colour::{White, Yellow},
+  line::Colour::{White, Yellow, Green},
   line::Line,
 };
 
@@ -28,6 +28,7 @@ pub fn draw_lines(mut img: &mut Mat, lines: &Vec<Line>) {
     let colour = match l.colour {
       Yellow => Scalar::new(0.0, 255.0, 255.0, 0.0),
       White => Scalar::new(255.0, 255.0, 255.0, 0.0),
+      Green => Scalar::new(0.0, 255.0, 0.0, 0.0),
     };
 
     line(&mut img, start_point, end_point, colour, 5, LINE_AA, 0)

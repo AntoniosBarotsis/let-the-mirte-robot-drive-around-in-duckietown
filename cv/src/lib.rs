@@ -1,6 +1,6 @@
 use cv_error::CvError;
 use image_part::ImagePart;
-use line::{Colour, Line, Pos, HSV_WHITE, HSV_YELLOW};
+use line::{Colour, Line, Pos, HSV_WHITE, HSV_YELLOW, HSV_GREEN};
 use opencv::{
   core::{in_range, Point, Scalar, Vec4f, Vector},
   imgproc::{cvt_color, line, COLOR_BGR2HSV, LINE_AA},
@@ -10,7 +10,7 @@ use opencv::{
   ximgproc::FastLineDetector,
   Result,
 };
-use Colour::{White, Yellow};
+use Colour::*;
 
 pub use opencv::prelude::Mat;
 
@@ -67,6 +67,7 @@ fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
   match colour {
     White => HSV_WHITE,
     Yellow => HSV_YELLOW,
+    Green => HSV_GREEN,
   }
 }
 
@@ -178,6 +179,7 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
     let colour = match l.colour {
       Yellow => Scalar::new(0.0, 255.0, 255.0, 0.0),
       White => Scalar::new(255.0, 255.0, 255.0, 0.0),
+      Green => Scalar::new(0.0, 255.0, 0.0, 0.0),
     };
 
     line(&mut draw_img, start_point, end_point, colour, 5, LINE_AA, 0)
