@@ -69,7 +69,7 @@ impl DriveClient {
     // The client is initialized only once for performance reasons and also because `rosrust::init`
     // needs to be ran exactly once for the requests to work. Any more would cause a panic.
     CLIENT_INSTANCE.get_or_try_init(|| {
-      rosrust::init("motor-control");
+      rosrust::init("motor_control");
 
       let client_left = rosrust::client::<SetMotorSpeed>("/mirte/set_left_speed").map_err(|e| {
         RosError::ClientCreation {
