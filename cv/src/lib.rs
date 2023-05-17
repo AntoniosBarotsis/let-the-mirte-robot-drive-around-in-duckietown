@@ -161,12 +161,10 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
     let end_point = Point::new(l.pos2.x as i32, l.pos2.y as i32);
 
     // OpenCV uses BGR (not RBG) so this is actually red (not that it matters since its greyscale).
-    let colour;
-
-    match l.colour {
-      Yellow => colour = Scalar::new(0.0, 255.0, 255.0, 0.0),
-      White => colour = Scalar::new(255.0, 255.0, 255.0, 0.0),
-    }
+    let colour = match l.colour {
+      Yellow => Scalar::new(0.0, 255.0, 255.0, 0.0),
+      White => Scalar::new(255.0, 255.0, 255.0, 0.0),
+    };
 
     line(
       &mut draw_img,
