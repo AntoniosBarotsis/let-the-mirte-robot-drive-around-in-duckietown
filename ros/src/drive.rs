@@ -28,6 +28,38 @@ pub struct ClientMotorResponse {
   pub right_suceeded: bool,
 }
 
+/// A Value Object for representing Motor Values. The value must be between [`MOTOR_VALUE_MIN`] and
+/// [`MOTOR_VALUE_MAX`].
+///
+///
+/// # Example
+///
+/// ```
+/// # use ros::drive::MotorValue;
+///
+/// let power = MotorValue::try_from(100);
+/// assert!(power.is_ok());
+///
+/// let power = MotorValue::try_from(101);
+/// assert!(power.is_err());
+/// ```
+#[derive(Debug, Clone, Copy)]
+pub struct MotorValue {
+  value: i32,
+}
+
+impl TryFrom<i32> for MotorValue {
+  type Error = RosError;
+
+  fn try_from(value: i32) -> Result<Self, Self::Error> {
+    if !(MOTOR_VALUE_MIN..=MOTOR_VALUE_MAX).contains(&value) {
+      return Err(RosError::InvalidMotorValue { actual: value });
+    }
+
+    Ok(MotorValue { value })
+  }
+}
+
 impl DriveClient {
   /// Instantiates a new client.
   ///
@@ -61,30 +93,26 @@ impl DriveClient {
     })
   }
 
-  /// Sets the motors' power levels. Both power values must be between [`MOTOR_VALUE_MIN`] and
-  /// [`MOTOR_VALUE_MAX`].
-  pub fn drive(&self, left_power: i32, right_power: i32) -> Result<ClientMotorResponse, RosError> {
-    // Throw an error if either motor value is not between the allowed min and max.
-    if !(MOTOR_VALUE_MIN..=MOTOR_VALUE_MAX).contains(&left_power) {
-      return Err(RosError::InvalidMotorValue { actual: left_power });
-    }
-
-    if !(MOTOR_VALUE_MIN..=MOTOR_VALUE_MAX).contains(&right_power) {
-      return Err(RosError::InvalidMotorValue {
-        actual: right_power,
-      });
-    }
-
+  /// Sets the motors' power levels.
+  pub fn drive(
+    &self,
+    left_power: MotorValue,
+    right_power: MotorValue,
+  ) -> Result<ClientMotorResponse, RosError> {
     let left_suceeded = self
       .client_left
-      .req_async(SetMotorSpeedReq { speed: left_power })
+      .req_async(SetMotorSpeedReq {
+        speed: left_power.value,
+      })
       .read()?
       .map_err(RosError::ClientResponse)?
       .status;
 
     let right_suceeded = self
       .client_right
-      .req_async(SetMotorSpeedReq { speed: right_power })
+      .req_async(SetMotorSpeedReq {
+        speed: right_power.value,
+      })
       .read()?
       .map_err(RosError::ClientResponse)?
       .status;
@@ -93,5 +121,29 @@ impl DriveClient {
       left_suceeded,
       right_suceeded,
     })
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::{MotorValue, MOTOR_VALUE_MAX, MOTOR_VALUE_MIN};
+
+  #[test]
+  fn motor_values_bound_checks() {
+    let power = MotorValue::try_from(MOTOR_VALUE_MIN);
+    assert!(power.is_ok());
+
+    let power = MotorValue::try_from(MOTOR_VALUE_MAX);
+    assert!(power.is_ok());
+
+    let power = MotorValue::try_from((MOTOR_VALUE_MAX - MOTOR_VALUE_MIN) / 2);
+    assert!(power.is_ok());
+
+
+    let power = MotorValue::try_from(MOTOR_VALUE_MAX + 1);
+    assert!(power.is_err());
+
+    let power = MotorValue::try_from(MOTOR_VALUE_MIN - 1);
+    assert!(power.is_err());
   }
 }
