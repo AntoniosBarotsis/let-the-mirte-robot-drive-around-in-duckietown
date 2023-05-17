@@ -15,5 +15,5 @@ fn main() {
 
   println!("{:?}", now.elapsed());
 
-  draw_lines(&mut img, lines);
+  draw_lines(&mut img, &lines);
 }

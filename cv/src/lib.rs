@@ -34,7 +34,7 @@ pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   Ok(crop)
 }
 
-fn get_lines(img: &Mat, colour: Colour, half_height: f32) -> Result<Vec<Line>, CvError> {
+fn get_lines(img: &Mat, colour: Colour, half_height: i32) -> Result<Vec<Line>, CvError> {
   let mut fast_line_detector = create_fast_line_detector(20, 1.41, 150.0, 350.0, 3, true)
     .map_err(|_e| CvError::LineDetectorCreation)?;
 
@@ -47,15 +47,16 @@ fn get_lines(img: &Mat, colour: Colour, half_height: f32) -> Result<Vec<Line>, C
   let mut line_vec: Vec<Line> = Vec::default();
 
   for line in lines {
+    #[allow(clippy::cast_possible_truncation)]
     line_vec.push(Line {
       colour,
       pos1: Pos {
-        x: line[0],
-        y: line[1] + half_height,
+        x: line[0] as i32,
+        y: line[1] as i32 + half_height,
       },
       pos2: Pos {
-        x: line[2],
-        y: line[3] + half_height,
+        x: line[2] as i32,
+        y: line[3] as i32 + half_height,
       },
     });
   }
@@ -99,7 +100,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
 
     // Get the lines of this colour
     let mut new_lines =
-      get_lines(&colour_img, colour_enum, img_height as f32).expect("get lines with colour");
+      get_lines(&colour_img, colour_enum, img_height).expect("get lines with colour");
 
     lines.append(&mut new_lines);
   }
@@ -170,10 +171,8 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
   // values for `x1, y1, x2, y2`.
   for l in lines {
     // Truncation here is fine (and needed) as we are just drawing pixels on the screen.
-    #[allow(clippy::cast_possible_truncation)]
-    let start_point = Point::new(l.pos1.x as i32, l.pos1.y as i32);
-    #[allow(clippy::cast_possible_truncation)]
-    let end_point = Point::new(l.pos2.x as i32, l.pos2.y as i32);
+    let start_point = Point::new(l.pos1.x, l.pos1.y);
+    let end_point = Point::new(l.pos2.x, l.pos2.y);
 
     // OpenCV uses BGR (not RBG) so this is actually red (not that it matters since its greyscale).
     let colour = match l.colour {
