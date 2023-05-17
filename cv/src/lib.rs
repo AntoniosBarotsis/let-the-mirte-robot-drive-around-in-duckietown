@@ -125,11 +125,11 @@ pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
 /// use opencv::prelude::{MatTrait, MatTraitConstManual};
 /// use opencv::{
 ///   core::Vector,
-///   imgcodecs::{self, imread, imwrite, IMREAD_GRAYSCALE},
+///   imgcodecs::{self, imread, imwrite, IMREAD_UNCHANGED},
 /// };
 ///
 /// // We need to import the image as grayscale because the FastLineDetector requires it.
-/// let img = imread("../assets/input_real.jpg", IMREAD_GRAYSCALE).expect("open image");
+/// let img = imread("../assets/input_real.jpg", IMREAD_UNCHANGED).expect("open image");
 
 /// let output = process_image(img).unwrap();
 
