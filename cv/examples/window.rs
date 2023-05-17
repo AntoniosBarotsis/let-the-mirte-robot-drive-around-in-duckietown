@@ -39,7 +39,7 @@ fn main() {
     line(&mut draw_img, start_point, end_point, colour, 5, LINE_AA, 0)
       .map_err(|_e| CvError::Drawing)
       .expect("draw");
-    }
+  }
 
   imshow("test", &draw_img).expect("open window");
   let _res = wait_key(0).expect("keep window open");
