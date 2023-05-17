@@ -139,7 +139,6 @@ mod tests {
     let power = MotorValue::try_from((MOTOR_VALUE_MAX - MOTOR_VALUE_MIN) / 2);
     assert!(power.is_ok());
 
-
     let power = MotorValue::try_from(MOTOR_VALUE_MAX + 1);
     assert!(power.is_err());
 
