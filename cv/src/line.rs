@@ -2,7 +2,7 @@
 #[derive(Debug, Clone, Copy)]
 pub enum Colour {
   Yellow,
-  White
+  White,
 }
 
 // Represents a end coordinate of a line
