@@ -1,38 +1,49 @@
 mod example_nodes;
 
-fn instantiate_example_nodes() {
-  example_nodes::strlen_node();
+fn instantiate_examples() {
+  example_nodes::strlen();
 }
 
 #[cfg(test)]
 mod tests {
   use super::*;
+  use std::sync::{Arc, Mutex};
   use std::thread;
   use std::time::Duration;
 
   #[test]
   fn it_works() {
+    let results = Arc::new(Mutex::from(vec![]));
+
     //instantiate the nodes in a separate thread
-    thread::spawn(|| instantiate_example_nodes());
-    thread::sleep(Duration::from_millis(2000));
-    //create a dummy publisher node that publishes to /test/strings
+    let _ = thread::spawn(|| instantiate_examples());
+    while !rosrust::is_initialized() {}
+
+    //create a publisher that publishes to /test/strings
     let publisher = rosrust::publish("/test/strings", 1).unwrap();
-    //create a dummy subscriber node that subscribes to /test/lengths
-    let _subscriber =
-      rosrust::subscribe("/test/lengths", 1, |msg: rosrust_msg::std_msgs::Int32| {
-        rosrust::ros_info!("Subscriber received {}", msg.data);
-      })
-      .unwrap();
-    let mut var = "A".to_owned();
-    loop {
-      //publish a message to /test/strings
-      let message = rosrust_msg::std_msgs::String {
-        data: var.clone().to_owned(),
-      };
-      publisher.send(message).unwrap();
-      println!("sent message");
-      var = var.to_owned() + "A";
-      thread::sleep(Duration::from_millis(1000));
-    }
+
+    //create a subscriber that subscribes to /test/lengths
+    let results_copy = results.clone();
+    let _subscriber = rosrust::subscribe(
+      "/test/lengths",
+      1,
+      move |msg: rosrust_msg::std_msgs::UInt32| {
+        results_copy.lock().unwrap().push(msg.data);
+      },
+    )
+    .unwrap();
+
+    publisher
+      .wait_for_subscribers(Some(Duration::from_secs(30)))
+      .expect("Wait for subscribers on /test/strings");
+
+    //publish a message to /test/strings
+    let message = rosrust_msg::std_msgs::String {
+      data: "Hello World".to_string(),
+    };
+    publisher.send(message).unwrap();
+    thread::sleep(Duration::from_secs(1)); //small delay to get the response
+    assert_eq!(results.lock().unwrap().len(), 1);
+    rosrust::shutdown();
   }
 }
