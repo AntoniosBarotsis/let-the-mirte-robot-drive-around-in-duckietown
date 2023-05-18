@@ -70,9 +70,9 @@ pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
 ///
 /// // We need to import the image as grayscale because the FastLineDetector requires it.
 /// let img = imread("../assets/input_real.jpg", IMREAD_GRAYSCALE).expect("open image");
-
+///
 /// let output = process_image(img).unwrap();
-
+///
 /// // Save output image.
 /// let saved = imwrite("../assets/output.jpg", &output, &Vector::default())
 ///   .map_err(|e| CvError::Io(e.message)).unwrap();
