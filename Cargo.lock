@@ -1320,8 +1320,10 @@ version = "0.1.0"
 dependencies = [
  "cv-bridge",
  "env_logger",
+ "once_cell",
  "rosrust",
  "rosrust_msg",
+ "thiserror",
 ]
 
 [[package]]

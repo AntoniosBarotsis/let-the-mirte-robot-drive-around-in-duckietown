@@ -75,7 +75,7 @@ pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
 
 /// // Save output image.
 /// let saved = imwrite("../assets/output.jpg", &output, &Vector::default())
-///   .map_err(|e| CvError::IoError(e.message)).unwrap();
+///   .map_err(|e| CvError::Io(e.message)).unwrap();
 ///
 /// // Make sure that the image was saved correctly
 /// assert!(saved);

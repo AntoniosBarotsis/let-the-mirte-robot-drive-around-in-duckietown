@@ -10,7 +10,7 @@ pub enum CvError {
   #[error("Error drawing the lines on the image")]
   Drawing,
   #[error("Error during io: {0}")]
-  IoError(String),
+  Io(String),
   #[error("{0}")]
   Other(String),
 }
