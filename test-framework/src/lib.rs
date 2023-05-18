@@ -1,4 +1,5 @@
 mod example_nodes;
+use rostest::rostest;
 
 fn instantiate_examples() {
   example_nodes::strlen();
@@ -11,7 +12,7 @@ mod tests {
   use std::thread;
   use std::time::Duration;
 
-  #[test]
+  #[rostest]
   fn it_works() {
     let results = Arc::new(Mutex::from(vec![]));
 
