@@ -2,11 +2,11 @@ mod example_nodes;
 
 use rostest::rostest;
 use std::any::Any;
-use std::env;
 use std::io::Read;
 use std::panic::AssertUnwindSafe;
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
+use std::{env, thread};
 
 struct TestData {
   pub roscore_process: Child,
@@ -48,6 +48,20 @@ fn setup() -> Option<TestData> {
     .stdout(Stdio::null())
     .spawn()
     .expect("launch ROS");
+
+  //wait for ros to initialize
+  let mut init = false;
+  while !init {
+    init = Command::new("/bin/bash")
+      .arg("-c")
+      .arg("source ".to_owned() + &ros_setup + "&& rostopic list")
+      .stdout(Stdio::null())
+      .output()
+      .expect("test a ROS command")
+      .status
+      .success();
+  }
+
   Some(TestData {
     roscore_process: ros_launch,
   })
