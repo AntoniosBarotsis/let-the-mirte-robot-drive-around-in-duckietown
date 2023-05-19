@@ -24,6 +24,8 @@ impl Drop for TestData {
       .roscore_process
       .wait()
       .expect("wait for roscore to end");
+
+    rosrust::shutdown();
   }
 }
 
@@ -62,6 +64,10 @@ fn setup() -> Option<TestData> {
       .success();
   }
 
+  //initiate rosrust
+  rosrust::init("test");
+  while !rosrust::is_initialized() {}
+
   Some(TestData {
     roscore_process: ros_launch,
   })
@@ -78,7 +84,8 @@ mod tests {
   use super::*;
   use std::sync::{Arc, Mutex};
   use std::thread;
-  use std::time::Duration;
+  use std::thread::Thread;
+  use std::time::{Duration, SystemTime};
 
   #[test]
   fn it_works() {
@@ -90,10 +97,6 @@ mod tests {
 
     //instantiate the nodes in a separate thread
     let _ = thread::spawn(|| instantiate_examples());
-    while !rosrust::is_initialized() {}
-
-    //create a publisher that publishes to /test/strings
-    let publisher = rosrust::publish("/test/strings", 1).unwrap();
 
     //create a subscriber that subscribes to /test/lengths
     let results_copy = results.clone();
@@ -106,6 +109,9 @@ mod tests {
     )
     .unwrap();
 
+    //create a publisher that publishes to /test/strings
+    let publisher = rosrust::publish("/test/strings", 1).unwrap();
+    while publisher.subscriber_count() == 0 {} //wait until a subscriber registers to ROS
     publisher
       .wait_for_subscribers(Some(Duration::from_secs(30)))
       .expect("Wait for subscribers on /test/strings");
@@ -117,6 +123,5 @@ mod tests {
     publisher.send(message).unwrap();
     thread::sleep(Duration::from_secs(1)); //small delay to get the response
     assert_eq!(results.lock().unwrap().len(), 1);
-    rosrust::shutdown();
   }
 }
