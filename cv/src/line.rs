@@ -23,5 +23,5 @@ pub struct Line {
 }
 
 // H: 0-179, S: 0-255, V: 0-255
-pub static HSV_YELLOW: &[[u8; 3]; 2] = &[[25, 0, 0], [45, 255, 255]];
+pub static HSV_YELLOW: &[[u8; 3]; 2] = &[[25, 50, 50], [45, 255, 255]];
 pub static HSV_WHITE: &[[u8; 3]; 2] = &[[0, 0, 150], [179, 60, 255]];
