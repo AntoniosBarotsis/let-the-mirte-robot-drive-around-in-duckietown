@@ -10,6 +10,7 @@ fn main() {
 
   let lane = detect_lane(&lines).expect("Unable to detect the lane");
 
-  lines.push(lane);
-  draw_lines(&mut img, &lines);
+  let drawn_lines = [lines, lane].concat();
+  //lines.push(lane);
+  draw_lines(&mut img, &drawn_lines);
 }
