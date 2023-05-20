@@ -139,17 +139,13 @@ impl Vector {
     let slope1 = self.slope();
     let slope2 = other.slope();
 
-    let a = self.origin.x;
-    let b = self.origin.y;
-    let e = other.origin.x;
-    let f = other.origin.y;
-
-    let x = (a * slope1 - b - e * slope2 + f) / (slope1 - slope2);
+    let x = (self.origin.x * slope1 - self.origin.y - other.origin.x * slope2 + other.origin.y)
+      / (slope1 - slope2);
     // If (slope1 - slope2) is 0, x will be invalid because the lines never intersect.
     if x.is_nan() {
       return None;
     }
-    let y = slope1 * (x - a) + b;
+    let y = slope1 * (x - self.origin.x) + self.origin.y;
 
     Some(Pos { x, y })
   }

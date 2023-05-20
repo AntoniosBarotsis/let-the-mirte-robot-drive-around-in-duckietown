@@ -1,14 +1,9 @@
+use crate::{cv_error::CvError, line::Colour, line::Line};
 use opencv::{
   core::{Mat, Point, Scalar},
   highgui::{imshow, wait_key},
   imgcodecs::{imread, IMREAD_UNCHANGED},
   imgproc::{line, LINE_AA},
-};
-
-use crate::{
-  cv_error::CvError,
-  line::Colour,
-  line::Line,
 };
 
 // create function that reads image from path
