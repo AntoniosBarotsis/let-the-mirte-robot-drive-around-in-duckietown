@@ -1,16 +1,14 @@
 use cv_error::CvError;
 use image_part::ImagePart;
-use line::{Colour, Line, Pos, HSV_WHITE, HSV_YELLOW, HSV_GREEN};
+use line::{Colour, Line, Pos, HSV_GREEN, HSV_WHITE, HSV_YELLOW};
 use opencv::{
   core::{in_range, Point, Scalar, Vec4f, Vector},
   imgproc::{cvt_color, line, COLOR_BGR2HSV, LINE_AA},
-  // highgui::{imshow, wait_key},
   prelude::{MatTrait, MatTraitConstManual},
   ximgproc::create_fast_line_detector,
   ximgproc::FastLineDetector,
   Result,
 };
-use Colour::*;
 
 pub use opencv::prelude::Mat;
 
@@ -34,7 +32,7 @@ pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   Ok(crop)
 }
 
-fn get_lines(img: &Mat, colour: Colour, half_height: i32) -> Result<Vec<Line>, CvError> {
+fn get_lines(img: &Mat, colour: Colour, half_height: f32) -> Result<Vec<Line>, CvError> {
   let mut fast_line_detector = create_fast_line_detector(20, 1.41, 150.0, 350.0, 3, true)
     .map_err(|_e| CvError::LineDetectorCreation)?;
 
@@ -47,27 +45,21 @@ fn get_lines(img: &Mat, colour: Colour, half_height: i32) -> Result<Vec<Line>, C
   let mut line_vec: Vec<Line> = Vec::default();
 
   for line in lines {
-    #[allow(clippy::cast_possible_truncation)]
-    line_vec.push(Line {
+    line_vec.push(Line::new(
       colour,
-      pos1: Pos {
-        x: line[0] as i32,
-        y: line[1] as i32 + half_height,
-      },
-      pos2: Pos {
-        x: line[2] as i32,
-        y: line[3] as i32 + half_height,
-      },
-    });
+      Pos::new(line[0], line[1] + half_height),
+      Pos::new(line[2], line[3] + half_height),
+    ));
   }
   Ok(line_vec)
 }
 
 fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
   match colour {
-    White => HSV_WHITE,
-    Yellow => HSV_YELLOW,
-    Green => HSV_GREEN,
+    Colour::White => HSV_WHITE,
+    Colour::Yellow => HSV_YELLOW,
+    Colour::Green => HSV_GREEN,
+    colour => panic!("No HSV constants defined for {colour:?}!"),
   }
 }
 
@@ -100,8 +92,11 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
     // let _res = wait_key(0).expect("keep window open");
 
     // Get the lines of this colour
+    // Casting an i32 to an f32 is fine, as the image height is realistically never going to exceed
+    // the maximum value of an f32.
+    #[allow(clippy::cast_precision_loss)]
     let mut new_lines =
-      get_lines(&colour_img, colour_enum, img_height).expect("get lines with colour");
+      get_lines(&colour_img, colour_enum, img_height as f32).expect("get lines with colour");
 
     lines.append(&mut new_lines);
   }
@@ -161,7 +156,7 @@ pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
 pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
   let now = std::time::Instant::now();
 
-  let colours = vec![Yellow, White];
+  let colours = vec![Colour::Yellow, Colour::White];
   let lines = detect_line_type(&img, colours).expect("process image");
 
   println!("{:?}", now.elapsed());
@@ -172,14 +167,21 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
   // values for `x1, y1, x2, y2`.
   for l in lines {
     // Truncation here is fine (and needed) as we are just drawing pixels on the screen.
-    let start_point = Point::new(l.pos1.x, l.pos1.y);
-    let end_point = Point::new(l.pos2.x, l.pos2.y);
+    #[allow(clippy::cast_possible_truncation)]
+    let start_point = Point::new(l.start.x as i32, l.start.y as i32);
+    #[allow(clippy::cast_possible_truncation)]
+    let end_point = Point::new(l.end.x as i32, l.end.y as i32);
 
     // OpenCV uses BGR (not RBG) so this is actually red (not that it matters since its greyscale).
     let colour = match l.colour {
-      Yellow => Scalar::new(0.0, 255.0, 255.0, 0.0),
-      White => Scalar::new(255.0, 255.0, 255.0, 0.0),
-      Green => Scalar::new(0.0, 255.0, 0.0, 0.0),
+      Colour::Red => Scalar::new(0.0, 0.0, 255.0, 0.0),
+      Colour::Orange => Scalar::new(0.0, 128.0, 255.0, 0.0),
+      Colour::Yellow => Scalar::new(0.0, 255.0, 255.0, 0.0),
+      Colour::Green => Scalar::new(0.0, 255.0, 0.0, 0.0),
+      Colour::Blue => Scalar::new(255.0, 0.0, 0.0, 0.0),
+      Colour::Purple => Scalar::new(255.0, 0.0, 255.0, 0.0),
+      Colour::Black => Scalar::new(0.0, 0.0, 0.0, 0.0),
+      Colour::White => Scalar::new(255.0, 255.0, 255.0, 0.0),
     };
 
     line(&mut draw_img, start_point, end_point, colour, 5, LINE_AA, 0)

@@ -1,84 +1,107 @@
-use cv::line::{Colour, Line, Pos};
+use cv::line::{Colour, Dir, Line, Pos, Vector};
 
-const THRESHOLD: i32 = 100_000;
+const THRESHOLD: f32 = 10_000.0;
 
-fn get_average_line(lines: &[Line], colour: Colour) -> Option<Line> {
+fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
   let coloured_lines: Vec<Line> = lines
     .iter()
     .filter(|line| line.colour == colour)
     .copied()
     .collect();
-  let direction: Pos = coloured_lines.iter().map(cv::line::Line::direction).sum();
-  println!("{}", direction.squared_distance());
-  if direction.squared_distance() < THRESHOLD {
+  let weighted_dir: Dir = coloured_lines.iter().map(Line::direction).sum();
+  println!("{}", weighted_dir.squared_length());
+  if weighted_dir.squared_length() < THRESHOLD {
     return None;
   }
   // Get the point with the highest y value (which is closest to the bottom of the screen)
+  // TODO: Better implementation for getting position of resulting line. Bottom point may sometimes
+  // be a bit of noise, which offsets the line quite a bit. Possible solution: get average line
+  // position with line length as weight
+  #[allow(clippy::cast_possible_truncation)]
   let lowest_point: Pos = coloured_lines
     .iter()
-    .flat_map(|line| vec![line.pos1, line.pos2])
-    .max_by_key(|pos| pos.y)
+    .flat_map(|line| vec![line.start, line.end])
+    .max_by_key(|pos| pos.y as i32)
     .expect("No lines found in image");
-  Some(Line {
-    colour: Colour::White,
-    pos1: lowest_point,
-    pos2: lowest_point + direction,
+  Some(Vector {
+    origin: lowest_point,
+    dir: weighted_dir,
   })
 }
 
-fn estimate_lane(_line: &Line) -> Line {
+fn estimate_lane(_line: &Vector) -> Line {
   // TODO: Estimate line
-  Line {
-    colour: Colour::Green,
-    pos1: Pos { x: 0, y: 0 },
-    pos2: Pos { x: 100, y: 100 },
-  }
+  Line::new(Colour::Green, Pos::new(0.0, 0.0), Pos::new(100.0, 100.0))
 }
 
-/// Checks if `right_line` lies on the right of `left_line`
-pub fn lies_on_right(left_line: &Line, right_line: &Line) -> bool {
-  let right_line_midpoint = (right_line.pos1 + right_line.pos2) / 2;
-
-  let a = f64::from(left_line.pos1.x);
-  let c = f64::from(left_line.pos2.x);
-
-  let left_line_x = a + (f64::from(right_line_midpoint.y) - c) / left_line.slope();
-
-  f64::from(right_line_midpoint.x) > left_line_x
+/// Checks if `pos` lies on the right of `vector`
+pub fn lies_on_right(pos: &Pos, vector: &Vector) -> bool {
+  pos.x > vector.origin.x + (pos.y - vector.end().x) / vector.slope()
 }
 
 pub fn detect_lane(lines: &[Line]) -> Result<Vec<Line>, &'static str> {
   // Try to detect yellow line in image
-  if let Some(yellow_line) = get_average_line(lines, Colour::Yellow) {
+  if let Some(y_vec) = get_average_line(lines, Colour::Yellow) {
+    eprintln!("Yellow line found! Looking for white lines to the right of the yellow line...");
     // Get lines right of yellow line
     let right_lines: Vec<Line> = lines
       .iter()
-      .filter(|line| lies_on_right(&yellow_line, line))
+      .filter(|line| lies_on_right(&line.midpoint(), &y_vec))
       .copied()
       .collect();
     // Try to detect white line right of yellow line
-    if let Some(right_white_line) = get_average_line(&right_lines, Colour::White) {
+    if let Some(w_vec) = get_average_line(&right_lines, Colour::White) {
+      eprintln!("Right white line found! Trying to find intersection...");
       // Do a bisection with yellow and white line
       // Calculate slope of bisection line
-      let slope = if let Some(intersection) = right_white_line.intersect(&yellow_line) {
+      let lane = if let Some(intersection) = w_vec.intersect(&y_vec) {
+        eprintln!("Intersection found! Calculating lane...");
+        let y_dir = y_vec.dir;
+        let w_dir = w_vec.dir;
+        let dir = y_dir * w_dir.length() + w_dir * y_dir.length();
+        Line::from_vector(
+          Vector::new(intersection - Pos::from_dir(dir), dir * 2.0),
+          Colour::Green,
+        )
       } else {
-        //yellow_line.direction()
+        eprintln!(
+          "No intersection found! Using average of line positions instead. Calculating lane..."
+        );
+        // If there is no intersection, both lines must have the same slope. Thus, we can simply
+        // get the slope of one of the lines. Since there is no intersection, we can simply
+        // estimate the centre of the lines by averaging their midpoints.
+        let intersection = (y_vec.midpoint() + w_vec.midpoint()) / 2.0;
+        Line::from_vector(
+          Vector::new(intersection - Pos::from_dir(y_vec.dir), y_vec.dir * 2.0),
+          Colour::Green,
+        )
       };
 
-      Ok(vec![Line {
-        colour: Colour::Green,
-        pos1: right_white_line.pos1,
-        pos2: right_white_line.pos2,
-      }])
+      eprintln!("Lane calculated: {:?}, {:?}", lane.start, lane.end);
+      Ok(vec![
+        Line::from_vector(y_vec, Colour::Orange),
+        Line::from_vector(w_vec, Colour::Black),
+        lane,
+      ])
     } else {
+      eprintln!("No right white line found! Estimating lane based on yellow line...");
       // If no white line right of yellow line found, try to estimate lane based on yellow line
-      Ok(vec![estimate_lane(&yellow_line)])
+      Ok(vec![
+        Line::from_vector(y_vec, Colour::Orange),
+        estimate_lane(&y_vec),
+      ])
     }
   } else {
+    eprintln!("No yellow line found! Looking for white lines in image...");
     // If no yellow line found, try to detect white line in image
-    if let Some(white_line) = get_average_line(lines, Colour::White) {
-      return Ok(vec![estimate_lane(&white_line)]);
+    if let Some(w_vec) = get_average_line(lines, Colour::White) {
+      eprintln!("White line found! Estimating lane based on white line...");
+      return Ok(vec![
+        Line::from_vector(w_vec, Colour::Black),
+        estimate_lane(&w_vec),
+      ]);
     }
+    eprintln!("No yellow or white lines found! Unable to detect lane.");
     // If no yellow or white lines found, return error
     Err("Unable to detect lane without yellow or white lines!")
   }
