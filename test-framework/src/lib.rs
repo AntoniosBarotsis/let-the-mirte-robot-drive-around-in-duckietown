@@ -1,15 +1,92 @@
 mod example_nodes;
 
+use anymap::AnyMap;
+use rosrust::{Message, Publisher, RosMsg, Subscriber};
 use rostest::rostest;
 use std::any::Any;
+use std::collections::VecDeque;
 use std::io::Read;
 use std::panic::AssertUnwindSafe;
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
+use std::sync::{Arc, Mutex};
 use std::{env, thread};
 
+/// Specifies the type of event
+enum EventType {
+  Send,
+  Receive,
+}
+
+/// Handles events of messages with type T
+struct Event<'a, T: Message> {
+  event_type: EventType,
+  message: T,
+  agent: &'a TopicAgent<T>,
+}
+
+/// Handles sending/receiving messages of type T
+struct TopicAgent<T: Message> {
+  topic: String,
+  publisher: Publisher<T>,
+  subscriber: Subscriber,
+  received_messages: Arc<Mutex<VecDeque<T>>>,
+}
+
+trait Agent<T: Message> {
+  fn handle_event(&self, event: Event<T>);
+}
+
+impl<T: Message> Agent<T> for TopicAgent<T> {
+  fn handle_event(&self, event: Event<T>) {
+    match event.event_type {
+      EventType::Send => self
+        .publisher
+        .send(event.message)
+        .expect("Could not send message"),
+      EventType::Receive => {
+        let message = self
+          .received_messages
+          .lock()
+          .expect("Writing thread panicked while holding the lock on the message queue")
+          .pop_front();
+        let actual = match message {
+          Some(msg) => msg,
+          None => panic!("No message left to read!"),
+        };
+        assert_eq!(event.message, actual);
+      }
+    }
+  }
+}
+
+fn new<T: Message>(topic: String) -> Box<dyn Agent<T>> {
+  let mut received_messages: Arc<Mutex<VecDeque<T>>> = Arc::new(Mutex::new(VecDeque::new()));
+  let mut received_messages_clone = Arc::clone(&received_messages);
+  let publisher =
+    rosrust::publish(&*topic.clone(), 1).expect("Could not create publisher on topic");
+  let subscriber = rosrust::subscribe(&*topic.clone(), 1, move |msg: T| {
+    received_messages_clone
+      .lock()
+      .expect("Reading thread panicked while holding the lock on the message queue")
+      .push_back(msg);
+  })
+  .expect("Could not create subscriber on topic");
+  let agent = TopicAgent {
+    topic,
+    publisher,
+    subscriber,
+    received_messages,
+  };
+  Box::from(agent)
+}
+
+/// Keeps track of the state of the test
+/// Creates a new test agent for every (topic, messageType) pair
+/// agents will always outlive an Event object
 struct TestData {
   pub roscore_process: Child,
+  pub agents: std::collections::HashMap<String, anymap::Map<dyn Message>>,
 }
 
 impl Drop for TestData {
@@ -68,9 +145,11 @@ fn setup() -> Option<TestData> {
   rosrust::init("test");
   while !rosrust::is_initialized() {}
 
-  Some(TestData {
-    roscore_process: ros_launch,
-  })
+  None
+  //Some(TestData {
+  //  roscore_process: ros_launch,
+  //  event_queue: VecDeque::new(),
+  //})
 }
 
 /// Sets up a ROS environment and runs a test.
