@@ -12,19 +12,6 @@ use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::{env, thread};
 
-/// Specifies the type of event
-enum EventType {
-  Send,
-  Receive,
-}
-
-/// Handles events of messages with type T
-struct Event<'a, T: Message> {
-  event_type: EventType,
-  message: T,
-  agent: &'a TopicAgent<T>,
-}
-
 /// Handles sending/receiving messages of type T
 struct TopicAgent<T: Message> {
   topic: String,
@@ -34,59 +21,85 @@ struct TopicAgent<T: Message> {
 }
 
 trait Agent<T: Message> {
-  fn handle_event(&self, event: Event<T>);
+  fn new(topic: String) -> TopicAgent<T>;
 }
 
 impl<T: Message> Agent<T> for TopicAgent<T> {
-  fn handle_event(&self, event: Event<T>) {
-    match event.event_type {
-      EventType::Send => self
-        .publisher
-        .send(event.message)
-        .expect("Could not send message"),
-      EventType::Receive => {
-        let message = self
-          .received_messages
-          .lock()
-          .expect("Writing thread panicked while holding the lock on the message queue")
-          .pop_front();
-        let actual = match message {
-          Some(msg) => msg,
-          None => panic!("No message left to read!"),
-        };
-        assert_eq!(event.message, actual);
-      }
+  fn new(topic: String) -> TopicAgent<T> {
+    let mut received_messages: Arc<Mutex<VecDeque<T>>> = Arc::new(Mutex::new(VecDeque::new()));
+    let mut received_messages_clone = Arc::clone(&received_messages);
+    let publisher =
+      rosrust::publish(&*topic.clone(), 1).expect("Could not create publisher on topic");
+    let subscriber = rosrust::subscribe(&*topic.clone(), 1, move |msg: T| {
+      received_messages_clone
+        .lock()
+        .expect("Reading thread panicked while holding the lock on the message queue")
+        .push_back(msg);
+    })
+    .expect("Could not create subscriber on topic");
+    TopicAgent {
+      topic,
+      publisher,
+      subscriber,
+      received_messages,
     }
   }
 }
 
-fn new<T: Message>(topic: String) -> Box<dyn Agent<T>> {
-  let mut received_messages: Arc<Mutex<VecDeque<T>>> = Arc::new(Mutex::new(VecDeque::new()));
-  let mut received_messages_clone = Arc::clone(&received_messages);
-  let publisher =
-    rosrust::publish(&*topic.clone(), 1).expect("Could not create publisher on topic");
-  let subscriber = rosrust::subscribe(&*topic.clone(), 1, move |msg: T| {
-    received_messages_clone
-      .lock()
-      .expect("Reading thread panicked while holding the lock on the message queue")
-      .push_back(msg);
-  })
-  .expect("Could not create subscriber on topic");
-  let agent = TopicAgent {
-    topic,
-    publisher,
-    subscriber,
-    received_messages,
+/// publishes a message to the given topic
+fn ros_publish<T: Message>(test: &mut TestData, topic: &str, message: T) {
+  let agent = test.search_agent(topic.to_string());
+  agent
+    .publisher
+    .send(message)
+    .expect("Could not send message to topic");
+}
+
+/// asserts that a message was published to the given topic
+fn assert_message<T: Message>(test: &mut TestData, topic: &str, message: T) {
+  let agent = test.search_agent(topic.to_string());
+  let received = agent
+    .received_messages
+    .lock()
+    .expect("Writing thread panicked while holding the lock on the message queue")
+    .pop_front();
+  let actual = match received {
+    Some(msg) => msg,
+    None => panic!(
+      "Tried to read on topic {}, but there was no message to read!",
+      topic
+    ),
   };
-  Box::from(agent)
+  assert_eq!(message, actual);
+}
+
+/// Ensures that ROS forwards messages to a topic
+fn instantiate_subscriber<T: Message>(test: &mut TestData, topic: &str) {
+  test.search_agent::<T>(topic.to_string());
 }
 
 /// Keeps track of the state of the test
-/// Creates a new test agent for every (topic, messageType) pair
-/// agents will always outlive an Event object
 struct TestData {
   pub roscore_process: Child,
-  pub agents: std::collections::HashMap<String, anymap::Map<dyn Message>>,
+  pub agents: std::collections::HashMap<String, anymap::Map>,
+}
+
+trait SearchAgent {
+  fn search_agent<T: Message>(&mut self, topic: String) -> &TopicAgent<T>;
+}
+
+impl SearchAgent for TestData {
+  fn search_agent<T: Message>(&mut self, topic: String) -> &TopicAgent<T> {
+    if !self.agents.contains_key(&topic) {
+      self.agents.insert(topic.clone(), anymap::Map::new());
+    }
+    let mut agent_map = self.agents.get_mut(&topic).unwrap(); //should never fail
+    if !agent_map.contains::<T>() {
+      let agent: TopicAgent<T> = TopicAgent::new(topic.clone());
+      agent_map.insert(agent);
+    }
+    agent_map.get::<TopicAgent<T>>().unwrap() //should never fail
+  }
 }
 
 impl Drop for TestData {
@@ -145,17 +158,10 @@ fn setup() -> Option<TestData> {
   rosrust::init("test");
   while !rosrust::is_initialized() {}
 
-  None
-  //Some(TestData {
-  //  roscore_process: ros_launch,
-  //  event_queue: VecDeque::new(),
-  //})
-}
-
-/// Sets up a ROS environment and runs a test.
-fn run_test(test: &dyn Fn()) {
-  let data = setup().expect("setup test");
-  test();
+  Some(TestData {
+    roscore_process: ros_launch,
+    agents: std::collections::HashMap::new(),
+  })
 }
 
 #[cfg(test)]
@@ -168,39 +174,21 @@ mod tests {
 
   #[test]
   fn it_works() {
-    run_test(&it_works_fn);
-  }
-
-  fn it_works_fn() {
-    let results = Arc::new(Mutex::from(vec![]));
-
+    let mut data = setup().expect("setup test");
+    instantiate_subscriber::<rosrust_msg::std_msgs::UInt32>(&mut data, "/test/lengths");
+    instantiate_subscriber::<rosrust_msg::std_msgs::String>(&mut data, "/test/strings");
     //instantiate the nodes in a separate thread
     let _ = thread::spawn(|| instantiate_examples());
 
-    //create a subscriber that subscribes to /test/lengths
-    let results_copy = results.clone();
-    let _subscriber = rosrust::subscribe(
-      "/test/lengths",
-      1,
-      move |msg: rosrust_msg::std_msgs::UInt32| {
-        results_copy.lock().unwrap().push(msg.data);
-      },
-    )
-    .unwrap();
-
-    //create a publisher that publishes to /test/strings
-    let publisher = rosrust::publish("/test/strings", 1).unwrap();
-    while publisher.subscriber_count() == 0 {} //wait until a subscriber registers to ROS
-    publisher
-      .wait_for_subscribers(Some(Duration::from_secs(30)))
-      .expect("Wait for subscribers on /test/strings");
+    thread::sleep(Duration::from_secs(3));
 
     //publish a message to /test/strings
     let message = rosrust_msg::std_msgs::String {
       data: "Hello World".to_string(),
     };
-    publisher.send(message).unwrap();
+    ros_publish(&mut data, "/test/strings", message);
     thread::sleep(Duration::from_secs(1)); //small delay to get the response
-    assert_eq!(results.lock().unwrap().len(), 1);
+    let response = rosrust_msg::std_msgs::UInt32 { data: 11 };
+    assert_message(&mut data, "/test/lengths", response);
   }
 }
