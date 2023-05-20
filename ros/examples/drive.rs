@@ -3,6 +3,7 @@ use std::time::Duration;
 use ros::drive::{DriveClient, MotorValue};
 
 /// Sets both motors to 100 and keeps them on for 2 seconds before coming to a stop.
+#[allow(clippy::expect_used)]
 fn main() {
   let client = DriveClient::create().expect("Create client");
 

@@ -11,5 +11,7 @@ pub enum RosError {
   #[error("{0}")]
   ClientResponse(String),
   #[error("{0}")]
+  SubscriberCreation(String),
+  #[error("{0}")]
   Generic(#[from] rosrust::error::tcpros::Error),
 }

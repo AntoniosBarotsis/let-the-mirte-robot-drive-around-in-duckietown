@@ -6,6 +6,7 @@ use cv_bridge::msgs::sensor_msgs::Image;
 
 /// Intermediate stage between a `ROS` and an `OpenCV` image.
 pub use cv_bridge::CvImage;
+pub use ros_error::RosError;
 
 /// This reads an image from the ROS `/webcam/image_raw` topic and runs the callback on it.
 ///
@@ -23,7 +24,7 @@ pub use cv_bridge::CvImage;
 ///   // Do other stuff here...
 /// });
 /// ```
-pub fn process_ros_image<T>(callback: T)
+pub fn process_ros_image<T>(callback: T) -> Result<(), RosError>
 where
   T: Fn(Image) + Send + 'static,
 {
@@ -39,8 +40,10 @@ where
 
     callback(img);
   })
-  .expect("Create subscriber");
+  .map_err(|e| RosError::SubscriberCreation(e.to_string()))?;
 
   // Block the thread until a shutdown signal is received
   rosrust::spin();
+
+  Ok(())
 }

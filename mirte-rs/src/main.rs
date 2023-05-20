@@ -4,7 +4,7 @@ use ros::{process_ros_image, CvImage};
 /// For now, just reads an image from ROS and shows it on screen.
 #[allow(clippy::unwrap_used)]
 fn main() {
-  process_ros_image(|img| {
+  let res = process_ros_image(|img| {
     let mat = CvImage::from_imgmsg(img).unwrap().as_cvmat().unwrap();
 
     // This clone here, although seemingly useless, fixes a weird bug that causes artifacts to
@@ -13,6 +13,13 @@ fn main() {
     #[allow(clippy::redundant_clone)]
     let mat = mat.clone();
 
-    show_in_window(&mat);
+    match show_in_window(&mat) {
+      Ok(_) => {}
+      Err(e) => panic!("Could not open image window: {e}"),
+    }
   });
+
+  if let Err(e) = res {
+    eprintln!("{e}");
+  }
 }

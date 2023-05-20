@@ -13,4 +13,8 @@ pub enum CvError {
   Io(String),
   #[error("{0}")]
   Other(String),
+  #[error("{0}")]
+  ColorConversion(String),
+  #[error("{0}")]
+  OpenCvGeneric(#[from] opencv::Error),
 }
