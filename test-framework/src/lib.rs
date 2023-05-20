@@ -8,17 +8,17 @@ use std::{collections::VecDeque, sync::MutexGuard, time::Duration};
 use std::{env, time::Instant};
 
 /// Handles sending/receiving messages of type T
-struct TopicAgent<I: Message> {
+struct TopicAgent<T: Message> {
   process_id: u32,
   topic: String,
-  publisher: Publisher<I>,
+  publisher: Publisher<T>,
   subscriber: Subscriber,
-  received_messages: Arc<Mutex<VecDeque<I>>>,
+  received_messages: Arc<Mutex<VecDeque<T>>>,
 }
 
-impl<I> TopicAgent<I>
+impl<T> TopicAgent<T>
 where
-  I: Message,
+  T: Message,
 {
   /// Internal function that launches the ROSCORE process.
   fn init() -> u32 {
@@ -60,14 +60,14 @@ where
   }
 
   /// Instantiates [`TopicAgent`].
-  pub fn create(topic: String) -> TopicAgent<I> {
+  pub fn create(topic: String) -> TopicAgent<T> {
     let process_id = Self::init();
-    let received_messages: Arc<Mutex<VecDeque<I>>> = Arc::new(Mutex::new(VecDeque::new()));
+    let received_messages: Arc<Mutex<VecDeque<T>>> = Arc::new(Mutex::new(VecDeque::new()));
     let received_messages_clone = Arc::clone(&received_messages);
 
     let publisher = rosrust::publish(&topic, 1).expect("Could not create publisher on topic");
 
-    let subscriber = rosrust::subscribe(&topic, 1, move |msg: I| {
+    let subscriber = rosrust::subscribe(&topic, 1, move |msg: T| {
       received_messages_clone
         .lock()
         .expect("Reading thread panicked while holding the lock on the message queue")
@@ -88,7 +88,7 @@ where
   }
 
   /// Publishes a message to the given topic.
-  pub fn ros_publish(&self, message: I) {
+  pub fn ros_publish(&self, message: T) {
     self
       .publisher
       .send(message)
@@ -96,12 +96,12 @@ where
   }
 
   /// Gets received topic messages with a timeout of 50ms.
-  pub fn get_messages(&self) -> MutexGuard<'_, VecDeque<I>> {
+  pub fn get_messages(&self) -> MutexGuard<'_, VecDeque<T>> {
     self.get_messages_timeout(Duration::from_millis(50))
   }
 
   /// Gets received topic messages.
-  pub fn get_messages_timeout(&self, timeout: Duration) -> MutexGuard<'_, VecDeque<I>> {
+  pub fn get_messages_timeout(&self, timeout: Duration) -> MutexGuard<'_, VecDeque<T>> {
     let start = Instant::now();
 
     while self
@@ -123,9 +123,9 @@ where
   }
 }
 
-impl<I> Drop for TopicAgent<I>
+impl<T> Drop for TopicAgent<T>
 where
-  I: Message,
+  T: Message,
 {
   /// Kills the ROSCORE process.
   fn drop(&mut self) {
