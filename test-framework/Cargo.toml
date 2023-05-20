@@ -10,6 +10,7 @@ anymap = "0.12.1"
 nix = "0.26.2"
 rosrust = "0.9"
 rosrust_msg = "0.1"
+serial_test  = "2.0.0"
 
 [dependencies.rostest]
 path = "./rostest"

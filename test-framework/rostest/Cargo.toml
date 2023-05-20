@@ -9,3 +9,6 @@ edition = "2021"
 crate-type = ["proc-macro"]
 
 [dependencies]
+serial_test  = "2.0.0"
+syn = "2.0"
+quote = "1.0"
