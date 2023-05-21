@@ -82,32 +82,30 @@ where
   T: Message,
 {
   /// Instantiates [`TopicAgent`] asynchronously.
-  pub fn create(topic: String) -> JoinHandle<Topic<T>> {
+  pub fn create(topic: String) -> Topic<T> {
     //create the node on a separate thread so waiting for subscribers doesn't deadlock the test
-    thread::spawn(|| {
-      let received_messages: Arc<Mutex<VecDeque<T>>> = Arc::new(Mutex::new(VecDeque::new()));
-      let received_messages_clone = Arc::clone(&received_messages);
+    let received_messages: Arc<Mutex<VecDeque<T>>> = Arc::new(Mutex::new(VecDeque::new()));
+    let received_messages_clone = Arc::clone(&received_messages);
 
-      let publisher = rosrust::publish(&topic, 1).expect("Could not create publisher on topic");
+    let publisher = rosrust::publish(&topic, 1).expect("Could not create publisher on topic");
 
-      let subscriber = rosrust::subscribe(&topic, 1, move |msg: T| {
-        received_messages_clone
-          .lock()
-          .expect("Reading thread panicked while holding the lock on the message queue")
-          .push_back(msg);
-      })
-      .expect("Could not create subscriber on topic");
-
-      // Wait for subscribers other than the agent's own subscriber
-      while publisher.subscriber_count() < 2 {}
-
-      Topic {
-        topic,
-        publisher,
-        subscriber,
-        received_messages,
-      }
+    let subscriber = rosrust::subscribe(&topic, 1, move |msg: T| {
+      received_messages_clone
+        .lock()
+        .expect("Reading thread panicked while holding the lock on the message queue")
+        .push_back(msg);
     })
+    .expect("Could not create subscriber on topic");
+
+    // Wait for subscribers
+    while publisher.subscriber_count() == 0 {}
+
+    Topic {
+      topic,
+      publisher,
+      subscriber,
+      received_messages,
+    }
   }
 
   /// Publishes a message to the given topic.
@@ -177,15 +175,12 @@ mod tests {
     let test = init();
 
     // Create agent
-    let agent1_handle = Topic::<rosrust_msg::std_msgs::String>::create("/test/strings".to_owned());
-    let agent2_handle = Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths".to_owned());
+    let strings = Topic::<rosrust_msg::std_msgs::String>::create("/test/strings".to_owned());
+    let ints = Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths".to_owned());
 
     // Create node
     thread::spawn(|| strlen());
     thread::sleep(Duration::from_secs(1));
-
-    let strings = agent1_handle.join().expect("todo");
-    let ints = agent2_handle.join().expect("todo");
 
     // Publish message
     let message = rosrust_msg::std_msgs::String {
