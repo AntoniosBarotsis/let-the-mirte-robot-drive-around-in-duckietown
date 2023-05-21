@@ -13,18 +13,21 @@ fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
   if weighted_dir.squared_length() < THRESHOLD {
     return None;
   }
-  // Get the point with the highest y value (which is closest to the bottom of the screen)
-  // TODO: Better implementation for getting position of resulting line. Bottom point may sometimes
-  // be a bit of noise, which offsets the line quite a bit. Possible solution: get average line
-  // position with line length as weight
-  #[allow(clippy::cast_possible_truncation)]
-  let lowest_point: Pos = coloured_lines
+
+  // Get average line position with line length as weight
+  let total_squared_length: f32 = coloured_lines
     .iter()
-    .flat_map(|line| vec![line.start, line.end])
-    .max_by_key(|pos| pos.y as i32)
-    .expect("No lines found in image");
+    .map(|line| line.direction().squared_length())
+    .sum();
+  let average_midpoint: Pos = coloured_lines
+    .iter()
+    .fold(Pos { x: 0.0, y: 0.0 }, |pos, line| {
+      pos + line.midpoint() * line.direction().squared_length()
+    })
+    / total_squared_length;
+
   Some(Vector {
-    origin: lowest_point,
+    origin: average_midpoint - Pos::from_dir(weighted_dir) / 2.0,
     dir: weighted_dir,
   })
 }
