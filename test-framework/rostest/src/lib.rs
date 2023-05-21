@@ -6,7 +6,12 @@ use syn::{parse_macro_input, ItemFn};
 #[proc_macro_attribute]
 pub fn ros_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
   // Parse the input function
-  let input = parse_macro_input!(item as ItemFn);
+  let mut input = parse_macro_input!(item as ItemFn);
+
+  let init_code = quote!(let _lifetime_variable = test_framework::init(););
+  let init_element = syn::parse(TokenStream::from(init_code))
+    .expect("Could not create init() syntax element to insert into AST");
+  input.block.stmts.insert(0, init_element);
 
   // Generate some new code to replace the original function
   let new_code = quote! {
