@@ -142,6 +142,16 @@ where
       .lock()
       .expect("Another thread of the received_messages mutex panicked.")
   }
+
+  /// Gets a message and checks if it's equal to the given message
+  pub fn assert_message(&self, message: T) {
+    let messages = self.get_messages();
+    let actual = messages
+      .front()
+      .expect("Message queue was empty after timeout")
+      .to_owned();
+    assert_eq!(message, actual);
+  }
 }
 
 /// A subscriber that listens to the '/test/strings' topic and publishes the length of the string to '/test/lengths'
@@ -172,9 +182,10 @@ mod tests {
 
   #[ros_test]
   fn it_works() {
+    // Init environment
     let test = init();
 
-    // Create agent
+    // Init topics
     let strings = Topic::<rosrust_msg::std_msgs::String>::create("/test/strings");
     let ints = Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths");
 
@@ -188,12 +199,8 @@ mod tests {
     };
     strings.ros_publish(message);
 
-    // Get messages
-    let received = ints.get_messages();
-    assert!(!received.is_empty());
-
-    let first_received = received.front().unwrap();
-    let expected = &rosrust_msg::std_msgs::UInt32 { data: 11 };
-    assert_eq!(first_received, expected);
+    // Assert response
+    let expected = rosrust_msg::std_msgs::UInt32 { data: 11 };
+    ints.assert_message(expected);
   }
 }
