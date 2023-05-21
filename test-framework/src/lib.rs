@@ -82,7 +82,7 @@ where
   T: Message,
 {
   /// Instantiates [`TopicAgent`] asynchronously.
-  pub fn create(topic: String) -> Topic<T> {
+  pub fn create(topic: &str) -> Topic<T> {
     //create the node on a separate thread so waiting for subscribers doesn't deadlock the test
     let received_messages: Arc<Mutex<VecDeque<T>>> = Arc::new(Mutex::new(VecDeque::new()));
     let received_messages_clone = Arc::clone(&received_messages);
@@ -101,7 +101,7 @@ where
     while publisher.subscriber_count() == 0 {}
 
     Topic {
-      topic,
+      topic: topic.to_owned(),
       publisher,
       subscriber,
       received_messages,
@@ -175,8 +175,8 @@ mod tests {
     let test = init();
 
     // Create agent
-    let strings = Topic::<rosrust_msg::std_msgs::String>::create("/test/strings".to_owned());
-    let ints = Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths".to_owned());
+    let strings = Topic::<rosrust_msg::std_msgs::String>::create("/test/strings");
+    let ints = Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths");
 
     // Create node
     thread::spawn(|| strlen());
