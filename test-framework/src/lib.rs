@@ -9,12 +9,13 @@ use std::{collections::VecDeque, sync::MutexGuard, thread, time::Duration};
 use std::{env, time::Instant};
 
 /// Struct to hold the ROSCORE process so it can be dropped upon panic.
-struct ProcessWrapper {
+pub struct ProcessWrapper {
   process: Child,
 }
 
 /// Function that launches the ROSCORE process and initialized ROSRUST.
-fn init() -> ProcessWrapper {
+/// Inserted automatically by the #[ros_test] macro.
+pub fn init() -> ProcessWrapper {
   //this will launch roscore if it isn't already running
   let path = env::var_os("PATH").expect("`PATH` not found");
   let ros_base = env::var("CMAKE_PREFIX_PATH").expect("Could not get CMAKE_PREFIX_PATH");
@@ -46,8 +47,10 @@ fn init() -> ProcessWrapper {
   }
 
   //initiate rosrust
-  rosrust::init("test");
-  while !rosrust::is_initialized() {}
+  if !rosrust::is_initialized() {
+    rosrust::init("test");
+    while !rosrust::is_initialized() {}
+  }
 
   ProcessWrapper {
     process: ros_launch,
@@ -66,11 +69,12 @@ impl Drop for ProcessWrapper {
     .expect("send SIGINT to roscore");
 
     rosrust::shutdown();
+    thread::sleep(Duration::from_secs(5));
   }
 }
 
 /// Handles sending/receiving on a topic
-struct Topic<T: Message> {
+pub struct Topic<T: Message> {
   topic: String,
   publisher: Publisher<T>,
   subscriber: Subscriber,
@@ -154,6 +158,20 @@ where
   }
 }
 
+/// Instantiate sthe node defined by the given function, then waits for the duration specified by the timeout variable
+pub fn instantiate_node_timeout(node_function: fn(), timeout: Duration) {
+  thread::spawn(move || {
+    node_function();
+    rosrust::spin(); //just in case the supplied function does not call spin()
+  });
+  thread::sleep(timeout);
+}
+
+/// Instantiates the node defined by the given function, then waits one second for it to spin up
+pub fn instantiate_node(node_function: fn()) {
+  instantiate_node_timeout(node_function, Duration::from_secs(1));
+}
+
 /// A subscriber that listens to the '/test/strings' topic and publishes the length of the string to '/test/lengths'
 pub fn strlen() {
   let publisher = rosrust::publish("/test/lengths", 1).expect("Create publisher");
@@ -182,9 +200,6 @@ mod tests {
 
   #[ros_test]
   fn it_works() {
-    // Init environment
-    let test = init();
-
     // Init topics
     let strings = Topic::<rosrust_msg::std_msgs::String>::create("/test/strings");
     let ints = Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths");
