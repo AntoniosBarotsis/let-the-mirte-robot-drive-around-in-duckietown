@@ -1,6 +1,6 @@
 use cv_error::CvError;
 use image_part::ImagePart;
-use line::{Colour, Line, Pos, HSV_GREEN, HSV_WHITE, HSV_YELLOW};
+use line::{HSV_GREEN, HSV_WHITE, HSV_YELLOW};
 use opencv::{
   core::{in_range, Point, Scalar, Vec4f, Vector},
   imgproc::{cvt_color, line, median_blur, COLOR_BGR2HSV, LINE_AA},
@@ -10,6 +10,7 @@ use opencv::{
   Result,
 };
 
+pub use line::{Colour, Line, Pos};
 pub use opencv::prelude::Mat;
 
 pub mod cv_error;
@@ -216,4 +217,17 @@ pub fn show_in_window(img: &Mat) {
     opencv::highgui::imshow("img_rgb", &lines).expect("open window");
     let _res = opencv::highgui::wait_key(0).expect("keep window open");
   }
+}
+
+/// Temporary function used for loading `../assets/input_1.jpg` as a [`Mat`].
+pub fn dbg_mat() -> Result<Mat, CvError> {
+  let mat = draw_lines::read_image("./assets/input_1.jpg")?;
+
+  let size = mat.size().map_err(|e| CvError::Other(e.to_string()))?;
+
+  if size.height == 0 || size.width == 0 {
+    return Err(CvError::IoError("Error reading image".to_owned()));
+  }
+
+  Ok(mat)
 }
