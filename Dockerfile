@@ -28,4 +28,4 @@ ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 # Get Python and Maturin
 RUN apt-get install python3.7 python3-pip -y
-RUN pip3 install maturin
+RUN pip3 install maturin patchelf
