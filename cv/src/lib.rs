@@ -110,7 +110,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
     // the maximum value of an f32.
     #[allow(clippy::cast_precision_loss)]
     let mut new_lines =
-      get_lines(&colour_img, colour_enum, img_height as f32).expect("get lines with colour");
+      get_lines(&blurred_col_img, colour_enum, img_height as f32).expect("get lines with colour");
 
     lines.append(&mut new_lines);
   }
