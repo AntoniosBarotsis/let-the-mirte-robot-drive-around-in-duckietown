@@ -6,7 +6,7 @@ use std::time::Instant;
 /// Processes the input image from the assets folder and displays it in a window for an easier
 /// inspection. The window can also be closed by pressing any button.
 fn main() {
-  let mut img = read_image("./assets/input_real.jpg").expect("read image");
+  let mut img = read_image("./assets/input_1.jpg").expect("read image");
 
   let now = Instant::now();
 

@@ -8,7 +8,7 @@ use opencv::{
 /// This example performs line detection and saves the image to disk as "`assets/input_real.jpg`".
 fn main() {
   // We need to import the image as grayscale because the FastLineDetector requires it.
-  let img = imread("./assets/input_real.jpg", IMREAD_GRAYSCALE).expect("open image");
+  let img = imread("./assets/input_1.jpg", IMREAD_GRAYSCALE).expect("open image");
 
   let output = process_image(img).expect("Process image");
 

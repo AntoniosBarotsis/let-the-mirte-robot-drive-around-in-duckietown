@@ -1,8 +1,8 @@
 use crate::{cv_error::CvError, line::Colour, line::Line};
 use opencv::{
-  core::{Mat, Point, Scalar},
+  core::{Mat, Point, Scalar, Vector},
   highgui::{imshow, wait_key},
-  imgcodecs::{imread, IMREAD_UNCHANGED},
+  imgcodecs::{imread, imwrite, IMREAD_UNCHANGED},
   imgproc::{line, LINE_AA},
 };
 
@@ -35,7 +35,7 @@ pub fn draw_lines(mut img: &mut Mat, lines: &Vec<Line>) {
       .map_err(|_e| CvError::Drawing)
       .expect("draw");
   }
-
+  let _b = imwrite("./assets/output.jpg", img, &Vector::default());
   imshow("test", img).expect("open window");
   let _res = wait_key(0).expect("keep window open");
 }

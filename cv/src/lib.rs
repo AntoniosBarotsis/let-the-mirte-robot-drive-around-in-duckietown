@@ -3,7 +3,7 @@ use image_part::ImagePart;
 use line::{Colour, Line, Pos, HSV_GREEN, HSV_WHITE, HSV_YELLOW};
 use opencv::{
   core::{in_range, Point, Scalar, Vec4f, Vector},
-  imgproc::{cvt_color, line, COLOR_BGR2HSV, LINE_AA},
+  imgproc::{cvt_color, line, median_blur, COLOR_BGR2HSV, LINE_AA},
   prelude::{MatTrait, MatTraitConstManual},
   ximgproc::create_fast_line_detector,
   ximgproc::FastLineDetector,
@@ -85,8 +85,22 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
     let colour_high = Mat::from_slice::<u8>(&colour[1]).expect("get high colour");
 
     let mut colour_img = Mat::default();
+    let mut blurred_col_img = Mat::default();
 
     in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img).expect("colour in range");
+    median_blur(&colour_img, &mut blurred_col_img, 27).expect("blurred image");
+    // gaussian_blur(
+    //   &colour_img,
+    //   &mut blurred_col_img,
+    //   Size_ {
+    //     width: 21,
+    //     height: 21,
+    //   },
+    //   1.0,
+    //   0.0,
+    //   BORDER_DEFAULT,
+    // )
+    // .expect("blurred image");
 
     // imshow("test", &colour_img).expect("open window");
     // let _res = wait_key(0).expect("keep window open");

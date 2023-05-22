@@ -10,7 +10,7 @@ use opencv::{
 
 /// Demonstrates how to apply blur to an image.
 fn main() {
-  let img = imread("./assets/input_real.jpg", IMREAD_GRAYSCALE).expect("open image");
+  let img = imread("./assets/input_1.jpg", IMREAD_GRAYSCALE).expect("open image");
 
   let mut blurred = Mat::default();
 
