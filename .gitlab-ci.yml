@@ -35,6 +35,8 @@ test:
 
 python-test:
   stage: python-test
+  needs: 
+  - build
   script:
     - maturin build -m cv-py/Cargo.toml
     - pip3 install ./target/wheels/cv_py-0.1.0-cp38-cp38-manylinux_2_28_x86_64.whl --force
