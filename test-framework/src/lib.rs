@@ -191,31 +191,3 @@ pub fn strlen() {
   .expect("Create subscriber on /test/strings");
   rosrust::spin();
 }
-
-#[cfg(test)]
-mod tests {
-  #![allow(clippy::unwrap_used)]
-  use super::*;
-  use rostest::ros_test;
-
-  #[ros_test]
-  fn it_works() {
-    // Init topics
-    let strings = Topic::<rosrust_msg::std_msgs::String>::create("/test/strings");
-    let ints = Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths");
-
-    // Create node
-    thread::spawn(|| strlen());
-    thread::sleep(Duration::from_secs(1));
-
-    // Publish message
-    let message = rosrust_msg::std_msgs::String {
-      data: "Hello World".to_string(),
-    };
-    strings.ros_publish(message);
-
-    // Assert response
-    let expected = rosrust_msg::std_msgs::UInt32 { data: 11 };
-    ints.assert_message(expected);
-  }
-}
