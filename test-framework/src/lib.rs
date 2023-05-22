@@ -67,9 +67,6 @@ impl Drop for ProcessWrapper {
       nix::sys::signal::Signal::SIGINT,
     )
     .expect("send SIGINT to roscore");
-
-    rosrust::shutdown();
-    thread::sleep(Duration::from_secs(5));
   }
 }
 

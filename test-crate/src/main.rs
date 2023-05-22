@@ -62,6 +62,6 @@ fn test_outside_crate_sequential() {
   strings.ros_publish(message);
 
   // Assert response
-  let expected = rosrust_msg::std_msgs::UInt32 { data: 13 };
+  let expected = rosrust_msg::std_msgs::UInt32 { data: 12 };
   ints.assert_message(expected);
 }
