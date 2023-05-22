@@ -1,14 +1,9 @@
+use crate::{cv_error::CvError, line::Colour, line::Line};
 use opencv::{
   core::{Mat, Point, Scalar, Vector},
   highgui::{imshow, wait_key},
   imgcodecs::{imread, imwrite, IMREAD_UNCHANGED},
   imgproc::{line, LINE_AA},
-};
-
-use crate::{
-  cv_error::CvError,
-  line::Colour::{White, Yellow},
-  line::Line,
 };
 
 // create function that reads image from path
@@ -20,14 +15,20 @@ pub fn draw_lines(mut img: &mut Mat, lines: &Vec<Line>) {
   for l in lines {
     // Truncation here is fine (and needed) as we are just drawing pixels on the screen.
     #[allow(clippy::cast_possible_truncation)]
-    let start_point = Point::new(l.pos1.x, l.pos1.y);
+    let start_point = Point::new(l.start.x as i32, l.start.y as i32);
     #[allow(clippy::cast_possible_truncation)]
-    let end_point = Point::new(l.pos2.x, l.pos2.y);
+    let end_point = Point::new(l.end.x as i32, l.end.y as i32);
 
     // OpenCV uses BGR (not RBG).
     let colour = match l.colour {
-      Yellow => Scalar::new(0.0, 255.0, 255.0, 0.0),
-      White => Scalar::new(255.0, 255.0, 255.0, 0.0),
+      Colour::Red => Scalar::new(0.0, 0.0, 255.0, 0.0),
+      Colour::Orange => Scalar::new(0.0, 128.0, 255.0, 0.0),
+      Colour::Yellow => Scalar::new(0.0, 255.0, 255.0, 0.0),
+      Colour::Green => Scalar::new(0.0, 255.0, 0.0, 0.0),
+      Colour::Blue => Scalar::new(255.0, 0.0, 0.0, 0.0),
+      Colour::Purple => Scalar::new(255.0, 0.0, 255.0, 0.0),
+      Colour::Black => Scalar::new(0.0, 0.0, 0.0, 0.0),
+      Colour::White => Scalar::new(255.0, 255.0, 255.0, 0.0),
     };
 
     line(&mut img, start_point, end_point, colour, 5, LINE_AA, 0)
