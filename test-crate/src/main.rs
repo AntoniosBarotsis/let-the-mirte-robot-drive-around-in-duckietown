@@ -1,8 +1,5 @@
-use rosrust::*;
+use rosrust::{publish, spin, subscribe};
 use rostest::ros_test;
-use std::thread;
-use std::time::Duration;
-use test_framework::{instantiate_node, instantiate_node_timeout, Topic};
 
 /// A subscriber that listens to the '/test/strings' topic and publishes the length of the string to '/test/lengths'
 pub fn strlen() {
@@ -15,9 +12,9 @@ pub fn strlen() {
     1,
     move |msg: rosrust_msg::std_msgs::String| {
       let message = rosrust_msg::std_msgs::UInt32 {
-        data: msg.data.len().to_owned() as u32,
+        data: u32::try_from(msg.data.len().to_owned()).expect("Couldn't convert length"),
       };
-      let _ = publisher.send(message);
+      publisher.send(message).expect("Could not send message");
     },
   )
   .expect("Create subscriber on /test/strings");
@@ -29,11 +26,11 @@ fn main() {}
 #[ros_test]
 fn test_outside_crate() {
   // Init topics
-  let strings = Topic::<rosrust_msg::std_msgs::String>::create("/test/strings");
-  let ints = Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths");
+  let strings = test_framework::Topic::<rosrust_msg::std_msgs::String>::create("/test/strings");
+  let ints = test_framework::Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths");
 
   // Create node
-  instantiate_node(strlen);
+  test_framework::instantiate_node(strlen);
 
   // Publish message
   let message = rosrust_msg::std_msgs::String {
@@ -49,11 +46,11 @@ fn test_outside_crate() {
 #[ros_test]
 fn test_outside_crate_sequential() {
   // Init topics
-  let strings = Topic::<rosrust_msg::std_msgs::String>::create("/test/strings");
-  let ints = Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths");
+  let strings = test_framework::Topic::<rosrust_msg::std_msgs::String>::create("/test/strings");
+  let ints = test_framework::Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths");
 
   // Create node
-  instantiate_node(strlen);
+  test_framework::instantiate_node(strlen);
 
   // Publish message
   let message = rosrust_msg::std_msgs::String {
