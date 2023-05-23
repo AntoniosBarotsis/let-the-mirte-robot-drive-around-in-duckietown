@@ -1,20 +1,20 @@
 //! Test framework for ROS nodes. Allows testing of ROS topics and services.
 //! # Examples
-//! 
+//!
 //! Testing ROS topics of a node:
-//! 
+//!
 //! Add the following to your `Cargo.toml`:
-//! 
+//!
 //! ```toml
 //! [dev-dependencies]
 //! test-framework = { path = "../test-framework" }
 //! rostest = { path = "../test-framework/rostest" }
 //! serial_test  = "2.0.0"
 //! ```
-//! 
+//!
 //! ```
 //! use rostest::ros_test;
-//! 
+//!
 //! #[ros_test]
 //! fn test() {
 //!   // Init topics
