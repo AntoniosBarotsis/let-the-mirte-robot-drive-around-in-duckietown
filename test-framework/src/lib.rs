@@ -1,3 +1,49 @@
+//! Test framework for ROS nodes. Allows testing of ROS topics and services.
+//! # Examples
+//! Testing ROS topics of a node:
+//! ```
+//! #[ros_test]
+//! fn test() {
+//!   // Init topics
+//!   let strings = test_framework::Topic::<rosrust_msg::std_msgs::String>::create("/test/strings");
+//!   let ints = test_framework::Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths");
+//!
+//!   // Create node
+//!   test_framework::instantiate_node(strlen);
+//!
+//!   // Publish message
+//!   let message = rosrust_msg::std_msgs::String {
+//!     data: "Hello World".to_string(),
+//!   };
+//!   strings.ros_publish(message);
+//!
+//!   // Assert response
+//!   let expected = rosrust_msg::std_msgs::UInt32 { data: 11 };
+//!   ints.assert_message(expected);
+//! }
+//! ```
+//! Testing ROS services of a node:
+//! ```
+//! #[ros_test]
+//! fn test_service() {
+//!   // Init
+//!   let service =
+//!     test_framework::Service::<rosrust_msg::roscpp_tutorials::TwoInts>::create("/test/add");
+//!
+//!   // Create node
+//!   test_framework::instantiate_node(add_service);
+//!
+//!   // Publish message & assert response
+//!   let message = rosrust_msg::roscpp_tutorials::TwoIntsReq { a: 9, b: 10 };
+//!   let expected = rosrust_msg::roscpp_tutorials::TwoIntsRes { sum: 19 };
+//!   service.assert_response(message, expected);
+//! }
+//! ```
+//! # Notes
+//! - The `init()` function is needed to run the test successfully. It is inserted automatically by the `#[ros_test]` macro.
+//! - The ROSCORE process is launched automatically by the test framework, launching it on your machine will cause an error in the terminal, but the tests will still run.
+//! - Topics and services only accept one datatype, even across tests. This means that it is not possible to have "/test/input" be a topic of type `String` in one test and a topic of type `UInt32` in another test.
+//! - The ROSCORE process is kept alive by binding it to a variable called `_lifetime_variable` at the start of the test. This means you cannot use this variable name in your test.
 #![allow(dead_code, clippy::string_add)]
 
 use rosrust::{Client, Message, Publisher, ServicePair, Subscriber};
@@ -17,7 +63,7 @@ pub struct ProcessWrapper {
 }
 
 /// Function that launches the ROSCORE process and initialized ROSRUST.
-/// Inserted automatically by the #[`ros_test`] macro.
+/// Inserted automatically by the `#[ros_test]` macro.
 pub fn init() -> ProcessWrapper {
   //this will launch roscore if it isn't already running
   let path = env::var_os("PATH").expect("`PATH` not found");
@@ -94,7 +140,7 @@ impl<T> Topic<T>
 where
   T: Message,
 {
-  /// Instantiates [`TopicAgent`] asynchronously.
+  /// Instantiates a [`Topic`] that corresponds to the given topic.
   pub fn create(topic: &str) -> Topic<T> {
     //create the node on a separate thread so waiting for subscribers doesn't deadlock the test
     let received_messages: Arc<Mutex<VecDeque<T>>> = Arc::new(Mutex::new(VecDeque::new()));
@@ -160,7 +206,7 @@ where
       .expect("Another thread of the received_messages mutex panicked.")
   }
 
-  /// Gets a message and checks if it's equal to the given message
+  /// Gets a message and checks if it's equal to the given message.
   /// # Panics
   /// if the message was not equal
   #[allow(clippy::needless_pass_by_value)] // makes test code more readable
@@ -174,7 +220,7 @@ where
   }
 }
 
-/// Handles sending/receiving on a service
+/// Handles sending/receiving on a service.
 pub struct Service<T: ServicePair> {
   service: String,
   client: Client<T>,
@@ -184,6 +230,7 @@ impl<T> Service<T>
 where
   T: ServicePair,
 {
+  /// Instantiates a [`Service`] that corresponds to the given service.
   pub fn create(topic: &str) -> Service<T> {
     let client = rosrust::client::<T>(topic).expect("Could not create client on topic");
     Service {
@@ -192,10 +239,10 @@ where
     }
   }
 
-  /// Asserts if a service returns an expected response
+  /// Asserts if a service returns an expected response.
   /// Only possible with response messages that implement the `PartialEq` and `Debug` traits.
   /// # Panics
-  /// if the response was not equal to the expected response.
+  /// if the response was not equal to the expected response
   #[allow(clippy::needless_pass_by_value)] // makes test code more readable
   pub fn assert_response(&self, request: T::Request, response: T::Response)
   where
@@ -217,7 +264,7 @@ impl<T: ServicePair> fmt::Debug for Service<T> {
   }
 }
 
-/// Instantiate sthe node defined by the given function, then waits for the duration specified by the timeout variable
+/// Instantiates the node defined by the given function, then waits for the duration specified by the timeout variable.
 pub fn instantiate_node_timeout(node_function: fn(), timeout: Duration) {
   let _: JoinHandle<_> = thread::spawn(move || {
     node_function();
