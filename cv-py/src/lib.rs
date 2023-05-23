@@ -19,13 +19,12 @@ fn detect_line_type_py(colours: Vec<PyColour>) -> PyResult<Vec<PyLine>> {
   Ok(res)
 }
 
-/// A Python module implemented in Rust.
 #[pymodule]
 fn cv_py(_py: Python, m: &PyModule) -> PyResult<()> {
   m.add_class::<PyLine>()?;
   m.add_class::<PyColour>()?;
   m.add_class::<PyPos>()?;
-  //   m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
+
   m.add_function(wrap_pyfunction!(detect_line_type_py, m)?)?;
   Ok(())
 }
