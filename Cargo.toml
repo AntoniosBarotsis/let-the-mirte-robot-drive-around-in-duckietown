@@ -4,8 +4,7 @@ members = [
   "mirte-rs",
   "cv",
   "ros",
-  "test-framework",
-  "test-crate"
+  "test-framework"
 ]
 
 [profile.release.package.cv]

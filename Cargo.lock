@@ -1798,17 +1798,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "test-crate"
-version = "0.1.0"
-dependencies = [
- "rosrust",
- "rosrust_msg",
- "rostest",
- "serial_test",
- "test-framework",
-]
-
-[[package]]
 name = "test-framework"
 version = "0.1.0"
 dependencies = [
