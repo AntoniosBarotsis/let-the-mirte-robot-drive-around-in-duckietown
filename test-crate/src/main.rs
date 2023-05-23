@@ -21,6 +21,17 @@ pub fn strlen() {
   spin();
 }
 
+/// A service which adds two numbers
+pub fn add_service() {
+  let _service_raii =
+    rosrust::service::<rosrust_msg::roscpp_tutorials::TwoInts, _>("/test/add", move |req| {
+      let sum = req.a + req.b;
+      Ok(rosrust_msg::roscpp_tutorials::TwoIntsRes { sum })
+    })
+    .unwrap();
+  spin();
+}
+
 fn main() {}
 
 #[ros_test]
@@ -61,4 +72,19 @@ fn test_outside_crate_sequential() {
   // Assert response
   let expected = rosrust_msg::std_msgs::UInt32 { data: 12 };
   ints.assert_message(expected);
+}
+
+#[ros_test]
+fn test_service() {
+  // Init
+  let service =
+    test_framework::Service::<rosrust_msg::roscpp_tutorials::TwoInts>::create("/test/add");
+
+  // Create node
+  test_framework::instantiate_node(add_service);
+
+  // Publish message & assert response
+  let message = rosrust_msg::roscpp_tutorials::TwoIntsReq { a: 9, b: 10 };
+  let expected = rosrust_msg::roscpp_tutorials::TwoIntsRes { sum: 19 };
+  service.assert_response(message, expected);
 }

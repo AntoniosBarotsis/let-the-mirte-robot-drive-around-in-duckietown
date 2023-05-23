@@ -1,10 +1,11 @@
 #![allow(dead_code, clippy::string_add)]
 
-use rosrust::{Message, Publisher, Subscriber};
+use rosrust::{Client, Message, Publisher, ServicePair, Subscriber};
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
 
+use std::fmt::Formatter;
 use std::thread::JoinHandle;
 use std::{collections::VecDeque, fmt, sync::MutexGuard, thread, time::Duration};
 use std::{env, time::Instant};
@@ -81,7 +82,7 @@ pub struct Topic<T: Message> {
 }
 
 impl<T: Message> fmt::Debug for Topic<T> {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+  fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     f.debug_struct("Topic")
       .field("topic", &self.topic)
       .field("received_messages", &self.received_messages)
@@ -170,6 +171,49 @@ where
       .expect("Message queue was empty after timeout")
       .to_owned();
     assert_eq!(message, actual);
+  }
+}
+
+/// Handles sending/receiving on a service
+pub struct Service<T: ServicePair> {
+  service: String,
+  client: Client<T>,
+}
+
+impl<T> Service<T>
+where
+  T: ServicePair,
+{
+  pub fn create(topic: &str) -> Service<T> {
+    let client = rosrust::client::<T>(topic).expect("Could not create client on topic");
+    Service {
+      service: topic.to_owned(),
+      client,
+    }
+  }
+
+  /// Asserts if a service returns an expected response
+  /// Only possible with response messages that implement the `PartialEq` and `Debug` traits.
+  /// # Panics
+  /// if the response was not equal to the expected response.
+  #[allow(clippy::needless_pass_by_value)] // makes test code more readable
+  pub fn assert_response(&self, request: T::Request, response: T::Response)
+  where
+    T::Response: PartialEq,
+    T::Response: fmt::Debug,
+  {
+    let actual = self
+      .client
+      .req(&request)
+      .expect("Failed to send request")
+      .expect("Failed to get response");
+    assert_eq!(response, actual);
+  }
+}
+
+impl<T: ServicePair> fmt::Debug for Service<T> {
+  fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    write!(f, "{:?}", self.service)
   }
 }
 
