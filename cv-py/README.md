@@ -2,7 +2,7 @@
 
 ## Compiling
 
-You need Python (>= 3.8) and [Maturin](https://www.maturin.rs/installation.html) installed.
+You need Python (>= 3.7) and [Maturin](https://www.maturin.rs/installation.html) installed.
 
 ```sh
 sudo apt-get install python3.7 python3-pip -y
