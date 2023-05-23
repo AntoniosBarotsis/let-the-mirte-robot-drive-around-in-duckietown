@@ -21,4 +21,7 @@ class line:
     end: pos
 
 
-def detect_line_type(colours: List[colour]) -> List[line]: ...
+def detect_line_type(colours: List[colour]) -> List[line]:
+  """
+  TODO: Copy paste the docs of the Rust method when they are added
+  """

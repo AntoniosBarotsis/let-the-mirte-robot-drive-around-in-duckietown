@@ -6,7 +6,6 @@ use classes::{PyColour, PyCvError, PyLine, PyPos};
 use cv::{dbg_mat, detect_line_type, Colour};
 use pyo3::prelude::*;
 
-/// Augh
 #[pyfunction(name = "detect_line_type")]
 #[allow(clippy::unwrap_used, clippy::needless_pass_by_value)]
 fn detect_line_type_py(colours: Vec<PyColour>) -> PyResult<Vec<PyLine>> {
