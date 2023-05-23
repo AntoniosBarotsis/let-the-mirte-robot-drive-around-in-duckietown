@@ -52,6 +52,30 @@
 //!   service.assert_response(message, expected);
 //! }
 //! ```
+//! The `instantiate_node` function takes a function and runs it on a separate thread. You can use this to add nodes to the test.
+//! Note that this function must not call `rosrust::init()` as this is done automatically by the test framework.
+//! The following is an example of the strlen node used by the first example:
+//! ```
+//! /// A subscriber that listens to the '/test/strings' topic and publishes the length of the string to '/test/lengths'
+//! pub fn strlen() {
+//!   let publisher = publish("/test/lengths", 1).expect("Create publisher");
+//!   publisher
+//!     .wait_for_subscribers(None)
+//!     .expect("wait for subscribers on /test/lengths");
+//!   let _subscriber_raii = subscribe(
+//!     "/test/strings",
+//!     1,
+//!     move |msg: rosrust_msg::std_msgs::String| {
+//!       let message = rosrust_msg::std_msgs::UInt32 {
+//!         data: msg.data.len().to_owned() as u32,
+//!       };
+//!       let _ = publisher.send(message);
+//!     },
+//!   )
+//!   .expect("Create subscriber on /test/strings");
+//!   spin();
+//! }
+//! ```
 //! # Notes
 //! - The `init()` function is needed to run the test successfully. It is inserted automatically by the `#[ros_test]` macro.
 //! - The ROSCORE process is launched automatically by the test framework, launching it on your machine will cause an error in the terminal, but the tests will still run.
