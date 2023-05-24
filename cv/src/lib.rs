@@ -3,7 +3,7 @@ use image_part::ImagePart;
 use line::{Colour, Line, Pos, HSV_GREEN, HSV_WHITE, HSV_YELLOW};
 use opencv::{
   core::{in_range, Point, Scalar, Vec4f, Vector},
-  imgproc::{cvt_color, line, median_blur, COLOR_BGR2HSV, LINE_AA},
+  imgproc::{cvt_color, line, median_blur, COLOR_BGR2HSV, COLOR_BGR2RGB, LINE_AA},
   prelude::{MatTrait, MatTraitConstManual},
   ximgproc::create_fast_line_detector,
   ximgproc::FastLineDetector,
@@ -63,6 +63,12 @@ fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
   }
 }
 
+pub fn convert_to_rgb(img: &Mat) -> Result<Mat, CvError> {
+  let mut rgb_img = Mat::default();
+  cvt_color(&img, &mut rgb_img, COLOR_BGR2RGB, 0).expect("convert colour");
+  Ok(rgb_img)
+}
+
 pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, CvError> {
   let mut copy_img = Mat::copy(img).expect("copy image");
   let img_height = copy_img
@@ -88,7 +94,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
     let mut blurred_col_img = Mat::default();
 
     in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img).expect("colour in range");
-    median_blur(&colour_img, &mut blurred_col_img, 27).expect("blurred image");
+    median_blur(&colour_img, &mut blurred_col_img, 1).expect("blurred image");
     // gaussian_blur(
     //   &colour_img,
     //   &mut blurred_col_img,
@@ -120,7 +126,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
 /// Performs line detection in the passed image. Returns a list of 4d-vectors containing
 /// the line coordinates in a `x1, y1, x2, y2` format.
 ///
-/// The image must be in grayscale.
+/// The image can be in colour.
 pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
   let img = crop_image(&mut img, ImagePart::Bottom)?;
 
@@ -140,7 +146,7 @@ pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
 
 /// Detects lines in the input image, plots them and returns the result.
 ///
-/// The image must be in grayscale.
+/// The image can be in colour.
 ///
 /// This method should be used for testing/debugging only.
 ///
@@ -155,7 +161,7 @@ pub fn detect_lines(mut img: Mat) -> Result<Vector<Vec4f>, CvError> {
 ///   imgcodecs::{self, imread, imwrite, IMREAD_UNCHANGED},
 /// };
 ///
-/// // We need to import the image as grayscale because the FastLineDetector requires it.
+/// // We can import the image in colour because the FastLineDetector requires it.
 /// let img = imread("../assets/input_1.jpg", IMREAD_UNCHANGED).expect("open image");
 
 /// let output = process_image(img).unwrap();
@@ -210,7 +216,7 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
 pub fn show_in_window(img: &Mat) {
   let mut img_rgb = Mat::default();
 
-  cvt_color(&img, &mut img_rgb, opencv::imgproc::COLOR_BGR2RGB, 0).expect("BGR to RGB conversion.");
+  cvt_color(&img, &mut img_rgb, COLOR_BGR2RGB, 0).expect("BGR to RGB conversion.");
 
   if let Ok(lines) = process_image(img_rgb.clone()) {
     opencv::highgui::imshow("img_rgb", &lines).expect("open window");
