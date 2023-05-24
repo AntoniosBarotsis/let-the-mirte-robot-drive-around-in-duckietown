@@ -2,8 +2,11 @@ use cv_error::CvError;
 use image_part::ImagePart;
 use line::{Colour, Line, Pos, HSV_GREEN, HSV_WHITE, HSV_YELLOW};
 use opencv::{
-  core::{in_range, Point, Scalar, Size_, Vec4f, Vector},
-  imgproc::{cvt_color, line, resize, COLOR_BGR2RGB, COLOR_RGB2HSV, INTER_AREA, LINE_AA},
+  core::{convert_scale_abs, in_range, Point, Scalar, Size_, Vec4f, Vector},
+  imgproc::{
+    calc_hist, cvt_color, line, resize, COLOR_BGR2RGB, COLOR_RGB2GRAY, COLOR_RGB2HSV, INTER_AREA,
+    LINE_AA,
+  },
   prelude::{MatTrait, MatTraitConstManual},
   ximgproc::create_fast_line_detector,
   ximgproc::FastLineDetector,
@@ -53,6 +56,64 @@ fn get_lines(img: &Mat, colour: Colour, half_height: f32) -> Result<Vec<Line>, C
   Ok(line_vec)
 }
 
+fn scale_contrast(img: &Mat) -> Result<Mat, CvError> {
+  // Change this factor for the contrast clipping
+  const CLIP_FACTOR: i32 = 100;
+
+  let mut gray_img = Mat::default();
+  cvt_color(&img, &mut gray_img, COLOR_RGB2GRAY, 0)?;
+
+  let mut hist = Vector::<i32>::default();
+
+  let mut range = opencv::core::Vector::<f32>::from_elem(0.0, 1);
+  range.push(256.0);
+
+  // TODO: Check why calc_hist returns an error
+  calc_hist(
+    &gray_img,
+    &opencv::core::Vector::<i32>::from_elem(0, 1),
+    &Mat::default(),
+    &mut hist,
+    &opencv::core::Vector::<i32>::from_elem(256, 1),
+    &range,
+    false,
+  )?;
+
+  let hist_len = hist.len();
+
+  let mut acc: [i32; 256] = [0; 256];
+  acc[0] = hist.get(0)?;
+  for n in 1..hist_len {
+    // TODO: check if we need -1 or not
+    acc[n] = acc[n - 1] + hist.get(n)?;
+  }
+
+  let max = acc[acc.len() - 1];
+  let clip = max / CLIP_FACTOR;
+
+  let mut min_gray = 0;
+  while acc[min_gray] < clip {
+    min_gray += 1;
+  }
+
+  let mut max_gray = acc.len() - 1;
+  while acc[max_gray] >= (max - clip) {
+    max_gray -= 1;
+  }
+
+  #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
+  let a = 255 / (max_gray as i32 - min_gray as i32);
+  #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
+  let b = -(min_gray as i32) * a;
+
+  let mut contrast_img = Mat::default();
+
+  #[allow(clippy::cast_lossless)]
+  convert_scale_abs(&img, &mut contrast_img, a as f64, b as f64)?;
+
+  Ok(contrast_img)
+}
+
 fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
   match colour {
     Colour::White => HSV_WHITE,
@@ -91,10 +152,18 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
   let img_height = copy_img.size()?.height / 2;
 
   let cropped_img = crop_image(&mut copy_img, ImagePart::Bottom)?;
+
+  // Contrast stretching
+  let contrast_img = scale_contrast(&cropped_img)?;
+
+  let rgb_img = convert_to_rgb(&contrast_img)?;
+  opencv::highgui::imshow("contrast", &rgb_img).expect("open window");
+  let _res = opencv::highgui::wait_key(0).expect("keep window open");
+
   let mut hsv_img = Mat::default();
 
   // Converting colour takes about half of the time of this funciton
-  cvt_color(&cropped_img, &mut hsv_img, COLOR_RGB2HSV, 0)?;
+  cvt_color(&contrast_img, &mut hsv_img, COLOR_RGB2HSV, 0)?;
 
   let mut lines: Vec<Line> = Vec::new();
 
@@ -106,27 +175,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
     let colour_high = Mat::from_slice::<u8>(&colour[1])?;
 
     let mut colour_img = Mat::default();
-    // let mut blurred_col_img = Mat::default();
-
     in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img)?;
-
-    // Blurring takes 1/3 of the time for 2 colours
-    // median_blur(&colour_img, &mut blurred_col_img, 27).expect("blurred image");
-    // gaussian_blur(
-    //   &colour_img,
-    //   &mut blurred_col_img,
-    //   Size_ {
-    //     width: 21,
-    //     height: 21,
-    //   },
-    //   1.0,
-    //   0.0,
-    //   BORDER_DEFAULT,
-    // )
-    // .expect("blurred image");
-
-    // imshow("test", &colour_img).expect("open window");
-    // let _res = wait_key(0).expect("keep window open");
 
     // Get the lines of this colour
     // Casting an i32 to an f32 is fine, as the image height is realistically never going to exceed
@@ -215,12 +264,10 @@ pub fn process_image(mut img: Mat) -> Result<Mat, CvError> {
 ///
 /// Panics if image colour can't be converted.
 pub fn show_in_window(img: &Mat) {
-  if let Ok(img_rgb) = convert_to_rgb(img) {
-    if let Ok(lines) = process_image(img_rgb) {
-      opencv::highgui::imshow("img_rgb", &lines).expect("open window");
-      let _res = opencv::highgui::wait_key(0).expect("keep window open");
-    }
-  } else {
-    panic!("Failed to convert colour of image");
-  }
+  // if let Ok(img_rgb) = convert_to_rgb(img) {
+  opencv::highgui::imshow("img_rgb", &img).expect("open window");
+  let _res = opencv::highgui::wait_key(0).expect("keep window open");
+  // } else {
+  //   panic!("Failed to convert colour of image");
+  // }
 }
