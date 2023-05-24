@@ -9,7 +9,7 @@ fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
     .copied()
     .collect();
   let weighted_dir: Dir = coloured_lines.iter().map(Line::direction).sum();
-  println!("{}", weighted_dir.squared_length());
+  // println!("{}", weighted_dir.squared_length());
   if weighted_dir.squared_length() < THRESHOLD {
     return None;
   }

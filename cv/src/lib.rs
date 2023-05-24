@@ -2,8 +2,8 @@ use cv_error::CvError;
 use image_part::ImagePart;
 use line::{Colour, Line, Pos, HSV_GREEN, HSV_WHITE, HSV_YELLOW};
 use opencv::{
-  core::{in_range, Point, Scalar, Vec4f, Vector},
-  imgproc::{cvt_color, line, median_blur, COLOR_BGR2HSV, COLOR_BGR2RGB, LINE_AA},
+  core::{in_range, Point, Scalar, Size_, Vec4f, Vector},
+  imgproc::{cvt_color, line, resize, COLOR_BGR2RGB, COLOR_RGB2HSV, INTER_AREA, LINE_AA},
   prelude::{MatTrait, MatTraitConstManual},
   ximgproc::create_fast_line_detector,
   ximgproc::FastLineDetector,
@@ -69,6 +69,25 @@ pub fn convert_to_rgb(img: &Mat) -> Result<Mat, CvError> {
   Ok(rgb_img)
 }
 
+pub fn downscale(img: &Mat) -> Result<Mat, CvError> {
+  let mut resized = Mat::default();
+
+  resize(
+    &img,
+    &mut resized,
+    Size_ {
+      width: 320,
+      height: 240,
+    },
+    0.0,
+    0.0,
+    INTER_AREA,
+  )
+  .expect("resize");
+
+  Ok(resized)
+}
+
 pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, CvError> {
   let mut copy_img = Mat::copy(img).expect("copy image");
   let img_height = copy_img
@@ -79,7 +98,9 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
 
   let cropped_img = crop_image(&mut copy_img, ImagePart::Bottom).expect("crop image");
   let mut hsv_img = Mat::default();
-  cvt_color(&cropped_img, &mut hsv_img, COLOR_BGR2HSV, 0).expect("convert colour");
+
+  // Converting colour takes about half of the time of this funciton
+  cvt_color(&cropped_img, &mut hsv_img, COLOR_RGB2HSV, 0).expect("convert colour");
 
   let mut lines: Vec<Line> = Vec::new();
 
@@ -91,10 +112,12 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
     let colour_high = Mat::from_slice::<u8>(&colour[1]).expect("get high colour");
 
     let mut colour_img = Mat::default();
-    let mut blurred_col_img = Mat::default();
+    // let mut blurred_col_img = Mat::default();
 
     in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img).expect("colour in range");
-    median_blur(&colour_img, &mut blurred_col_img, 1).expect("blurred image");
+
+    // Blurring takes 1/3 of the time for 2 colours
+    // median_blur(&colour_img, &mut blurred_col_img, 27).expect("blurred image");
     // gaussian_blur(
     //   &colour_img,
     //   &mut blurred_col_img,
@@ -114,9 +137,11 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
     // Get the lines of this colour
     // Casting an i32 to an f32 is fine, as the image height is realistically never going to exceed
     // the maximum value of an f32.
+
+    // This takes about 1/6 of the time for 2 colours
     #[allow(clippy::cast_precision_loss)]
     let mut new_lines =
-      get_lines(&blurred_col_img, colour_enum, img_height as f32).expect("get lines with colour");
+      get_lines(&colour_img, colour_enum, img_height as f32).expect("get lines with colour");
 
     lines.append(&mut new_lines);
   }
