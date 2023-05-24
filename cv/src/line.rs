@@ -151,7 +151,7 @@ impl Vector {
 
 #[cfg(test)]
 mod tests {
-  use crate::Pos;
+  use crate::line::{Colour, Dir, Line, Pos, Vector};
   use float_cmp::approx_eq;
 
   #[test]
@@ -159,5 +159,85 @@ mod tests {
     let pos = Pos::new(10.0, -5.0);
     assert!(approx_eq!(f32, pos.x, 10.0, ulps = 2));
     assert!(approx_eq!(f32, pos.y, -5.0, ulps = 2));
+  }
+
+  #[test]
+  fn create_pos_from_dir() {
+    let dir = Dir::new(10.0, -5.0);
+    let pos = Pos::from_dir(dir);
+    assert!(approx_eq!(f32, pos.x, 10.0, ulps = 2));
+    assert!(approx_eq!(f32, pos.y, -5.0, ulps = 2));
+  }
+
+  #[test]
+  fn create_dir() {
+    let dir = Dir::new(10.0, -5.0);
+    assert!(approx_eq!(f32, dir.x, 10.0, ulps = 2));
+    assert!(approx_eq!(f32, dir.y, -5.0, ulps = 2));
+  }
+
+  #[test]
+  fn create_dir_from_pos() {
+    let pos = Pos::new(10.0, -5.0);
+    let dir = Dir::from_pos(pos);
+    assert!(approx_eq!(f32, dir.x, 10.0, ulps = 2));
+    assert!(approx_eq!(f32, dir.y, -5.0, ulps = 2));
+  }
+
+  #[test]
+  fn compute_squared_length() {
+    let dir = Dir::new(10.0, -5.0);
+    assert!(approx_eq!(f32, dir.squared_length(), 125.0, ulps = 2));
+  }
+
+  #[test]
+  fn compute_length() {
+    let dir = Dir::new(3.0, -4.0);
+    assert!(approx_eq!(f32, dir.length(), 5.0, ulps = 2));
+  }
+
+  #[test]
+  fn create_line() {
+    let line = Line::new(Colour::Red, Pos::new(10.0, -5.0), Pos::new(20.0, -10.0));
+    assert_eq!(line.colour, Colour::Red);
+    assert!(approx_eq!(f32, line.start.x, 10.0, ulps = 2));
+    assert!(approx_eq!(f32, line.start.y, -5.0, ulps = 2));
+    assert!(approx_eq!(f32, line.end.x, 20.0, ulps = 2));
+    assert!(approx_eq!(f32, line.end.y, -10.0, ulps = 2));
+  }
+
+  #[test]
+  fn create_line_from_vector() {
+    let vector = Vector::new(Pos::new(10.0, -5.0), Dir::new(10.0, -5.0));
+    let line = Line::from_vector(vector, Colour::Red);
+    assert_eq!(line.colour, Colour::Red);
+    assert!(approx_eq!(f32, line.start.x, 10.0, ulps = 2));
+    assert!(approx_eq!(f32, line.start.y, -5.0, ulps = 2));
+    assert!(approx_eq!(f32, line.end.x, 20.0, ulps = 2));
+    assert!(approx_eq!(f32, line.end.y, -10.0, ulps = 2));
+  }
+
+  #[test]
+  fn get_direction() {
+    let line = Line::new(Colour::Red, Pos::new(10.0, -5.0), Pos::new(20.0, -10.0));
+    let dir = line.direction();
+    assert!(approx_eq!(f32, dir.x, 10.0, ulps = 2));
+    assert!(approx_eq!(f32, dir.y, -5.0, ulps = 2));
+  }
+
+  #[test]
+  fn get_direction_from_inverted_coords() {
+    let line = Line::new(Colour::Red, Pos::new(10.0, 5.0), Pos::new(20.0, 10.0));
+    let dir = line.direction();
+    assert!(approx_eq!(f32, dir.x, -10.0, ulps = 2));
+    assert!(approx_eq!(f32, dir.y, -5.0, ulps = 2));
+  }
+
+  #[test]
+  fn get_midpoint() {
+    let line = Line::new(Colour::Red, Pos::new(10.0, -5.0), Pos::new(20.0, -10.0));
+    let midpoint = line.midpoint();
+    assert!(approx_eq!(f32, midpoint.x, 15.0, ulps = 2));
+    assert!(approx_eq!(f32, midpoint.y, -7.5, ulps = 2));
   }
 }
