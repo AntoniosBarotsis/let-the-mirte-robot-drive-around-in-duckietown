@@ -1,6 +1,6 @@
 use cv::line::{Colour, Dir, Line, Pos, Vector};
 
-const THRESHOLD: f32 = 10_000.0;
+const THRESHOLD: f32 = 0.0;
 
 fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
   let coloured_lines: Vec<Line> = lines
@@ -8,6 +8,9 @@ fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
     .filter(|line| line.colour == colour)
     .copied()
     .collect();
+  if coloured_lines.is_empty() {
+    return None;
+  }
   let weighted_dir: Dir = coloured_lines.iter().map(Line::direction).sum();
   println!("{}", weighted_dir.squared_length());
   if weighted_dir.squared_length() < THRESHOLD {
@@ -32,9 +35,9 @@ fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
   })
 }
 
-fn estimate_lane(_line: &Vector) -> Line {
+fn estimate_lane(line: Vector) -> Line {
   // TODO: Estimate line
-  Line::new(Colour::Green, Pos::new(0.0, 0.0), Pos::new(100.0, 100.0))
+  Line::from_vector(line, Colour::Green)
 }
 
 /// Checks if `pos` lies on the right of `vector`
@@ -42,16 +45,21 @@ pub fn lies_on_right(pos: &Pos, vector: &Vector) -> bool {
   pos.x > vector.origin.x + (pos.y - vector.end().x) / vector.slope()
 }
 
+/// Returns all lines in `lines` that lie to the right of `vector`
+pub fn lines_on_right(lines: &[Line], vector: &Vector) -> Vec<Line> {
+  lines
+    .iter()
+    .filter(|line| lies_on_right(&line.midpoint(), vector))
+    .copied()
+    .collect()
+}
+
 pub fn detect_lane(lines: &[Line]) -> Result<Vec<Line>, &'static str> {
   // Try to detect yellow line in image
   if let Some(y_vec) = get_average_line(lines, Colour::Yellow) {
     eprintln!("Yellow line found! Looking for white lines to the right of the yellow line...");
     // Get lines right of yellow line
-    let right_lines: Vec<Line> = lines
-      .iter()
-      .filter(|line| lies_on_right(&line.midpoint(), &y_vec))
-      .copied()
-      .collect();
+    let right_lines: Vec<Line> = lines_on_right(lines, &y_vec);
     // Try to detect white line right of yellow line
     if let Some(w_vec) = get_average_line(&right_lines, Colour::White) {
       eprintln!("Right white line found! Trying to find intersection...");
@@ -91,17 +99,21 @@ pub fn detect_lane(lines: &[Line]) -> Result<Vec<Line>, &'static str> {
       // If no white line right of yellow line found, try to estimate lane based on yellow line
       Ok(vec![
         Line::from_vector(y_vec, Colour::Orange),
-        estimate_lane(&y_vec),
+        estimate_lane(y_vec),
       ])
     }
   } else {
     eprintln!("No yellow line found! Looking for white lines in image...");
+    // Get lines on right side of screen (640x480)
+    // TODO: get middle of screen from cv crate
+    let middle_vec = Vector::new(Pos::new(350.0, 0.0), Dir::new(0.0, 1000.0));
+    let right_lines: Vec<Line> = lines_on_right(lines, &middle_vec);
     // If no yellow line found, try to detect white line in image
-    if let Some(w_vec) = get_average_line(lines, Colour::White) {
+    if let Some(w_vec) = get_average_line(&right_lines, Colour::White) {
       eprintln!("White line found! Estimating lane based on white line...");
       return Ok(vec![
         Line::from_vector(w_vec, Colour::Black),
-        estimate_lane(&w_vec),
+        estimate_lane(w_vec),
       ]);
     }
     eprintln!("No yellow or white lines found! Unable to detect lane.");
