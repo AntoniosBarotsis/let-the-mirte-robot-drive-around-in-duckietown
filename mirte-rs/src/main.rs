@@ -18,26 +18,30 @@ fn main() {
     #[allow(clippy::redundant_clone)]
     // let mat = convert_to_rgb(&mat.clone()).expect("bla");
     let time_1 = Instant::now();
-    let resized = downscale(&mat).expect("downscale");
+
+    let resized = downscale(&mat).unwrap_or(mat);
     println!("resizing: {:?}", time_1.elapsed());
 
     let colours = vec![cv::line::Colour::Yellow, cv::line::Colour::White];
 
     let time_2 = Instant::now();
-    let lines = cv::detect_line_type(&resized, colours).expect("Unable to detect line with cv");
-    println!("detecting lines: {:?}", time_2.elapsed());
+    if let Ok(lines) = cv::detect_line_type(&resized, colours) {
+      println!("detecting lines: {:?}", time_2.elapsed());
 
-    let time_3 = Instant::now();
-    let _drawn_lines = if let Ok(lane) = detect_lane(&lines) {
-      [lines, lane].concat()
+      let time_3 = Instant::now();
+      let _drawn_lines = if let Ok(lane) = detect_lane(&lines) {
+        [lines, lane].concat()
+      } else {
+        lines
+      };
+      println!("detecting lane: {:?}", time_3.elapsed());
+      //lines.push(lane);
+      // draw_lines(&mut resized, &drawn_lines);
+
+      // show_in_window(&mat);
     } else {
-      lines
-    };
-    println!("detecting lane: {:?}", time_3.elapsed());
-    //lines.push(lane);
-    // draw_lines(&mut resized, &drawn_lines);
-
-    // show_in_window(&mat);
+      eprintln!("Could not detect lines");
+    }
 
     println!("total: {:?}", time_total.elapsed());
   });
