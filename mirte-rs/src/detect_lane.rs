@@ -1,7 +1,5 @@
 use cv::line::{Colour, Dir, Line, Pos, Vector};
 
-const THRESHOLD: f32 = 0.0;
-
 fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
   let coloured_lines: Vec<Line> = lines
     .iter()
@@ -12,10 +10,6 @@ fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
     return None;
   }
   let weighted_dir: Dir = coloured_lines.iter().map(Line::direction).sum();
-  println!("{}", weighted_dir.squared_length());
-  if weighted_dir.squared_length() < THRESHOLD {
-    return None;
-  }
 
   // Get average line position with line length as weight
   let total_squared_length: f32 = coloured_lines
@@ -36,7 +30,9 @@ fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
 }
 
 fn estimate_lane(line: Vector) -> Line {
-  // TODO: Estimate line
+  // For now, simply returning the given vector may be enough. This will only become clear once we
+  // have working motor controls for Mirte based on the lane. If it doesn't work well, we may need
+  // to revisit this function
   Line::from_vector(line, Colour::Green)
 }
 

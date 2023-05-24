@@ -26,8 +26,6 @@ impl Line {
     )
   }
 
-  // TODO: Are we sure we need to make sure vectors point towards negative y? It seems unnecessary
-  /// Transforms the line into a vector from (0, 0) pointing towards negative y
   pub fn direction(&self) -> Dir {
     if self.start.y < self.end.y {
       Dir::from_pos(self.start - self.end)
@@ -148,5 +146,18 @@ impl Vector {
     let y = slope1 * (x - self.origin.x) + self.origin.y;
 
     Some(Pos { x, y })
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::Pos;
+  use float_cmp::approx_eq;
+
+  #[test]
+  fn create_pos() {
+    let pos = Pos::new(10.0, -5.0);
+    assert!(approx_eq!(f32, pos.x, 10.0, ulps = 2));
+    assert!(approx_eq!(f32, pos.y, -5.0, ulps = 2));
   }
 }
