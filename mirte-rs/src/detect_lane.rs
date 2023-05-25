@@ -50,7 +50,11 @@ pub fn lines_on_right(lines: &[Line], vector: &Vector) -> Vec<Line> {
     .collect()
 }
 
-pub fn detect_lane(lines: &[Line]) -> Result<Vec<Line>, &'static str> {
+pub fn detect_lane(lines: &[Line]) -> Option<Line> {
+  detect_lane_debug(lines).map(|lines| lines[0])
+}
+
+pub fn detect_lane_debug(lines: &[Line]) -> Option<Vec<Line>> {
   // Try to detect yellow line in image
   if let Some(y_vec) = get_average_line(lines, Colour::Yellow) {
     eprintln!("Yellow line found! Looking for white lines to the right of the yellow line...");
@@ -85,17 +89,17 @@ pub fn detect_lane(lines: &[Line]) -> Result<Vec<Line>, &'static str> {
       };
 
       eprintln!("Lane calculated: {:?}, {:?}", lane.start, lane.end);
-      Ok(vec![
+      Some(vec![
+        lane,
         Line::from_vector(y_vec, Colour::Orange),
         Line::from_vector(w_vec, Colour::Black),
-        lane,
       ])
     } else {
       eprintln!("No right white line found! Estimating lane based on yellow line...");
       // If no white line right of yellow line found, try to estimate lane based on yellow line
-      Ok(vec![
-        Line::from_vector(y_vec, Colour::Orange),
+      Some(vec![
         estimate_lane(y_vec),
+        Line::from_vector(y_vec, Colour::Orange),
       ])
     }
   } else {
@@ -107,13 +111,13 @@ pub fn detect_lane(lines: &[Line]) -> Result<Vec<Line>, &'static str> {
     // If no yellow line found, try to detect white line in image
     if let Some(w_vec) = get_average_line(&right_lines, Colour::White) {
       eprintln!("White line found! Estimating lane based on white line...");
-      return Ok(vec![
-        Line::from_vector(w_vec, Colour::Black),
+      return Some(vec![
         estimate_lane(w_vec),
+        Line::from_vector(w_vec, Colour::Black),
       ]);
     }
     eprintln!("No yellow or white lines found! Unable to detect lane.");
     // If no yellow or white lines found, return error
-    Err("Unable to detect lane without yellow or white lines!")
+    None
   }
 }
