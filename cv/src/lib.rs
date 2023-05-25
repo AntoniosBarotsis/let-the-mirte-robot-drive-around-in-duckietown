@@ -1,6 +1,6 @@
 use cv_error::CvError;
 use image_part::ImagePart;
-use line::{Colour, Line, Pos, HSV_WHITE, HSV_YELLOW};
+use line::{HSV_WHITE, HSV_YELLOW};
 use opencv::{
   core::{convert_scale_abs, in_range, Size_, Vec4f, Vector, CV_32SC1},
   imgproc::{
@@ -12,6 +12,7 @@ use opencv::{
   Result,
 };
 
+pub use line::{Colour, Line, Pos};
 pub use opencv::prelude::Mat;
 
 pub mod cv_error;
@@ -232,4 +233,16 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
     lines.append(&mut new_lines);
   }
   Ok(lines)
+}
+
+pub fn dbg_mat() -> Result<Mat, CvError> {
+  let mat = draw_lines::read_image("./assets/input_1.jpg")?;
+
+  let size = mat.size().map_err(|e| CvError::Other(e.to_string()))?;
+
+  if size.height == 0 || size.width == 0 {
+    return Err(CvError::IoError("Error reading image".to_owned()));
+  }
+
+  Ok(mat)
 }
