@@ -114,9 +114,10 @@ impl From<PyCvError> for PyErr {
     let msg = value.msg;
 
     match value.err.as_ref() {
-      CvError::NoLinesDetected | CvError::LineDetectorCreation | CvError::Other(_) => {
-        PyErr::new::<PyRuntimeError, _>(msg)
-      }
+      CvError::NoLinesDetected
+      | CvError::LineDetectorCreation
+      | CvError::Other(_)
+      | CvError::ColourConversion => PyErr::new::<PyRuntimeError, _>(msg),
       CvError::IoError(_) => PyErr::new::<PyIOError, _>(msg),
       CvError::Drawing => unreachable!(),
     }
