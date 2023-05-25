@@ -10,7 +10,22 @@ fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
   if coloured_lines.is_empty() {
     return None;
   }
-  let weighted_dir: Dir = coloured_lines.iter().map(Line::direction).sum();
+  //let weighted_dir: Dir = coloured_lines.iter().map(Line::direction).sum();
+  println!("Detecting {colour:?} lines");
+  let double_dir: Dir = coloured_lines
+    .iter()
+    .map(|line| {
+      let dir = line.direction();
+      let length = dir.length();
+      let n_dir = dir / length;
+      Dir::new(
+        2.0 * n_dir.x * n_dir.y,
+        n_dir.x * n_dir.x - n_dir.y * n_dir.y,
+      )
+    })
+    .sum();
+  let degree = double_dir.x.atan2(double_dir.y) / 2.0;
+  let weighted_dir = Dir::new(degree.cos(), degree.sin()) * 100.0;
 
   // Get average line position with line length as weight
   let total_squared_length: f32 = coloured_lines
