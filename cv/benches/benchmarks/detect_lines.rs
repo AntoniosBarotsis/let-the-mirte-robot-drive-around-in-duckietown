@@ -1,5 +1,5 @@
 use criterion::{criterion_group, Criterion};
-use cv::detect_lines;
+use cv::{detect_line_type, line::Colour};
 use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE};
 
 fn criterion_benchmark(c: &mut Criterion) {
@@ -10,14 +10,16 @@ fn criterion_benchmark(c: &mut Criterion) {
 
     b.iter(|| {
       for img in input.clone() {
-        let _res = detect_lines(img).expect("Line detection does not crash.");
+        let colours = vec![Colour::Yellow, Colour::White];
+        let _lines = detect_line_type(&img, colours).expect("Line detection does not crash.");
       }
     });
   });
 
   let _res = c.bench_function("detect lines (single)", |b| {
     b.iter(|| {
-      let _res = detect_lines(img.clone()).expect("Line detection does not crash.");
+      let colours = vec![Colour::Yellow, Colour::White];
+      let _lines = detect_line_type(&img.clone(), colours).expect("Line detection does not crash.");
     });
   });
 }
