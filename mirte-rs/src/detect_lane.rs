@@ -46,14 +46,6 @@ fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
   })
 }
 
-/// Estimates the lane given a line, which should either be a yellow or white line from Duckietown.
-fn estimate_lane(line: Vector) -> Line {
-  // For now, simply returning the given vector may be enough. This will only become clear once we
-  // have working motor controls for Mirte based on the lane. If it doesn't work well, we may need
-  // to revisit this function
-  Line::from_vector(line, Colour::Green)
-}
-
 /// Checks if `pos` lies on the right of `vector`
 pub fn lies_on_right(pos: &Pos, vector: &Vector) -> bool {
   pos.x > vector.origin.x + (pos.y - vector.end().x) / vector.slope()
@@ -88,47 +80,28 @@ pub fn detect_lane(lines: &[Line]) -> Option<Line> {
 /// For example, if it detects a yellow and/or white line, it'll add those lines to be rendered.
 pub fn detect_lane_debug(lines: &[Line]) -> Option<Vec<Line>> {
   // Try to detect yellow line in image
-  if let Some(y_vec) = get_average_line(lines, Colour::Yellow) {
-    // Get all lines that lie right of the yellow line
-    let right_lines: Vec<Line> = lines_on_right(lines, &y_vec);
-    // Try to detect white line right of yellow line
-    if let Some(w_vec) = get_average_line(&right_lines, Colour::White) {
-      // Do a bisection with yellow and white line
-      let lane = bisect(&y_vec, &w_vec).unwrap_or({
-        // If there is no intersection, both lines must have the same slope. Thus, we can simply
-        // get the slope of one of the lines. Since there is no intersection, we can simply
-        // estimate the centre of the lines by averaging their midpoints.
-        let intersection = (y_vec.midpoint() + w_vec.midpoint()) / 2.0;
-        Vector::new(intersection - Pos::from_dir(y_vec.dir), y_vec.dir * 2.0)
-      });
+  // TODO: use relative screen coords when implemented (for now, assuming resolution is 640x480)
+  let y_vec = get_average_line(lines, Colour::Yellow)
+    .unwrap_or(Vector::new(Pos::new(0.0, 480.0), Dir::new(500.0, -500.0)));
+  // Get all lines that lie right of the yellow line
+  let right_lines: Vec<Line> = lines_on_right(lines, &y_vec);
+  // Try to detect white line right of yellow line
+  let w_vec = get_average_line(&right_lines, Colour::White).unwrap_or(Vector::new(
+    Pos::new(640.0, 480.0),
+    Dir::new(-500.0, -500.0),
+  ));
+  // Do a bisection with yellow and white line
+  let lane = bisect(&y_vec, &w_vec).unwrap_or({
+    // If there is no intersection, both lines must have the same slope. Thus, we can simply
+    // get the slope of one of the lines. Since there is no intersection, we can simply
+    // estimate the centre of the lines by averaging their midpoints.
+    let intersection = (y_vec.midpoint() + w_vec.midpoint()) / 2.0;
+    Vector::new(intersection - Pos::from_dir(y_vec.dir), y_vec.dir * 2.0)
+  });
 
-      Some(vec![
-        Line::from_vector(lane, Colour::Green),
-        Line::from_vector(y_vec, Colour::Orange),
-        Line::from_vector(w_vec, Colour::Black),
-      ])
-    } else {
-      // If no white line right of yellow line found, try to estimate lane based on yellow line
-      Some(vec![
-        estimate_lane(y_vec),
-        Line::from_vector(y_vec, Colour::Orange),
-      ])
-    }
-  } else {
-    // If no yellow line is found, it's probably in a turn where the yellow lines are out of view.
-    // In that case, we can look for a white line on the right of the screen and estimate the lane
-    // using it.
-    // Get lines on right side of screen (640x480)
-    // TODO: get middle of screen from cv crate
-    let middle_vec = Vector::new(Pos::new(350.0, 0.0), Dir::new(0.0, 1000.0));
-    let right_lines: Vec<Line> = lines_on_right(lines, &middle_vec);
-    // If no yellow line found, try to detect white line and estimate the lane based on that.
-    // Returns `None` if no white line found.
-    get_average_line(&right_lines, Colour::White).map(|w_vec| {
-      vec![
-        estimate_lane(w_vec),
-        Line::from_vector(w_vec, Colour::Black),
-      ]
-    })
-  }
+  Some(vec![
+    Line::from_vector(lane, Colour::Green),
+    Line::from_vector(y_vec, Colour::Orange),
+    Line::from_vector(w_vec, Colour::Black),
+  ])
 }
