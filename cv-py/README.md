@@ -30,6 +30,10 @@ You should then be able to build the Python bindings. The following command buil
 Python wheel:
 
 ```sh
+# In the root folder
+maturin develop -m cv-py/Cargo.toml
+
+# Or from the `cv-py` folder
 maturin develop
 ```
 
