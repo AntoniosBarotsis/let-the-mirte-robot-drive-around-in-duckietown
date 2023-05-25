@@ -1,6 +1,6 @@
 use cv::line::{Colour, Dir, Line, Pos, Vector};
 
-const THRESHOLD: f32 = 10_000.0;
+const THRESHOLD: f32 = 0.0;
 
 fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
   let coloured_lines: Vec<Line> = lines

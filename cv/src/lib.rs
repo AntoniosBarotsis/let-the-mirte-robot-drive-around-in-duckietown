@@ -2,12 +2,14 @@ use cv_error::CvError;
 use image_part::ImagePart;
 use line::{Colour, Line, Pos, HSV_GREEN, HSV_WHITE, HSV_YELLOW};
 use opencv::{
-  core::{convert_scale_abs, in_range, Point, Scalar, Size_, Vec4f, Vector},
-  imgproc::{
-    calc_hist, cvt_color, line, resize, COLOR_BGR2RGB, COLOR_RGB2GRAY, COLOR_RGB2HSV, INTER_AREA,
-    LINE_AA,
+  core::{
+    convert_scale_abs, in_range, Point, Scalar, Size_, Vec4f, Vector, CV_32SC1, CV_MAT_DEPTH_MASK,
   },
-  prelude::{MatTrait, MatTraitConstManual},
+  imgproc::{
+    calc_hist, cvt_color, line, resize, COLOR_BGR2HSV, COLOR_BGR2RGB, COLOR_RGB2GRAY,
+    COLOR_RGB2HSV, INTER_AREA, LINE_AA,
+  },
+  prelude::{MatTrait, MatTraitConst, MatTraitConstManual},
   ximgproc::create_fast_line_detector,
   ximgproc::FastLineDetector,
   Result,
@@ -24,11 +26,11 @@ pub mod line;
 ///
 /// The specified image part is the one ***kept*** in the resulting image.
 pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
-  let half_height = img.size()?.height / 2;
+  let new_height = img.size()?.height * 60 / 100;
 
   let crop = match keep {
-    ImagePart::Top => img.adjust_roi(0, -half_height, 0, 0),
-    ImagePart::Bottom => img.adjust_roi(-half_height, 0, 0, 0),
+    ImagePart::Top => img.adjust_roi(0, -new_height, 0, 0),
+    ImagePart::Bottom => img.adjust_roi(-new_height, 0, 0, 0),
   }?;
 
   Ok(crop)
@@ -58,19 +60,28 @@ fn get_lines(img: &Mat, colour: Colour, half_height: f32) -> Result<Vec<Line>, C
 
 fn scale_contrast(img: &Mat) -> Result<Mat, CvError> {
   // Change this factor for the contrast clipping
-  const CLIP_FACTOR: i32 = 100;
+  const CLIP_FACTOR: f32 = 100.0;
+
+  println!("img depth {}", Mat::depth(img) & CV_MAT_DEPTH_MASK);
+  println!("img channels {}", Mat::channels(img));
 
   let mut gray_img = Mat::default();
   cvt_color(&img, &mut gray_img, COLOR_RGB2GRAY, 0)?;
 
-  let mut hist = Vector::<i32>::default();
+  println!("img depth {}", Mat::depth(&gray_img) & CV_MAT_DEPTH_MASK);
+  println!("img channels {}", Mat::channels(&gray_img));
+
+  let mut type_img = Mat::default();
+  gray_img.convert_to(&mut type_img, CV_32SC1, 1.0, 0.0)?;
+
+  let mut hist = Mat::default();
 
   let mut range = opencv::core::Vector::<f32>::from_elem(0.0, 1);
   range.push(256.0);
 
   // TODO: Check why calc_hist returns an error
   calc_hist(
-    &gray_img,
+    &opencv::core::Vector::<Mat>::from_elem(gray_img, 1),
     &opencv::core::Vector::<i32>::from_elem(0, 1),
     &Mat::default(),
     &mut hist,
@@ -79,13 +90,18 @@ fn scale_contrast(img: &Mat) -> Result<Mat, CvError> {
     false,
   )?;
 
-  let hist_len = hist.len();
+  // println!("Mat data type {:?}", img.data_typed()?);
+  println!("{:?}", hist.rows());
 
-  let mut acc: [i32; 256] = [0; 256];
-  acc[0] = hist.get(0)?;
+  let hist_len = hist.rows() as usize;
+
+  let mut acc: [f32; 256] = [0.0; 256];
+  acc[0] = *hist.at::<f32>(0)?;
+
+  println!("{}", acc[0]);
   for n in 1..hist_len {
     // TODO: check if we need -1 or not
-    acc[n] = acc[n - 1] + hist.get(n)?;
+    acc[n] = acc[n - 1] + *hist.at::<f32>(i32::try_from(n).expect("convert"))?;
   }
 
   let max = acc[acc.len() - 1];
@@ -102,14 +118,16 @@ fn scale_contrast(img: &Mat) -> Result<Mat, CvError> {
   }
 
   #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
-  let a = 255 / (max_gray as i32 - min_gray as i32);
+  let a = 255.0 / (max_gray as f32 - min_gray as f32);
   #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
-  let b = -(min_gray as i32) * a;
+  let b = -(min_gray as f32) * a;
 
   let mut contrast_img = Mat::default();
 
   #[allow(clippy::cast_lossless)]
   convert_scale_abs(&img, &mut contrast_img, a as f64, b as f64)?;
+
+  println!("bla");
 
   Ok(contrast_img)
 }
@@ -136,8 +154,8 @@ pub fn downscale(img: &Mat) -> Result<Mat, CvError> {
     &img,
     &mut resized,
     Size_ {
-      width: 320,
-      height: 240,
+      width: 320,  // 320
+      height: 240, // 240
     },
     0.0,
     0.0,
@@ -149,20 +167,23 @@ pub fn downscale(img: &Mat) -> Result<Mat, CvError> {
 
 pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, CvError> {
   let mut copy_img = Mat::copy(img)?;
-  let img_height = copy_img.size()?.height / 2;
 
   let cropped_img = crop_image(&mut copy_img, ImagePart::Bottom)?;
+
+  let img_height = img.rows() - cropped_img.rows();
 
   // Contrast stretching
   let contrast_img = scale_contrast(&cropped_img)?;
 
   let rgb_img = convert_to_rgb(&contrast_img)?;
   opencv::highgui::imshow("contrast", &rgb_img).expect("open window");
-  let _res = opencv::highgui::wait_key(0).expect("keep window open");
+  // let _res = opencv::highgui::wait_key(0).expect("keep window open");
 
   let mut hsv_img = Mat::default();
 
   // Converting colour takes about half of the time of this funciton
+  // Colour code should be `COLOR_BGR2HSV` when image file is used.
+  // Colour code should be `COLOR_RGB2HSV` when ROS image is used.
   cvt_color(&contrast_img, &mut hsv_img, COLOR_RGB2HSV, 0)?;
 
   let mut lines: Vec<Line> = Vec::new();
@@ -176,6 +197,18 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
 
     let mut colour_img = Mat::default();
     in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img)?;
+
+    match colour_enum {
+      Colour::Yellow => {
+        opencv::highgui::imshow("yellow", &colour_img).expect("open window");
+        // let _res = opencv::highgui::wait_key(0).expect("keep window open");
+      }
+      Colour::White => {
+        opencv::highgui::imshow("white", &colour_img).expect("open window");
+        // let _res = opencv::highgui::wait_key(0).expect("keep window open");
+      }
+      _ => (),
+    };
 
     // Get the lines of this colour
     // Casting an i32 to an f32 is fine, as the image height is realistically never going to exceed

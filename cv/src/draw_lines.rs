@@ -1,4 +1,4 @@
-use crate::{cv_error::CvError, line::Colour, line::Line};
+use crate::{convert_to_rgb, cv_error::CvError, line::Colour, line::Line};
 use opencv::{
   core::{Mat, Point, Scalar, Vector},
   highgui::{imshow, wait_key},
@@ -12,6 +12,8 @@ pub fn read_image(path: &str) -> Result<Mat, CvError> {
 }
 
 pub fn draw_lines(mut img: &mut Mat, lines: &Vec<Line>) {
+  let mut img: &mut Mat = &mut convert_to_rgb(img).expect("bla");
+
   for l in lines {
     // Truncation here is fine (and needed) as we are just drawing pixels on the screen.
     #[allow(clippy::cast_possible_truncation)]
@@ -35,7 +37,7 @@ pub fn draw_lines(mut img: &mut Mat, lines: &Vec<Line>) {
       .map_err(|_e| CvError::Drawing)
       .expect("draw");
   }
-  let _b = imwrite("./assets/output.jpg", img, &Vector::default());
+  // let _b = imwrite("./assets/output.jpg", img, &Vector::default());
   imshow("test", img).expect("open window");
   let _res = wait_key(0).expect("keep window open");
 }
