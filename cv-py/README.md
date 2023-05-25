@@ -9,15 +9,38 @@ sudo apt-get install python3.7 python3-pip -y
 pip3 install maturin patchelf
 ```
 
-For development, create and activate a Python environment, then run:
+For development, create and activate a Python environment. 
+[The docs](https://www.maturin.rs/tutorial.html#install-and-configure-maturin-in-a-virtual-environment)
+suggest running the following:
 
 ```sh
-maturin develop -m cv-py/Cargo.toml
+# Recommended you change to this directory as the venv is gitignored
+cd cv-py/
+
+# You might not need this and you might also need to specify a different 3.x number, try running
+# the next command first and see if you get an error. If you do, you should get the apt install
+# you need to run included in your error.
+sudo apt install python3.8-venv
+python3 -m venv .venv
+source .venv/bin/activate # You will need to run this on every new shell to enable the environment.
+pip install -U pip maturin maturin[patchelf]
+```
+
+You should then be able to build the Python bindings. The following command builds and installs the
+Python wheel:
+
+```sh
+maturin develop
 ```
 
 This should install this crate's Python bindings in the Python interpreter of your virtual
 environment. To verify that it works you can run `python3 cv-py/test.py` which runs the
-`detect_line_type` method.
+`detect_line_type` method. 
+
+> Note that as of now, the test uses a relative path on the Rust side to import an input image from
+> the `assets` folder. For this reason, you need to run this command from the root so as to not get
+> a file not found error. This test file is meant to be a demonstration and when we switch to using
+> in memory images from the camera it will obviously not be an issue.
 
 For release, run:
 
