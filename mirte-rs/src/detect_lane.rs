@@ -63,10 +63,15 @@ pub fn bisect(vec1: &Vector, vec2: &Vector) -> Option<Vector> {
   })
 }
 
-/// Detects the lane based on given line segments. Returns a `Vec<Line>`, where the first line is
-/// the lane, and any other lines are debug information for rendering to the screen. For example,
-/// if it detects a yellow and/or white line, it'll add those lines to be rendered.
-pub fn detect_lane(lines: &[Line]) -> Result<Vec<Line>, &'static str> {
+/// Detects the lane based on given line segments. Returns a `Line` if successful.
+pub fn detect_lane(lines: &[Line]) -> Option<Line> {
+  detect_lane_debug(lines).map(|lines| lines[0])
+}
+
+/// Detects the lane based on given line segments. Returns a `Vec<Line>` if successful, where the
+/// first line is the lane, and any other lines are debug information for rendering to the screen.
+/// For example, if it detects a yellow and/or white line, it'll add those lines to be rendered.
+pub fn detect_lane_debug(lines: &[Line]) -> Option<Vec<Line>> {
   // Try to detect yellow line in image
   if let Some(y_vec) = get_average_line(lines, Colour::Yellow) {
     // Get all lines that lie right of the yellow line
@@ -82,14 +87,14 @@ pub fn detect_lane(lines: &[Line]) -> Result<Vec<Line>, &'static str> {
         Vector::new(intersection - Pos::from_dir(y_vec.dir), y_vec.dir * 2.0)
       });
 
-      Ok(vec![
+      Some(vec![
         Line::from_vector(lane, Colour::Green),
         Line::from_vector(y_vec, Colour::Orange),
         Line::from_vector(w_vec, Colour::Black),
       ])
     } else {
       // If no white line right of yellow line found, try to estimate lane based on yellow line
-      Ok(vec![
+      Some(vec![
         estimate_lane(y_vec),
         Line::from_vector(y_vec, Colour::Orange),
       ])
@@ -102,14 +107,13 @@ pub fn detect_lane(lines: &[Line]) -> Result<Vec<Line>, &'static str> {
     // TODO: get middle of screen from cv crate
     let middle_vec = Vector::new(Pos::new(350.0, 0.0), Dir::new(0.0, 1000.0));
     let right_lines: Vec<Line> = lines_on_right(lines, &middle_vec);
-    // If no yellow line found, try to detect white line in image
-    if let Some(w_vec) = get_average_line(&right_lines, Colour::White) {
-      return Ok(vec![
+    // If no yellow line found, try to detect white line and estimate the lane based on that.
+    // Returns `None` if no white line found.
+    get_average_line(&right_lines, Colour::White).map(|w_vec| {
+      vec![
         estimate_lane(w_vec),
         Line::from_vector(w_vec, Colour::Black),
-      ]);
-    }
-    // If no yellow or white lines found, return error
-    Err("Unable to detect lane without yellow or white lines!")
+      ]
+    })
   }
 }
