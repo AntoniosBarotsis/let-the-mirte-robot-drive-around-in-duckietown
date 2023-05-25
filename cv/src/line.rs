@@ -67,6 +67,8 @@ impl Pos {
   pub fn from_dir(dir: Dir) -> Self {
     Self::new(dir.x, dir.y)
   }
+
+  pub const ORIGIN: Pos = Pos { x: 0.0, y: 0.0 };
 }
 
 #[derive(Debug, Clone, Copy, Add, Sub, Div, Mul, Sum, Neg)]
@@ -108,6 +110,13 @@ impl Vector {
     Self {
       origin: line.start,
       dir: line.direction(),
+    }
+  }
+
+  pub fn from_dir(dir: Dir) -> Self {
+    Self {
+      origin: Pos::ORIGIN,
+      dir,
     }
   }
 
@@ -185,6 +194,11 @@ mod tests {
     assert_eq!(line1.colour, line2.colour);
     assert_pos_eq(line1.start, line2.start);
     assert_pos_eq(line1.end, line2.end);
+  }
+
+  fn assert_vector_eq(vec1: Vector, vec2: Vector) {
+    assert_pos_eq(vec1.origin, vec2.origin);
+    assert_dir_eq(vec1.dir, vec2.dir);
   }
 
   #[test]
@@ -331,5 +345,12 @@ mod tests {
     let line = Line::new(Colour::Red, Pos::new(10.0, -5.0), Pos::new(20.0, -10.0));
     let midpoint = line.midpoint();
     assert_pos_eq(midpoint, Pos::new(15.0, -7.5));
+  }
+
+  #[test]
+  fn create_vector_from_dir() {
+    let dir = Dir::new(10.0, -5.0);
+    let vec = Vector::from_dir(dir);
+    assert_vector_eq(vec, Vector::new(Pos::new(0.0, 0.0), Dir::new(10.0, -5.0)));
   }
 }
