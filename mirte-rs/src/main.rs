@@ -1,7 +1,7 @@
 use std::time::Instant;
 
 use cv::{downscale, draw_lines::draw_lines};
-use mirte_rs::detect_lane::detect_lane;
+use mirte_rs::detect_lane::detect_lane_debug;
 use ros::{process_ros_image, CvImage};
 
 /// For now, just reads an image from ROS and shows it on screen.
@@ -29,7 +29,7 @@ fn main() {
       println!("detecting lines: {:?}", time_2.elapsed());
 
       let time_3 = Instant::now();
-      let all_lines = if let Ok(lane) = detect_lane(&lines) {
+      let all_lines = if let Some(lane) = detect_lane_debug(&lines) {
         [lines, lane].concat()
       } else {
         lines

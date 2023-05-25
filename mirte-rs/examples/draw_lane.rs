@@ -1,5 +1,5 @@
 use cv::draw_lines::{draw_lines, read_image};
-use mirte_rs::detect_lane::{detect_lane, detect_lane_debug};
+use mirte_rs::detect_lane::detect_lane_debug;
 use std::env;
 
 fn main() {
