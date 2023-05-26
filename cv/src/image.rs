@@ -137,8 +137,8 @@ pub fn downscale(img: &Mat) -> Result<Mat, CvError> {
   Ok(resized)
 }
 
-pub fn dbg_mat() -> Result<Mat, CvError> {
-  let mat = draw_lines::read_image("./assets/input_1.jpg")?;
+pub fn dbg_mat(path: &str) -> Result<Mat, CvError> {
+  let mat = draw_lines::read_image(path)?;
 
   let size = mat.size()?;
 
