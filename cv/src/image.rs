@@ -131,6 +131,11 @@ pub fn convert_to_rgb(img: &Mat) -> Result<Mat, CvError> {
   Ok(rgb_img)
 }
 
+/// converts a gvien image with a RGB colour format to one in grayscale
+///
+/// * `img` - The image who's colour format needs to be chanced
+///
+/// Returns a result of the image as grayscale as a `Mat`
 pub fn convert_to_gray(img: &Mat) -> Result<Mat, CvError> {
   let mut gray_img = Mat::default();
   cvt_color(&img, &mut gray_img, COLOR_RGB2GRAY, 0)?;
@@ -142,6 +147,20 @@ pub fn convert_to_gray(img: &Mat) -> Result<Mat, CvError> {
 /// * `img` - The image that needs to be downscaled
 ///
 /// Returns a result with the now downscaled image as a `Mat`
+///
+/// # Examples
+///
+/// ```
+/// use opencv::prelude::MatTraitConstManual;
+///
+/// use cv::image::{dbg_mat, downscale};
+///
+/// let mat = dbg_mat("../assets/input_1.jpg").expect("couldn't get a matrix as output");
+/// let output_mat = downscale(&mat).expect("couldn't downscale the image");
+/// let output_size = output_mat.size().expect("couldn't get matrix size");
+///
+/// assert!(output_size.width == 320 && output_size.height == 240);
+/// ```
 pub fn downscale(img: &Mat) -> Result<Mat, CvError> {
   let mut resized = Mat::default();
 
