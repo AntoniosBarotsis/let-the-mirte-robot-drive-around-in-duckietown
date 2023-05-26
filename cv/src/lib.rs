@@ -2,7 +2,7 @@ use cv_error::CvError;
 use image_part::ImagePart;
 use line::{HSV_WHITE, HSV_YELLOW};
 use opencv::{
-  core::{convert_scale_abs, in_range, Size_, Vec4f, Vector, CV_32SC1},
+  core::{convert_scale_abs, in_range, Size, Size_, Vec4f, Vector, CV_32SC1},
   imgproc::{
     calc_hist, cvt_color, resize, COLOR_BGR2RGB, COLOR_RGB2GRAY, COLOR_RGB2HSV, INTER_AREA,
   },
@@ -44,7 +44,12 @@ pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
 /// * `line_offset` - The Y offset of where to draw the lines
 ///
 /// Returns gain result of gain vector of lines found on the image with the specified colour
-fn get_lines(img: &Mat, colour: Colour, line_offset: f32) -> Result<Vec<Line>, CvError> {
+fn get_lines(
+  img: &Mat,
+  colour: Colour,
+  orig_size: Size,
+  line_offset: f32,
+) -> Result<Vec<Line>, CvError> {
   let mut fast_line_detector = create_fast_line_detector(20, 1.41, 150.0, 350.0, 3, true)
     .map_err(|_e| CvError::LineDetectorCreation)?;
 
@@ -56,11 +61,16 @@ fn get_lines(img: &Mat, colour: Colour, line_offset: f32) -> Result<Vec<Line>, C
 
   let mut line_vec: Vec<Line> = Vec::default();
 
+  #[allow(clippy::cast_precision_loss)]
+  let width = orig_size.width as f32;
+  #[allow(clippy::cast_precision_loss)]
+  let height = orig_size.height as f32;
+
   for line in lines {
     line_vec.push(Line::new(
       colour,
-      Pos::new(line[0], line[1] + line_offset),
-      Pos::new(line[2], line[3] + line_offset),
+      Pos::new(line[0] / width, (line[1] + line_offset) / height),
+      Pos::new(line[2] / width, (line[3] + line_offset) / height),
     ));
   }
   Ok(line_vec)
@@ -204,7 +214,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
 
   let cropped_img = crop_image(&mut copy_img, ImagePart::Bottom)?;
 
-  let img_height = img.rows() - cropped_img.rows();
+  let top_img_height = img.rows() - cropped_img.rows();
 
   // Contrast stretching
   let contrast_img = enhance_contrast(&cropped_img)?;
@@ -249,7 +259,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
 
     // This takes about 1/6 of the time for 2 colours
     #[allow(clippy::cast_precision_loss)]
-    let mut new_lines = get_lines(&colour_img, colour_enum, img_height as f32)?;
+    let mut new_lines = get_lines(&colour_img, colour_enum, img.size()?, top_img_height as f32)?;
 
     lines.append(&mut new_lines);
   }
@@ -259,7 +269,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
 pub fn dbg_mat() -> Result<Mat, CvError> {
   let mat = draw_lines::read_image("./assets/input_1.jpg")?;
 
-  let size = mat.size().map_err(|e| CvError::Other(e.to_string()))?;
+  let size = mat.size()?;
 
   if size.height == 0 || size.width == 0 {
     return Err(CvError::IoError("Error reading image".to_owned()));
