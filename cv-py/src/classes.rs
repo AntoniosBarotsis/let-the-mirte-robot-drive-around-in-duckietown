@@ -1,4 +1,5 @@
-use cv::{cv_error::CvError, Colour, Line, Pos};
+use cv::cv_error::CvError;
+use cv::line::{Colour, Line, Pos};
 use pyo3::exceptions::{PyIOError, PyRuntimeError};
 use pyo3::prelude::*;
 

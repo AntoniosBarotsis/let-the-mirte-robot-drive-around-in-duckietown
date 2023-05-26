@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use cv::{downscale, draw_lines::draw_lines};
+use cv::{detect_lines::detect_line_type, draw_lines::draw_lines, image::downscale};
 use mirte_rs::detect_lane::detect_lane;
 use ros::{process_ros_image, CvImage};
 
@@ -25,7 +25,7 @@ fn main() {
     let colours = vec![cv::line::Colour::Yellow, cv::line::Colour::White];
 
     let time_2 = Instant::now();
-    if let Ok(lines) = cv::detect_line_type(&resized, colours) {
+    if let Ok(lines) = detect_line_type(&resized, colours) {
       println!("detecting lines: {:?}", time_2.elapsed());
 
       let time_3 = Instant::now();

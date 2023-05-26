@@ -1,5 +1,5 @@
 use criterion::{criterion_group, Criterion};
-use cv::{detect_line_type, line::Colour};
+use cv::{detect_lines::detect_line_type, line::Colour};
 use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE};
 
 fn criterion_benchmark(c: &mut Criterion) {

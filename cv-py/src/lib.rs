@@ -3,7 +3,7 @@
 mod classes;
 
 use classes::{PyColour, PyCvError, PyLine, PyPos};
-use cv::{dbg_mat, detect_line_type, Colour};
+use cv::{detect_lines::detect_line_type, image::dbg_mat, line::Colour};
 use pyo3::prelude::*;
 
 #[pyfunction(name = "detect_line_type")]
