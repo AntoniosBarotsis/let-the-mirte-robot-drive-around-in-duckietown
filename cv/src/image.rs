@@ -28,6 +28,23 @@ pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
 /// * `img` - The image which contrast needs to be enhanced
 ///
 /// Returns gain result of image which enhanced contrast as `Mat`
+///
+/// # Example
+///
+/// ```
+/// use opencv::prelude::MatTraitConst;
+///
+/// use cv::image::{convert_to_gray, dbg_mat, enhance_contrast};
+///
+/// let mat = dbg_mat("../assets/test_images/test_image_1.png").expect("couldn't get a matrix");
+/// let gray_mat = convert_to_gray(&mat).expect("couldn't convert to gray");
+/// let diff = *gray_mat.at::<u8>(0).expect("couldn't get first value") - *gray_mat.at::<u8>(3).expect("couldn't get second value");
+/// let output_mat = enhance_contrast(&mat).expect("couldn't enhance contrast");
+/// let gray_output_mat = convert_to_gray(&output_mat).expect("couldn't covert to gray");
+/// let output_diff = *gray_output_mat.at::<u8>(0).expect("couldn't get first value") - *gray_output_mat.at::<u8>(3).expect("couldn't get second value");
+///
+/// assert!(diff < output_diff);
+/// ```
 pub fn enhance_contrast(img: &Mat) -> Result<Mat, CvError> {
   let mut gray_img = Mat::default();
   cvt_color(&img, &mut gray_img, COLOR_RGB2GRAY, 0)?;
@@ -112,6 +129,12 @@ pub fn convert_to_rgb(img: &Mat) -> Result<Mat, CvError> {
   let mut rgb_img = Mat::default();
   cvt_color(&img, &mut rgb_img, COLOR_BGR2RGB, 0)?;
   Ok(rgb_img)
+}
+
+pub fn convert_to_gray(img: &Mat) -> Result<Mat, CvError> {
+  let mut gray_img = Mat::default();
+  cvt_color(&img, &mut gray_img, COLOR_RGB2GRAY, 0)?;
+  Ok(gray_img)
 }
 
 /// Given an image it will downscale that image to a width of 320 and height of 240
