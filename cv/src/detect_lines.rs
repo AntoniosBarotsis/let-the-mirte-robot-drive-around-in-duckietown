@@ -19,7 +19,23 @@ use crate::{
 /// * `line_offset` - The Y offset of where to draw the lines
 ///
 /// Returns gain result of gain vector of lines found on the image with the specified colour
-fn get_lines(
+///
+/// # Examples
+///
+/// ```
+/// use opencv::{core::Size_, prelude::MatTraitConstManual};
+///
+/// use cv::{detect_lines::get_lines, image::{convert_to_gray, dbg_mat, downscale}, line::Colour,};
+///
+/// let mat = dbg_mat("../assets/test_images/test_image_2.png").expect("couldn't get image");
+/// let mat_gray = convert_to_gray(&mat).expect("couldn't get gray image");
+/// let line_vec = get_lines(&mat_gray, Colour::Yellow, Size_ {width: 320, height: 240,}, 0.0,).expect("couldn't detect a line");
+/// assert_eq!(line_vec.len(), 2);
+/// assert!(line_vec[0].colour == Colour::Yellow);
+/// assert!(line_vec[0].start.x <= 0.60 && line_vec[0].start.x >= 0.40);
+/// assert!(line_vec[0].end.x <= 0.60 && line_vec[0].end.x >= 0.40);
+/// ```
+pub fn get_lines(
   img: &Mat,
   colour: Colour,
   orig_size: Size,
