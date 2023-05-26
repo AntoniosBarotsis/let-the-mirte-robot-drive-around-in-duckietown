@@ -146,6 +146,11 @@ fn calc_gain_bias(hist: &Mat) -> Result<(f32, f32), CvError> {
   Ok((gain, bias))
 }
 
+/// given a colour type it will return the lower and upper bound of the range of that colour in HSV
+///
+/// * `colour` - The colour of which the colour range needs to be extracted
+///
+/// Return an 2d-array with the lower bound on index 0 and upper bound on index 1
 fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
   match colour {
     Colour::White => HSV_WHITE,
@@ -154,12 +159,22 @@ fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
   }
 }
 
+/// converts a given image with a BGR colour format to one with a RGB colour format
+///
+/// * `img` - The image who's colour format needs to be chanced
+///
+/// Returns a result of the image with the RGB colour format as a `Mat`
 pub fn convert_to_rgb(img: &Mat) -> Result<Mat, CvError> {
   let mut rgb_img = Mat::default();
   cvt_color(&img, &mut rgb_img, COLOR_BGR2RGB, 0)?;
   Ok(rgb_img)
 }
 
+/// Given an image it will downscale that image to a width of 320 and height of 240
+///
+/// * `img` - The image that needs to be downscaled
+///
+/// Returns a result with the now downscaled image as a `Mat`
 pub fn downscale(img: &Mat) -> Result<Mat, CvError> {
   let mut resized = Mat::default();
 
@@ -178,6 +193,12 @@ pub fn downscale(img: &Mat) -> Result<Mat, CvError> {
   Ok(resized)
 }
 
+/// Given a image and a vector of colours this method will detect lines in the image for all given colours.
+///
+/// * `img` - The image in which the lines need to be detected
+/// * `colours` - A vector of all the colours if which you want to detect the lines
+///
+/// Returns a result with a vector of all the lines found in the image
 pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, CvError> {
   let mut copy_img = Mat::copy(img)?;
 
