@@ -1,4 +1,4 @@
-from cv_py import colour, detect_line_type
+from cv_py import colour, detect_line_type, detect_lane
 
 colours = [colour.yellow, colour.white]
 
@@ -12,4 +12,14 @@ for line in lines:
     assert line.end.x != None
     assert line.end.y != None
 
-print("Passed")
+lane = detect_lane(lines)
+
+if lane != None:
+    assert lane.start.x != None
+    assert lane.start.y != None
+    assert lane.end.x != None
+    assert lane.end.y != None
+
+    print("Passed")
+else:
+    print("lane was None")

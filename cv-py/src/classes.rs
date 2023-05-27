@@ -1,4 +1,5 @@
-use cv::{cv_error::CvError, Colour, Line, Pos};
+use cv::cv_error::CvError;
+use cv::line::{Colour, Line, Pos};
 use pyo3::exceptions::{PyIOError, PyRuntimeError};
 use pyo3::prelude::*;
 
@@ -20,6 +21,16 @@ impl From<Line> for PyLine {
     let end = PyPos::from(value.end);
 
     PyLine { colour, start, end }
+  }
+}
+
+impl From<PyLine> for Line {
+  fn from(value: PyLine) -> Self {
+    let colour = Colour::from(value.colour);
+    let start = Pos::from(value.start);
+    let end = Pos::from(value.end);
+
+    Line { colour, start, end }
   }
 }
 
@@ -88,7 +99,17 @@ impl From<Pos> for PyPos {
   fn from(value: Pos) -> Self {
     let x = value.x;
     let y = value.y;
+
     PyPos { x, y }
+  }
+}
+
+impl From<PyPos> for Pos {
+  fn from(value: PyPos) -> Self {
+    let x = value.x;
+    let y = value.y;
+
+    Pos { x, y }
   }
 }
 
