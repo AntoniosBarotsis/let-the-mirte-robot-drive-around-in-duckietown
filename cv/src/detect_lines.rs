@@ -74,17 +74,6 @@ pub fn get_lines(
 ///
 /// Returns a result with a vector of all the lines found in the image
 pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, CvError> {
-  detect_line_type_debug(img, colours)
-}
-
-/// Given a image and a vector of colours this method will detect lines in the image for all given colours.
-///
-/// * `img` - The image in which the lines need to be detected
-/// * `colours` - A vector of all the colours if which you want to detect the lines
-/// * `debug` - A boolean for getting debug images
-///
-/// Returns a result with a vector of all the lines found in the image
-pub fn detect_line_type_debug(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, CvError> {
   let mut copy_img = Mat::copy(img)?;
 
   let cropped_img = crop_image(&mut copy_img, ImagePart::Bottom)?;
