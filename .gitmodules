@@ -1,0 +1,3 @@
+[submodule "mirte-web-interface"]
+	path = mirte-web-interface
+	url = https://github.com/mirte-robot/mirte-web-interface
