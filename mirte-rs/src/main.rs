@@ -1,7 +1,6 @@
 use std::time::Instant;
 
 use cv::{detect_lines::detect_line_type, draw_lines::draw_lines, image::downscale};
-use mirte_rs::detect_lane::detect_lane;
 use mirte_rs::detect_lane::detect_lane_debug;
 use ros::{process_ros_image, CvImage};
 

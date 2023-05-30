@@ -79,16 +79,13 @@ pub fn detect_lane(lines: &[Line]) -> Option<Line> {
 /// For example, if it detects a yellow and/or white line, it'll add those lines to be rendered.
 pub fn detect_lane_debug(lines: &[Line]) -> Option<Vec<Line>> {
   // Try to detect yellow line in image
-  // TODO: use relative screen coords when implemented (for now, assuming resolution is 640x480)
   let y_vec = get_average_line(lines, Yellow)
-    .unwrap_or(Vector::new(Pos::new(0.0, 480.0), Dir::new(500.0, -500.0)));
+    .unwrap_or(Vector::new(Pos::new(0.0, 1.0), Dir::new(0.25, -1.0)));
   // Get all lines that lie right of the yellow line
   let right_lines: Vec<Line> = lines_on_right(lines, &y_vec);
   // Try to detect white line right of yellow line
-  let w_vec = get_average_line(&right_lines, White).unwrap_or(Vector::new(
-    Pos::new(640.0, 480.0),
-    Dir::new(-500.0, -500.0),
-  ));
+  let w_vec = get_average_line(&right_lines, White)
+    .unwrap_or(Vector::new(Pos::new(1.0, 1.0), Dir::new(-0.25, -1.0)));
   // Do a bisection with yellow and white line
   let lane = bisect(&y_vec, &w_vec).unwrap_or({
     // If there is no intersection, both lines must have the same slope. Thus, we can simply

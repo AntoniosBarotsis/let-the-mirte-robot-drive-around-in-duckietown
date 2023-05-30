@@ -5,6 +5,7 @@ use opencv::{
   ximgproc::{create_fast_line_detector, FastLineDetector},
 };
 
+#[cfg(debug_assertions)]
 use crate::image::convert_to_rgb;
 use crate::{
   cv_error::CvError,
@@ -32,7 +33,7 @@ use crate::{
 /// let mat_gray = convert_to_gray(&mat).expect("couldn't get gray image");
 /// let line_vec = get_lines(&mat_gray, Colour::Yellow, Size_ {width: 320, height: 240,}, 0.0,).expect("couldn't detect a line");
 /// assert_eq!(line_vec.len(), 2);
-/// assert!(line_vec[0].colour == Colour::Yellow);
+/// assert_eq!(line_vec[0].colour, Colour::Yellow);
 /// assert!(line_vec[0].start.x <= 0.60 && line_vec[0].start.x >= 0.40);
 /// assert!(line_vec[0].end.x <= 0.60 && line_vec[0].end.x >= 0.40);
 /// ```
@@ -92,7 +93,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
 
   let mut hsv_img = Mat::default();
 
-  // Converting colour takes about half of the time of this funciton
+  // Converting colour takes about half of the time of this function
   // Colour code should be `COLOR_BGR2HSV` when image file is used.
   // Colour code should be `COLOR_RGB2HSV` when ROS image is used.
   cvt_color(&contrast_img, &mut hsv_img, COLOR_RGB2HSV, 0)?;
