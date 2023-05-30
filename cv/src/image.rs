@@ -1,10 +1,17 @@
 use opencv::{
   core::{convert_scale_abs, Size_, CV_32SC1},
+  imgcodecs::{imread, IMREAD_UNCHANGED},
   imgproc::{calc_hist, cvt_color, resize, COLOR_BGR2RGB, COLOR_RGB2GRAY, INTER_AREA},
   prelude::{Mat, MatTrait, MatTraitConst, MatTraitConstManual},
 };
 
-use crate::{cv_error::CvError, draw_lines, image_part::ImagePart};
+use crate::{cv_error::CvError, image_part::ImagePart};
+
+// Reads and image from a file and returns the image in the correct colours
+pub fn read_image(path: &str) -> Result<Mat, CvError> {
+  let img = imread(path, IMREAD_UNCHANGED)?;
+  convert_to_rgb(&img)
+}
 
 /// Crops the image to reduce redundant information. It will split it into two part. A top part and gain bottom part.
 ///
@@ -12,6 +19,20 @@ use crate::{cv_error::CvError, draw_lines, image_part::ImagePart};
 /// * `keep` - Which part of the image you want to keep. There are two options. `ImagePart::Top` give the top part and `ImagePart::Bottom` gives the bottom
 ///
 /// Returns gain result with the specificed part as `Mat`
+///
+/// # Example
+/// ```
+/// use cv::{
+///   image::{crop_image, dbg_mat},
+///   image_part::ImagePart,
+/// };
+/// use opencv::prelude::MatTraitConst;
+///
+/// let mut img = dbg_mat("../assets/test_images/test_image_2.png").expect("could not read image");
+/// let original_height = img.rows();
+/// let cropped_img = crop_image(&mut img, ImagePart::Top).expect("could not crop image");
+/// assert!(original_height - cropped_img.rows() > 0);
+/// ```
 pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   let new_height = img.size()?.height * 3 / 5;
 
@@ -179,8 +200,21 @@ pub fn downscale(img: &Mat) -> Result<Mat, CvError> {
   Ok(resized)
 }
 
+/// Method for converting an image path to the `Mat` format used by `OpenCV`
+///
+/// * `path` - The path to the image that needs to be converted
+///  
+/// Returns a result with in it a `Mat` representation of the image
+///
+/// # Example
+/// ```
+/// use cv::image::dbg_mat;
+///
+/// let error = dbg_mat("../this/path/does/not/exist.png");
+/// assert!(error.is_err());
+/// ```
 pub fn dbg_mat(path: &str) -> Result<Mat, CvError> {
-  let mat = draw_lines::read_image(path)?;
+  let mat = read_image(path)?;
 
   let size = mat.size()?;
 

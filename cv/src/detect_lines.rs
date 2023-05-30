@@ -7,6 +7,7 @@ use opencv::{
 
 #[cfg(debug_assertions)]
 use crate::image::convert_to_rgb;
+
 use crate::{
   cv_error::CvError,
   image::{crop_image, enhance_contrast},
@@ -33,7 +34,7 @@ use crate::{
 /// let mat_gray = convert_to_gray(&mat).expect("couldn't get gray image");
 /// let line_vec = get_lines(&mat_gray, Colour::Yellow, Size_ {width: 320, height: 240,}, 0.0,).expect("couldn't detect a line");
 /// assert_eq!(line_vec.len(), 2);
-/// assert_eq!(line_vec[0].colour, Colour::Yellow);
+/// assert!(line_vec[0].colour == Colour::Yellow);
 /// assert!(line_vec[0].start.x <= 0.60 && line_vec[0].start.x >= 0.40);
 /// assert!(line_vec[0].end.x <= 0.60 && line_vec[0].end.x >= 0.40);
 /// ```
@@ -88,12 +89,12 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
   #[cfg(debug_assertions)]
   {
     let rgb_img = convert_to_rgb(&contrast_img)?;
-    opencv::highgui::imshow("contrast", &rgb_img).expect("open window");
+    opencv::highgui::imshow("contrast", &rgb_img)?;
   }
 
   let mut hsv_img = Mat::default();
 
-  // Converting colour takes about half of the time of this function
+  // Converting colour takes about half of the time of this funciton
   // Colour code should be `COLOR_BGR2HSV` when image file is used.
   // Colour code should be `COLOR_RGB2HSV` when ROS image is used.
   cvt_color(&contrast_img, &mut hsv_img, COLOR_RGB2HSV, 0)?;
@@ -114,10 +115,10 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
     {
       match colour_enum {
         Colour::Yellow => {
-          opencv::highgui::imshow("yellow", &colour_img).expect("open window");
+          opencv::highgui::imshow("yellow", &colour_img)?;
         }
         Colour::White => {
-          opencv::highgui::imshow("white", &colour_img).expect("open window");
+          opencv::highgui::imshow("white", &colour_img)?;
         }
         _ => (),
       };

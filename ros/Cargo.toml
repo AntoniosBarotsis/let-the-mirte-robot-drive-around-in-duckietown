@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 cv-bridge = { git = "https://github.com/AntoniosBarotsis/cv-bridge-rs", rev = "04742ada4f9a78172c50261abe86d0ff9d4b3812"}
 rosrust = { git = "https://github.com/AntoniosBarotsis/rosrust", rev = "b2833d40205f2acf1c73fdfacb5cac92ab31a506"}
+rosrust_msg = { git = "https://github.com/AntoniosBarotsis/rosrust", rev = "b2833d40205f2acf1c73fdfacb5cac92ab31a506"}
 env_logger = "0.10.0"
 once_cell = "1.17.1"
-rosrust_msg = "0.1"
+thiserror = "1.0.40"

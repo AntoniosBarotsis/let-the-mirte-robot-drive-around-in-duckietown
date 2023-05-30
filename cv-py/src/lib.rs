@@ -4,6 +4,7 @@ mod classes;
 
 use classes::{PyColour, PyCvError, PyLine, PyPos};
 use cv::{
+  cv_error::CvError,
   detect_lines::detect_line_type,
   line::{Colour, Line},
 };
@@ -39,10 +40,13 @@ fn detect_line_type_py(colours: Vec<PyColour>) -> PyResult<Vec<PyLine>> {
 #[allow(clippy::unnecessary_wraps)]
 #[pyfunction(name = "detect_lane")]
 #[allow(clippy::unwrap_used, clippy::needless_pass_by_value)]
-fn detect_lane_py(lines: Vec<PyLine>) -> PyResult<Option<PyLine>> {
+fn detect_lane_py(lines: Vec<PyLine>) -> PyResult<Vec<PyLine>> {
   let lines = lines.into_iter().map(Line::from).collect::<Vec<_>>();
 
-  let res = detect_lane(&lines).map(PyLine::from);
+  let res = detect_lane(&lines)
+    .map(|res| res.into_iter().map(PyLine::from).collect::<Vec<_>>())
+    .map_err(|_er| CvError::NoLinesDetected)
+    .map_err(PyCvError::from)?;
 
   Ok(res)
 }

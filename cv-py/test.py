@@ -12,14 +12,12 @@ for line in lines:
     assert line.end.x != None
     assert line.end.y != None
 
-lane = detect_lane(lines)
+lanes = detect_lane(lines)
 
-if lane != None:
-    assert lane.start.x != None
-    assert lane.start.y != None
-    assert lane.end.x != None
-    assert lane.end.y != None
+for line in lanes:
+    assert line.start.x != None
+    assert line.start.y != None
+    assert line.end.x != None
+    assert line.end.y != None
 
-    print("Passed")
-else:
-    print("lane was None")
+print("Passed")

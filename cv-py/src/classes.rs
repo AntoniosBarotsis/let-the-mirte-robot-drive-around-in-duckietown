@@ -115,8 +115,8 @@ impl From<PyPos> for Pos {
 
 #[derive(Debug)]
 pub(crate) struct PyCvError {
-  msg: String,
-  err: Box<CvError>,
+  pub(crate) msg: String,
+  pub(crate) err: Box<CvError>,
 }
 
 impl From<CvError> for PyCvError {

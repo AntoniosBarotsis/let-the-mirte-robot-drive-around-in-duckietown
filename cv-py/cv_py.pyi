@@ -26,7 +26,7 @@ def detect_line_type(colours: List[colour]) -> List[line]:
   TODO: Copy paste the docs of the Rust method when they are added
   """
 
-def detect_lane(colours: List[line]) -> line | None:
+def detect_lane(colours: List[line]) -> List[line]:
   """
   TODO: Copy paste the docs of the Rust method when they are added
   """

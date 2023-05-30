@@ -8,7 +8,7 @@ use cv::{
   image::{convert_to_rgb, downscale},
   Mat,
 };
-use detect_lane::detect_lane_debug;
+use detect_lane::detect_lane;
 use ros::{process_ros_image_one, CvImage};
 
 pub fn get_image() -> Mat {
@@ -37,7 +37,7 @@ pub fn process_mat(mat: Mat) {
     println!("detecting lines: {:?}", time_2.elapsed());
 
     let time_3 = Instant::now();
-    let all_lines = if let Some(lane) = detect_lane_debug(&lines) {
+    let all_lines = if let Ok(lane) = detect_lane(&lines) {
       [lines, lane].concat()
     } else {
       lines
