@@ -1,4 +1,4 @@
-# antoniosbarotsis/mirte-rs:latest
+# antoniosbarotsis/mirte-rs:opencv-ros
 
 FROM ros:noetic-ros-base-focal
 
@@ -14,6 +14,7 @@ RUN apt-get install -y \
     libopencv-dev \
     clang \
     libclang-dev \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Update new packages
@@ -29,3 +30,9 @@ ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 # Get Python and Maturin
 RUN apt-get install python3.7 python3-pip -y
 RUN pip3 install maturin patchelf
+# Source ROS setup
+RUN echo "source /opt/ros/noetic/setup.bash" >> /etc/bash.bashrc
+
+# Get mirte_msgs
+RUN git clone https://github.com/mirte-robot/mirte-ros-packages
+RUN cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r

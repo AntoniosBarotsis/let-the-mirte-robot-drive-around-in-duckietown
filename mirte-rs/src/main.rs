@@ -7,7 +7,7 @@ use ros::{process_ros_image, CvImage};
 /// For now, just reads an image from ROS and shows it on screen.
 #[allow(clippy::unwrap_used)]
 fn main() {
-  process_ros_image(|img| {
+  let res = process_ros_image(|img| {
     let time_total = Instant::now();
 
     let mat = CvImage::from_imgmsg(img).unwrap().as_cvmat().unwrap();
@@ -43,4 +43,8 @@ fn main() {
 
     println!("total: {:?}", time_total.elapsed());
   });
+
+  if let Err(e) = res {
+    eprintln!("{e}");
+  }
 }

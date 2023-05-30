@@ -19,6 +19,17 @@ rostopic list
 # It should print something like "ERROR: Unable to communicate with master!"
 ```
 
+You also need to add a few custom ROS messages that Mirte uses:
+
+```sh
+# Location does not really matter, we will delete this right after
+git clone https://github.com/mirte-robot/mirte-ros-packages
+cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
+rm -rf ./mirte-ros-packages
+```
+
+If all went well, you should be able to now run a `cargo build`.
+
 ## Running Outside of Mirte
 
 It is also decently easy to run the code from your workstation and have it communicate with Mirte

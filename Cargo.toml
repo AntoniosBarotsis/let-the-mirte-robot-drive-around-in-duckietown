@@ -9,3 +9,5 @@ members = [
 
 [profile.release.package.cv]
 codegen-units = 1
+[profile.release.package.ros]
+codegen-units = 1
