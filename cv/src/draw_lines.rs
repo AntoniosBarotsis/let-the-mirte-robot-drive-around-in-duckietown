@@ -1,4 +1,4 @@
-use crate::{convert_to_rgb, cv_error::CvError, line::Colour, line::Line};
+use crate::{cv_error::CvError, image::convert_to_rgb, line::Colour, line::Line};
 use opencv::{
   core::{Mat, Point, Scalar},
   highgui::{imshow, wait_key},
