@@ -210,7 +210,7 @@ pub fn downscale(img: &Mat) -> Result<Mat, CvError> {
 /// ```
 /// use cv::image::dbg_mat;
 ///
-/// let error = dbg_mat("../this/path/does/not/exist");
+/// let error = dbg_mat("../this/path/does/not/exist.png");
 /// assert!(error.is_err());
 /// ```
 pub fn dbg_mat(path: &str) -> Result<Mat, CvError> {
