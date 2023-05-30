@@ -42,11 +42,7 @@ impl Line {
   }
 
   pub fn from_vector(vector: Vector, colour: Colour) -> Self {
-    Self::new(
-      colour,
-      vector.origin,
-      vector.origin + Pos::from(vector.dir),
-    )
+    Self::new(colour, vector.origin, vector.origin + Pos::from(vector.dir))
   }
 
   // TODO: Are we sure we need to make sure vectors point towards negative y? It seems unnecessary
@@ -91,9 +87,12 @@ impl Pos {
 }
 
 impl From<Dir> for Pos {
-    fn from(value: Dir) -> Self {
-        Self { x: value.x, y: value.y }
+  fn from(value: Dir) -> Self {
+    Self {
+      x: value.x,
+      y: value.y,
     }
+  }
 }
 
 #[derive(Debug, Clone, Copy, Add, Sub, Div, Mul, Sum, Neg)]
