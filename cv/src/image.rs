@@ -20,7 +20,7 @@ pub fn read_image(path: &str) -> Result<Mat, CvError> {
 ///
 /// Returns gain result with the specificed part as `Mat`
 pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
-  let new_height = img.size()?.height * 3 / 5;
+  let new_height = img.size()?.height * 58 / 100;
 
   let crop = match keep {
     ImagePart::Top => img.adjust_roi(0, -new_height, 0, 0),

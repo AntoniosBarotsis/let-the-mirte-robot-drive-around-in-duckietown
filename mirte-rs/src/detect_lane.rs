@@ -1,8 +1,8 @@
 use cv::line::{Colour, Line, LineSegment, Point, Vector};
 use Colour::{Black, Green, Orange, White, Yellow};
 
-/// The slope that determines the direction of line segments
-const DIRECTION_THRESHOLD: f32 = 0.1;
+// The minimum length of an average line for it to be significant
+const THRESHOLD: f32 = 0.15;
 
 /// Averages all lines with a given colour weighted by their length
 fn get_average_line(lines: &[LineSegment], colour: Colour) -> Option<Line> {
@@ -21,7 +21,7 @@ fn get_average_line(lines: &[LineSegment], colour: Colour) -> Option<Line> {
     .iter()
     .map(|line| -> Vector {
       let sign: f32 = if line.colour == White { -1.0 } else { 1.0 };
-      let threshold: Line = Line::from_dir(Vector::new(sign, DIRECTION_THRESHOLD));
+      let threshold: Line = Line::from_dir(Vector::new(sign, 1.0));
       if lies_on_right(&Point::from_vector(line.direction()), &threshold) {
         line.direction() * sign
       } else {
@@ -29,6 +29,9 @@ fn get_average_line(lines: &[LineSegment], colour: Colour) -> Option<Line> {
       }
     })
     .sum();
+  if weighted_dir.length() < THRESHOLD {
+    return None;
+  }
 
   // Get average line position with line length as weight
   let total_squared_length: f32 = coloured_lines
