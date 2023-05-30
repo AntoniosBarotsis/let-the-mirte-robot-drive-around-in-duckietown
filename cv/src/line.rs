@@ -5,6 +5,30 @@ use float_cmp::approx_eq;
 pub static HSV_YELLOW: &[[u8; 3]; 2] = &[[20, 115, 115], [45, 255, 255]];
 pub static HSV_WHITE: &[[u8; 3]; 2] = &[[0, 0, 190], [179, 40, 255]];
 
+/// given a colour type it will return the lower and upper bound of the range of that colour in HSV
+///
+/// # Panics
+///
+/// * `colour` - The colour of which the colour range needs to be extracted
+///
+/// Return an 2d-array with the lower bound on index 0 and upper bound on index 1
+///
+/// # Examples
+///
+/// ```
+/// use cv::line::{get_colour, Colour};
+///
+/// let yellow = *get_colour(Colour::Yellow);
+/// let white = *get_colour(Colour::White);
+/// assert_ne!(white, yellow);
+/// ```
+pub fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
+  match colour {
+    Colour::White => HSV_WHITE,
+    Colour::Yellow => HSV_YELLOW,
+    colour => panic!("No HSV constants defined for {colour:?}!"),
+  }
+}
 // Represents a line
 #[derive(Debug, Clone, Copy)]
 pub struct Line {

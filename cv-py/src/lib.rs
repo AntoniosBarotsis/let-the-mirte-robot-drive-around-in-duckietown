@@ -3,13 +3,13 @@
 mod classes;
 
 use classes::{PyColour, PyCvError, PyLine, PyPos};
-use cv::{dbg_mat, detect_line_type, Colour};
+use cv::{detect_lines::detect_line_type, image::dbg_mat, line::Colour};
 use pyo3::prelude::*;
 
 #[pyfunction(name = "detect_line_type")]
 #[allow(clippy::unwrap_used, clippy::needless_pass_by_value)]
 fn detect_line_type_py(colours: Vec<PyColour>) -> PyResult<Vec<PyLine>> {
-  let mat = dbg_mat().map_err(PyCvError::from)?;
+  let mat = dbg_mat("./assets/input_1.jpg").map_err(PyCvError::from)?;
   let colours = colours.into_iter().map(Colour::from).collect::<Vec<_>>();
 
   let lines = detect_line_type(&mat, colours).map_err(PyCvError::from)?;

@@ -1,5 +1,8 @@
-use cv::convert_to_rgb;
-use cv::draw_lines::{draw_lines, read_image};
+use cv::{
+  detect_lines::detect_line_type,
+  draw_lines::{draw_lines, read_image},
+  image::convert_to_rgb,
+};
 use mirte_rs::detect_lane::detect_lane_debug;
 use std::env;
 
@@ -13,7 +16,7 @@ fn main() {
   let mut img = convert_to_rgb(&img).unwrap_or_else(|_| panic!("Unable to convert image to RGB"));
 
   let colours = vec![cv::line::Colour::Yellow, cv::line::Colour::White];
-  let lines = cv::detect_line_type(&img, colours).expect("Unable to detect line with cv");
+  let lines = detect_line_type(&img, colours).expect("Unable to detect line with cv");
 
   let lane = detect_lane_debug(&lines).expect("Unable to detect the lane");
 

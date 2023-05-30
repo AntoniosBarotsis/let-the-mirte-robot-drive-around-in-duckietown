@@ -1,6 +1,7 @@
+use cv::detect_lines::detect_line_type;
 use cv::draw_lines::{draw_lines, read_image};
+use cv::image::downscale;
 use cv::line::Colour::{White, Yellow};
-use cv::{detect_line_type, downscale};
 use std::time::Instant;
 
 /// Processes the input image from the assets folder and displays it in a window for an easier
