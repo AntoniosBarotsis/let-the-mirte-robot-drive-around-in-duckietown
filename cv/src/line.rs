@@ -45,7 +45,7 @@ impl Line {
     Self::new(
       colour,
       vector.origin,
-      vector.origin + Pos::from_dir(vector.dir),
+      vector.origin + Pos::from(vector.dir),
     )
   }
 
@@ -88,10 +88,12 @@ impl Pos {
   pub fn new(x: f32, y: f32) -> Self {
     Self { x, y }
   }
+}
 
-  pub fn from_dir(dir: Dir) -> Self {
-    Self::new(dir.x, dir.y)
-  }
+impl From<Dir> for Pos {
+    fn from(value: Dir) -> Self {
+        Self { x: value.x, y: value.y }
+    }
 }
 
 #[derive(Debug, Clone, Copy, Add, Sub, Div, Mul, Sum, Neg)]
@@ -137,11 +139,11 @@ impl Vector {
   }
 
   pub fn midpoint(&self) -> Pos {
-    self.origin + Pos::from_dir(self.dir) / 2.0
+    self.origin + Pos::from(self.dir) / 2.0
   }
 
   pub fn end(&self) -> Pos {
-    self.origin + Pos::from_dir(self.dir)
+    self.origin + Pos::from(self.dir)
   }
 
   pub fn length(&self) -> f32 {

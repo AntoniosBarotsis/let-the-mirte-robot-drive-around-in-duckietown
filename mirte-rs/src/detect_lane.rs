@@ -27,7 +27,7 @@ fn get_average_line(lines: &[Line], colour: Colour) -> Option<Vector> {
     / total_squared_length;
 
   Some(Vector {
-    origin: average_midpoint - Pos::from_dir(weighted_dir) / 2.0,
+    origin: average_midpoint - Pos::from(weighted_dir) / 2.0,
     dir: weighted_dir,
   })
 }
@@ -63,7 +63,7 @@ pub fn detect_lane(lines: &[Line]) -> Result<Vec<Line>, &'static str> {
         let w_dir = w_vec.dir;
         let dir = y_dir * w_dir.length() + w_dir * y_dir.length();
         Line::from_vector(
-          Vector::new(intersection - Pos::from_dir(dir), dir * 2.0),
+          Vector::new(intersection - Pos::from(dir), dir * 2.0),
           Colour::Green,
         )
       } else {
@@ -75,7 +75,7 @@ pub fn detect_lane(lines: &[Line]) -> Result<Vec<Line>, &'static str> {
         // estimate the centre of the lines by averaging their midpoints.
         let intersection = (y_vec.midpoint() + w_vec.midpoint()) / 2.0;
         Line::from_vector(
-          Vector::new(intersection - Pos::from_dir(y_vec.dir), y_vec.dir * 2.0),
+          Vector::new(intersection - Pos::from(y_vec.dir), y_vec.dir * 2.0),
           Colour::Green,
         )
       };
