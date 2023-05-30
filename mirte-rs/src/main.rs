@@ -1,7 +1,8 @@
 use std::time::Instant;
 
+use cv::line::Colour::{Blue, Green, Red, White, Yellow};
 use cv::{detect_lines::detect_line_type, draw_lines::draw_lines, image::downscale};
-use mirte_rs::detect_lane::detect_lane_debug;
+use mirte_rs::detect_lane::detect_lane;
 use ros::{process_ros_image, CvImage};
 
 /// For now, just reads an image from ROS and shows it on screen.
@@ -22,18 +23,15 @@ fn main() {
     let mut resized = downscale(&mat).unwrap_or(mat);
     println!("resizing: {:?}", time_1.elapsed());
 
-    let colours = vec![cv::line::Colour::Yellow, cv::line::Colour::White];
+    let colours = vec![Yellow, White];
 
     let time_2 = Instant::now();
     if let Ok(lines) = detect_line_type(&resized, colours) {
       println!("detecting lines: {:?}", time_2.elapsed());
 
       let time_3 = Instant::now();
-      let all_lines = if let Some(lane) = detect_lane_debug(&lines) {
-        [lines, lane].concat()
-      } else {
-        lines
-      };
+      let lane = detect_lane(&lines);
+      let all_lines = [lines, lane.get_coloured_segments(Green, Blue, Red)].concat();
       println!("detecting lane: {:?}", time_3.elapsed());
 
       draw_lines(&mut resized, &all_lines);

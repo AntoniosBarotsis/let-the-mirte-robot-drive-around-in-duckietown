@@ -7,6 +7,8 @@ use opencv::{
 
 use crate::{cv_error::CvError, image_part::ImagePart};
 
+pub const CROP_HEIGHT: f32 = 0.58;
+
 // Reads and image from a file and returns the image in the correct colours
 pub fn read_image(path: &str) -> Result<Mat, CvError> {
   let img = imread(path, IMREAD_UNCHANGED)?;
@@ -18,9 +20,10 @@ pub fn read_image(path: &str) -> Result<Mat, CvError> {
 /// * `img` - The image that needs to be cropped
 /// * `keep` - Which part of the image you want to keep. There are two options. `ImagePart::Top` give the top part and `ImagePart::Bottom` gives the bottom
 ///
-/// Returns gain result with the specificed part as `Mat`
+/// Returns gain result with the specified part as `Mat`
 pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
-  let new_height = img.size()?.height * 58 / 100;
+  #[allow(clippy::cast_possible_truncation, clippy::cast_precision_loss)]
+  let new_height = (img.size()?.height as f32 * CROP_HEIGHT) as i32;
 
   let crop = match keep {
     ImagePart::Top => img.adjust_roi(0, -new_height, 0, 0),
@@ -138,7 +141,7 @@ pub fn convert_to_rgb(img: &Mat) -> Result<Mat, CvError> {
   Ok(rgb_img)
 }
 
-/// converts a gvien image with a RGB colour format to one in grayscale
+/// converts a given image with a RGB colour format to one in grayscale
 ///
 /// * `img` - The image who's colour format needs to be chanced
 ///

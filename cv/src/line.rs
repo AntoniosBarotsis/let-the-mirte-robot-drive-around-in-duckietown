@@ -1,3 +1,4 @@
+use crate::image::CROP_HEIGHT;
 use derive_more::{Add, Div, Mul, Neg, Sub, Sum};
 use float_cmp::approx_eq;
 
@@ -42,14 +43,18 @@ impl LineSegment {
     Self { colour, start, end }
   }
 
-  // TODO: create line segments that is clamped by the screen [0,1]X[0,1]
-  // What should happen if the line does not lie on the screen
   pub fn from_line(line: Line, colour: Colour) -> Self {
-    Self::new(
-      colour,
-      line.origin,
-      line.origin + Point::from_vector(line.dir),
-    )
+    let upper_y = Line::new(Point::new(0.0, CROP_HEIGHT), Vector::new(1.0, 0.0));
+    let lower_y = Line::new(Point::new(0.0, 1.0), Vector::new(1.0, 0.0));
+
+    let upper_y_intersection = line
+      .intersect(&upper_y)
+      .unwrap_or(Point::new(1.0, line.origin.y));
+    let lower_y_intersection = line
+      .intersect(&lower_y)
+      .unwrap_or(Point::new(0.0, line.origin.y));
+
+    Self::new(colour, lower_y_intersection, upper_y_intersection)
   }
 
   pub fn direction(&self) -> Vector {
@@ -316,16 +321,7 @@ mod tests {
     );
   }
 
-  #[test]
-  fn create_line_segment_from_line() {
-    //TODO: Check if line is clamped between screen
-    let line = Line::new(Point::new(10.0, -5.0), Vector::new(10.0, -5.0));
-    let segment = LineSegment::from_line(line, Colour::Red);
-    assert_line_segment_eq(
-      segment,
-      LineSegment::new(Colour::Red, Point::new(10.0, -5.0), Point::new(20.0, -10.0)),
-    );
-  }
+  //TODO: Write a test for LineSegment::from_line
 
   #[test]
   fn get_direction() {
