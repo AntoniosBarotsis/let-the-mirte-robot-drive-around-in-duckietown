@@ -1,10 +1,17 @@
 use opencv::{
   core::{convert_scale_abs, Size_, CV_32SC1},
+  imgcodecs::{imread, IMREAD_UNCHANGED},
   imgproc::{calc_hist, cvt_color, resize, COLOR_BGR2RGB, COLOR_RGB2GRAY, INTER_AREA},
   prelude::{Mat, MatTrait, MatTraitConst, MatTraitConstManual},
 };
 
-use crate::{cv_error::CvError, draw_lines, image_part::ImagePart};
+use crate::{cv_error::CvError, image_part::ImagePart};
+
+// Reads and image from a file and returns the image in the correct colours
+pub fn read_image(path: &str) -> Result<Mat, CvError> {
+  let img = imread(path, IMREAD_UNCHANGED)?;
+  convert_to_rgb(&img)
+}
 
 /// Crops the image to reduce redundant information. It will split it into two part. A top part and gain bottom part.
 ///
@@ -180,7 +187,7 @@ pub fn downscale(img: &Mat) -> Result<Mat, CvError> {
 }
 
 pub fn dbg_mat(path: &str) -> Result<Mat, CvError> {
-  let mat = draw_lines::read_image(path)?;
+  let mat = read_image(path)?;
 
   let size = mat.size()?;
 

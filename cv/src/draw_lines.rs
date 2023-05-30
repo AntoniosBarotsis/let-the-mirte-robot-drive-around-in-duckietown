@@ -2,23 +2,21 @@ use crate::{cv_error::CvError, image::convert_to_rgb, line::Colour, line::Line};
 use opencv::{
   core::{Mat, Point, Scalar},
   highgui::{imshow, wait_key},
-  imgcodecs::{imread, IMREAD_UNCHANGED},
   imgproc::{line, LINE_AA},
+  prelude::MatTraitConst,
 };
-
-// create function that reads image from path
-pub fn read_image(path: &str) -> Result<Mat, CvError> {
-  imread(path, IMREAD_UNCHANGED).map_err(|e| CvError::IoError(e.to_string()))
-}
 
 pub fn draw_lines(img: &mut Mat, lines: &Vec<Line>) {
   if let Ok(img) = &mut convert_to_rgb(img) {
+    let img_width = img.cols();
+    let img_height = img.rows();
+
     for l in lines {
       // Truncation here is fine (and needed) as we are just drawing pixels on the screen.
       #[allow(clippy::cast_possible_truncation)]
-      let start_point = Point::new(l.start.x as i32, l.start.y as i32);
+      let start_point = Point::new(l.start.x as i32 * img_width, l.start.y as i32 * img_height);
       #[allow(clippy::cast_possible_truncation)]
-      let end_point = Point::new(l.end.x as i32, l.end.y as i32);
+      let end_point = Point::new(l.end.x as i32 * img_width, l.end.y as i32 * img_height);
 
       // OpenCV uses BGR (not RBG).
       let colour = match l.colour {
