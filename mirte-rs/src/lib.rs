@@ -6,7 +6,7 @@ use std::time::Instant;
 use cv::{
   detect_lines::detect_line_type,
   draw_lines::draw_lines,
-  image::{convert_to_rgb, downscale},
+  image::downscale,
   Mat,
 };
 use detect_lane::detect_lane;
@@ -23,7 +23,7 @@ pub fn get_image() -> Result<Mat, MirteError> {
   // appear during the color conversion. For more details, refer to:
   // https://github.com/twistedfall/opencv-rust/issues/277
   #[allow(clippy::redundant_clone)]
-  Ok(convert_to_rgb(&mat.clone())?)
+  Ok(mat.clone())
 }
 
 pub fn process_mat(mat: Mat) {
