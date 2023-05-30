@@ -1,6 +1,6 @@
 use cv::detect_lines::detect_line_type;
-use cv::draw_lines::{draw_lines, read_image};
-use cv::image::downscale;
+use cv::draw_lines::draw_lines;
+use cv::image::{downscale, read_image};
 use cv::line::Colour::{White, Yellow};
 use std::time::Instant;
 

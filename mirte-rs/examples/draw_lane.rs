@@ -1,8 +1,4 @@
-use cv::{
-  detect_lines::detect_line_type,
-  draw_lines::{draw_lines, read_image},
-  image::convert_to_rgb,
-};
+use cv::{detect_lines::detect_line_type, draw_lines::draw_lines, image::read_image};
 use mirte_rs::detect_lane::detect_lane_debug;
 use std::env;
 
@@ -12,8 +8,7 @@ fn main() {
     println!("\nError: no input path given!\nExample usage: cargo r --example draw_lane ./assets/input_1.jpg\n");
     std::process::exit(1);
   });
-  let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
-  let mut img = convert_to_rgb(&img).unwrap_or_else(|_| panic!("Unable to convert image to RGB"));
+  let mut img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
   let colours = vec![cv::line::Colour::Yellow, cv::line::Colour::White];
   let lines = detect_line_type(&img, colours).expect("Unable to detect line with cv");
