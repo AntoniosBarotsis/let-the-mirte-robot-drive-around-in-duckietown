@@ -1,6 +1,5 @@
 use thiserror::Error;
 
-/// Represents any errors that can occur while performing ROS related tasks.
 #[derive(Error, Debug)]
 pub enum MirteError {
   #[error("{0}")]
