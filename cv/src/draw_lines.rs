@@ -8,15 +8,20 @@ use opencv::{
 
 pub fn draw_lines(img: &mut Mat, lines: &Vec<Line>) {
   if let Ok(img) = &mut convert_to_rgb(img) {
-    let img_width = img.cols();
-    let img_height = img.rows();
+    #[allow(clippy::cast_precision_loss)]
+    let img_width = img.cols() as f32;
+    #[allow(clippy::cast_precision_loss)]
+    let img_height = img.rows() as f32;
 
     for l in lines {
       // Truncation here is fine (and needed) as we are just drawing pixels on the screen.
       #[allow(clippy::cast_possible_truncation)]
-      let start_point = Point::new(l.start.x as i32 * img_width, l.start.y as i32 * img_height);
+      let start_point = Point::new(
+        (l.start.x * img_width) as i32,
+        (l.start.y * img_height) as i32,
+      );
       #[allow(clippy::cast_possible_truncation)]
-      let end_point = Point::new(l.end.x as i32 * img_width, l.end.y as i32 * img_height);
+      let end_point = Point::new((l.end.x * img_width) as i32, (l.end.y * img_height) as i32);
 
       // OpenCV uses BGR (not RBG).
       let colour = match l.colour {
