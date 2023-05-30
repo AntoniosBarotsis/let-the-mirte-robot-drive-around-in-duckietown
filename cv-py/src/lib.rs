@@ -10,21 +10,21 @@ use cv::{
 };
 use mirte_rs::detect_lane::detect_lane;
 
-// #[cfg(debug_assertions)]
+#[cfg(feature = "dev")]
 use cv::image::dbg_mat;
-// #[cfg(not(debug_assertions))]
-// use mirte_rs::get_image;
+#[cfg(not(feature = "dev"))]
+use mirte_rs::get_image;
 
 use pyo3::prelude::*;
 
 #[pyfunction(name = "detect_line_type")]
 #[allow(clippy::unwrap_used, clippy::needless_pass_by_value)]
 fn detect_line_type_py(colours: Vec<PyColour>) -> PyResult<Vec<PyLine>> {
-  // Gets image from Mirte's camera when ran in release, otherwise takes it from the assets folder.
-  // This is done so it can be tested in CI as well as on the robot.
-  // #[cfg(not(debug_assertions))]
-  // let mat = get_image();
-  // #[cfg(debug_assertions)]
+  // Gets image from Mirte's camera when "dev" is enabled, otherwise takes it from the assets
+  // folder. This is done so it can be tested in CI as well as on the robot.
+  #[cfg(not(feature = "dev"))]
+  let mat = get_image();
+  #[cfg(feature = "dev")]
   let mat = dbg_mat("./assets/input_1.jpg").map_err(PyCvError::from)?;
 
   let colours = colours.into_iter().map(Colour::from).collect::<Vec<_>>();
