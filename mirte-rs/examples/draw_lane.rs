@@ -11,8 +11,9 @@ fn main() {
   let mut img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
   let colours = vec![cv::line::Colour::Yellow, cv::line::Colour::White];
+  #[allow(clippy::expect_used)]
   let lines = detect_line_type(&img, colours).expect("Unable to detect line with cv");
-
+  #[allow(clippy::expect_used)]
   let lane = detect_lane(&lines).expect("Unable to detect the lane");
 
   let drawn_lines = [lines, lane].concat();
