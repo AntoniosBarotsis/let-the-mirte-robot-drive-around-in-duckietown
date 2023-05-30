@@ -45,9 +45,9 @@ fn get_average_line(lines: &[LineSegment], colour: Colour) -> Option<Line> {
   })
 }
 
-/// Checks if `pos` lies on the right of `vector`
-pub fn lies_on_right(pos: &Point, line: &Line) -> bool {
-  pos.x > line.origin.x + (pos.y - line.origin.y) / line.slope()
+/// Checks if `point` lies on the right of `line`
+pub fn lies_on_right(point: &Point, line: &Line) -> bool {
+  point.x > line.origin.x + (point.y - line.origin.y) / line.slope()
 }
 
 /// Returns all lines in `lines` that lie to the right of `vector`
