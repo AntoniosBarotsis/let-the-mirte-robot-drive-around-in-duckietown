@@ -5,9 +5,12 @@ use opencv::{
   ximgproc::{create_fast_line_detector, FastLineDetector},
 };
 
+#[cfg(debug_assertions)]
+use crate::image::convert_to_rgb;
+
 use crate::{
   cv_error::CvError,
-  image::{convert_to_rgb, crop_image, enhance_contrast},
+  image::{crop_image, enhance_contrast},
   image_part::ImagePart,
   line::{get_colour, Colour, Line, Pos},
 };

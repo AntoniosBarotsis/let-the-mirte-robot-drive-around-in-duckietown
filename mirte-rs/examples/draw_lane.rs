@@ -1,7 +1,4 @@
-use cv::{
-  detect_lines::detect_line_type,
-  draw_lines::{draw_lines, read_image},
-};
+use cv::{detect_lines::detect_line_type, draw_lines::draw_lines, image::read_image};
 use mirte_rs::detect_lane::detect_lane;
 use std::env;
 
