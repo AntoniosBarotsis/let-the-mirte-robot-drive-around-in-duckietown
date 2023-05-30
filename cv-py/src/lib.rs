@@ -23,7 +23,7 @@ fn detect_line_type_py(colours: Vec<PyColour>) -> PyResult<Vec<PyLine>> {
   // Gets image from Mirte's camera when "dev" is enabled, otherwise takes it from the assets
   // folder. This is done so it can be tested in CI as well as on the robot.
   #[cfg(not(feature = "dev"))]
-  let mat = get_image();
+  let mat = get_image().map_err(PyCvError::from)?;
   #[cfg(feature = "dev")]
   let mat = dbg_mat("./assets/input_1.jpg").map_err(PyCvError::from)?;
 

@@ -3,7 +3,7 @@ use mirte_rs::process_mat;
 use ros::{process_ros_image, CvImage};
 
 /// For now, just reads an image from ROS and shows it on screen.
-#[allow(clippy::unwrap_used)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 fn main() {
   let res = process_ros_image(|img| {
     let mat = CvImage::from_imgmsg(img).unwrap().as_cvmat().unwrap();

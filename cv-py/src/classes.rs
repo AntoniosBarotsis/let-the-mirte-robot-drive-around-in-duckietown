@@ -1,7 +1,9 @@
 use cv::cv_error::CvError;
 use cv::line::{Colour, Line, Pos};
+use mirte_rs::mirte_error::MirteError;
 use pyo3::exceptions::{PyIOError, PyRuntimeError};
 use pyo3::prelude::*;
+use ros::RosError;
 
 #[derive(Debug, Clone)]
 #[pyclass(name = "line")]
@@ -116,7 +118,27 @@ impl From<PyPos> for Pos {
 #[derive(Debug)]
 pub(crate) struct PyCvError {
   pub(crate) msg: String,
-  pub(crate) err: Box<CvError>,
+  pub(crate) err: Box<MirteError>,
+}
+
+impl From<MirteError> for PyCvError {
+  fn from(value: MirteError) -> Self {
+    match value {
+      MirteError::Ros(e) => Self::from(e),
+      MirteError::Cv(e) => Self::from(e),
+    }
+  }
+}
+
+impl From<RosError> for PyCvError {
+  fn from(value: RosError) -> Self {
+    let msg = value.to_string();
+
+    PyCvError {
+      msg,
+      err: Box::new(MirteError::Ros(value)),
+    }
+  }
 }
 
 impl From<CvError> for PyCvError {
@@ -125,7 +147,7 @@ impl From<CvError> for PyCvError {
 
     PyCvError {
       msg,
-      err: Box::new(value),
+      err: Box::new(MirteError::Cv(value)),
     }
   }
 }
@@ -135,12 +157,15 @@ impl From<PyCvError> for PyErr {
     let msg = value.msg;
 
     match value.err.as_ref() {
-      CvError::NoLinesDetected
-      | CvError::LineDetectorCreation
-      | CvError::Other(_)
-      | CvError::ColourConversion => PyErr::new::<PyRuntimeError, _>(msg),
-      CvError::IoError(_) => PyErr::new::<PyIOError, _>(msg),
-      CvError::Drawing => unreachable!(),
+      MirteError::Ros(_) => unreachable!(),
+      MirteError::Cv(err) => match err {
+        CvError::NoLinesDetected
+        | CvError::LineDetectorCreation
+        | CvError::Other(_)
+        | CvError::ColourConversion => PyErr::new::<PyRuntimeError, _>(msg),
+        CvError::IoError(_) => PyErr::new::<PyIOError, _>(msg),
+        CvError::Drawing => unreachable!(),
+      },
     }
   }
 }

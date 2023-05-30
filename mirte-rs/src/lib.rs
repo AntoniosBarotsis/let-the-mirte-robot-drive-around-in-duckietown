@@ -1,4 +1,5 @@
 pub mod detect_lane;
+pub mod mirte_error;
 
 use std::time::Instant;
 
@@ -9,10 +10,12 @@ use cv::{
   Mat,
 };
 use detect_lane::detect_lane;
+use mirte_error::MirteError;
 use ros::{process_ros_image_one, CvImage};
 
-pub fn get_image() -> Mat {
-  let img = process_ros_image_one().unwrap();
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
+pub fn get_image() -> Result<Mat, MirteError> {
+  let img = process_ros_image_one()?;
 
   let mat = CvImage::from_imgmsg(img).unwrap().as_cvmat().unwrap();
 
@@ -20,7 +23,7 @@ pub fn get_image() -> Mat {
   // appear during the color conversion. For more details, refer to:
   // https://github.com/twistedfall/opencv-rust/issues/277
   #[allow(clippy::redundant_clone)]
-  convert_to_rgb(&mat.clone()).expect("bla")
+  Ok(convert_to_rgb(&mat.clone())?)
 }
 
 pub fn process_mat(mat: Mat) {
