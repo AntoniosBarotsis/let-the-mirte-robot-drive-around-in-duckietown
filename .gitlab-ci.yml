@@ -38,7 +38,7 @@ python-test:
   needs: 
   - build
   script:
-    - maturin build -m cv-py/Cargo.toml --skip-auditwheel
+    - maturin build --release -m cv-py/Cargo.toml --skip-auditwheel
     - pip3 install ./target/wheels/cv_py-0.1.0-cp38-cp38-linux_x86_64.whl --force
     - python3 cv-py/test.py
 
