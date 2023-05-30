@@ -200,6 +200,19 @@ pub fn downscale(img: &Mat) -> Result<Mat, CvError> {
   Ok(resized)
 }
 
+/// Method for converting an image path to the `Mat` format used by `OpenCV`
+///
+/// * `path` - The path to the image that needs to be converted
+///  
+/// Returns a result with in it a `Mat` representation of the image
+///
+/// # Example
+/// ```
+/// use cv::image::dbg_mat;
+///
+/// let error = dbg_mat("../this/path/does/not/exist");
+/// assert!(error.is_err());
+/// ```
 pub fn dbg_mat(path: &str) -> Result<Mat, CvError> {
   let mat = read_image(path)?;
 
