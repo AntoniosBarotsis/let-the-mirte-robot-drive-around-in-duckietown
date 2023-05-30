@@ -3,12 +3,7 @@ pub mod mirte_error;
 
 use std::time::Instant;
 
-use cv::{
-  detect_lines::detect_line_type,
-  draw_lines::draw_lines,
-  image::downscale,
-  Mat,
-};
+use cv::{detect_lines::detect_line_type, draw_lines::draw_lines, image::downscale, Mat};
 use detect_lane::detect_lane;
 use mirte_error::MirteError;
 use ros::{process_ros_image_one, CvImage};

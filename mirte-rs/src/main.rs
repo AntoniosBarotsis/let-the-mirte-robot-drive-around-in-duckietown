@@ -11,7 +11,6 @@ fn main() {
     // appear during the color conversion. For more details, refer to:
     // https://github.com/twistedfall/opencv-rust/issues/277
     #[allow(clippy::redundant_clone)]
-
     process_mat(mat);
   });
 
