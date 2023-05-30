@@ -35,7 +35,7 @@ fn get_average_line(lines: &[LineSegment], colour: Colour) -> Option<Line> {
     .map(|line| -> Vector {
       let sign: f32 = if line.colour == White { -1.0 } else { 1.0 };
       let threshold: Line = Line::from_dir(Vector::new(sign, DIRECTION_SLOPE));
-      if lies_on_right(&Point::from_vector(line.direction()), &threshold) {
+      if lies_on_right(Point::from_vector(line.direction()), &threshold) {
         line.direction() * sign
       } else {
         -line.direction() * sign
@@ -62,7 +62,7 @@ fn get_average_line(lines: &[LineSegment], colour: Colour) -> Option<Line> {
 }
 
 /// Checks if `point` lies on the right of `line`
-fn lies_on_right(point: &Point, line: &Line) -> bool {
+fn lies_on_right(point: Point, line: &Line) -> bool {
   point.x > line.origin.x + (point.y - line.origin.y) / line.slope()
 }
 
@@ -70,7 +70,7 @@ fn lies_on_right(point: &Point, line: &Line) -> bool {
 fn lines_on_right(lines: &[LineSegment], boundary: &Line) -> Vec<LineSegment> {
   lines
     .iter()
-    .filter(|line| lies_on_right(&line.midpoint(), boundary))
+    .filter(|line| lies_on_right(line.midpoint(), boundary))
     .copied()
     .collect()
 }

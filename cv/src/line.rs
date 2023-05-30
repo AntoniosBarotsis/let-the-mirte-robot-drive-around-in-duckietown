@@ -321,7 +321,20 @@ mod tests {
     );
   }
 
-  //TODO: Write a test for LineSegment::from_line
+  #[test]
+  fn create_line_segment_from_line() {
+    let line = Line::new(Point::new(0.5, 1.0), Vector::new(0.0, -1.0));
+    let segment = LineSegment::from_line(line, Colour::Red);
+    assert_point_eq(segment.start, Point::new(0.5, 1.0));
+  }
+
+  #[test]
+  fn create_line_segment_from_horizontal_line() {
+    let line = Line::new(Point::new(0.5, 0.75), Vector::new(1.0, 0.0));
+    let segment = LineSegment::from_line(line, Colour::Red);
+    assert_point_eq(segment.start, Point::new(0.0, 0.75));
+    assert_point_eq(segment.end, Point::new(1.0, 0.75));
+  }
 
   #[test]
   fn get_direction() {
