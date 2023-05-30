@@ -89,7 +89,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
   #[cfg(debug_assertions)]
   {
     let rgb_img = convert_to_rgb(&contrast_img)?;
-    opencv::highgui::imshow("contrast", &rgb_img).expect("open window");
+    opencv::highgui::imshow("contrast", &rgb_img)?;
   }
 
   let mut hsv_img = Mat::default();
@@ -115,10 +115,10 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
     {
       match colour_enum {
         Colour::Yellow => {
-          opencv::highgui::imshow("yellow", &colour_img).expect("open window");
+          opencv::highgui::imshow("yellow", &colour_img)?;
         }
         Colour::White => {
-          opencv::highgui::imshow("white", &colour_img).expect("open window");
+          opencv::highgui::imshow("white", &colour_img)?;
         }
         _ => (),
       };

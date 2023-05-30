@@ -35,12 +35,16 @@ pub fn draw_lines(img: &mut Mat, lines: &Vec<Line>) {
         Colour::White => Scalar::new(255.0, 255.0, 255.0, 0.0),
       };
 
+      #[allow(clippy::expect_used)]
       line(img, start_point, end_point, colour, 5, LINE_AA, 0)
         .map_err(|_e| CvError::Drawing)
         .expect("draw");
     }
-    imshow("test", img).expect("open window");
-    let _res = wait_key(0).expect("keep window open");
+    #[allow(clippy::expect_used)]
+    {
+      imshow("test", img).expect("open window");
+      let _res = wait_key(0).expect("keep window open");
+    }
   } else {
     eprintln!("Could not convert colour of image");
   }
