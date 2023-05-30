@@ -1,5 +1,5 @@
 use cv::cv_error::CvError;
-use cv::line::{Colour, Line, Pos};
+use cv::line::{Colour, LineSegment, Point};
 use pyo3::exceptions::{PyIOError, PyRuntimeError};
 use pyo3::prelude::*;
 
@@ -14,8 +14,8 @@ pub(crate) struct PyLine {
   pub end: PyPos,
 }
 
-impl From<Line> for PyLine {
-  fn from(value: Line) -> Self {
+impl From<LineSegment> for PyLine {
+  fn from(value: LineSegment) -> Self {
     let colour = PyColour::from(value.colour);
     let start = PyPos::from(value.start);
     let end = PyPos::from(value.end);
@@ -85,8 +85,8 @@ pub(crate) struct PyPos {
   pub y: f32,
 }
 
-impl From<Pos> for PyPos {
-  fn from(value: Pos) -> Self {
+impl From<Point> for PyPos {
+  fn from(value: Point) -> Self {
     let x = value.x;
     let y = value.y;
     PyPos { x, y }

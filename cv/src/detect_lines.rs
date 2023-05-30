@@ -11,7 +11,7 @@ use crate::{
   cv_error::CvError,
   image::{crop_image, enhance_contrast},
   image_part::ImagePart,
-  line::{get_colour, Colour, Line, Pos},
+  line::{get_colour, Colour, LineSegment, Point},
 };
 
 /// Finds lines in the image with gain specific colour using the `fast_line_detector` from `openCV`
@@ -42,7 +42,7 @@ pub fn get_lines(
   colour: Colour,
   orig_size: Size,
   line_offset: f32,
-) -> Result<Vec<Line>, CvError> {
+) -> Result<Vec<LineSegment>, CvError> {
   let mut fast_line_detector = create_fast_line_detector(20, 1.41, 150.0, 350.0, 3, true)
     .map_err(|_e| CvError::LineDetectorCreation)?;
 
@@ -52,7 +52,7 @@ pub fn get_lines(
     .detect(&img, &mut lines)
     .map_err(|_e| CvError::NoLinesDetected)?;
 
-  let mut line_vec: Vec<Line> = Vec::default();
+  let mut line_vec: Vec<LineSegment> = Vec::default();
 
   #[allow(clippy::cast_precision_loss)]
   let width = orig_size.width as f32;
@@ -60,10 +60,10 @@ pub fn get_lines(
   let height = orig_size.height as f32;
 
   for line in lines {
-    line_vec.push(Line::new(
+    line_vec.push(LineSegment::new(
       colour,
-      Pos::new(line[0] / width, (line[1] + line_offset) / height),
-      Pos::new(line[2] / width, (line[3] + line_offset) / height),
+      Point::new(line[0] / width, (line[1] + line_offset) / height),
+      Point::new(line[2] / width, (line[3] + line_offset) / height),
     ));
   }
   Ok(line_vec)
@@ -75,7 +75,7 @@ pub fn get_lines(
 /// * `colours` - A vector of all the colours if which you want to detect the lines
 ///
 /// Returns a result with a vector of all the lines found in the image
-pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, CvError> {
+pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegment>, CvError> {
   let mut copy_img = Mat::copy(img)?;
 
   let cropped_img = crop_image(&mut copy_img, ImagePart::Bottom)?;
@@ -98,7 +98,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<Line>, Cv
   // Colour code should be `COLOR_RGB2HSV` when ROS image is used.
   cvt_color(&contrast_img, &mut hsv_img, COLOR_RGB2HSV, 0)?;
 
-  let mut lines: Vec<Line> = Vec::new();
+  let mut lines: Vec<LineSegment> = Vec::new();
 
   for colour_enum in colours {
     let colour: &[[u8; 3]; 2] = get_colour(colour_enum);

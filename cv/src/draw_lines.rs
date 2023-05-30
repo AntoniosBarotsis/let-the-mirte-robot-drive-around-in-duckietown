@@ -1,4 +1,4 @@
-use crate::{cv_error::CvError, image::convert_to_rgb, line::Colour, line::Line};
+use crate::{cv_error::CvError, image::convert_to_rgb, line::Colour, line::LineSegment};
 use opencv::{
   core::{Mat, Point, Scalar},
   highgui::{imshow, wait_key},
@@ -6,7 +6,7 @@ use opencv::{
   prelude::MatTraitConst,
 };
 
-pub fn draw_lines(img: &mut Mat, lines: &Vec<Line>) {
+pub fn draw_lines(img: &mut Mat, lines: &Vec<LineSegment>) {
   if let Ok(img) = &mut convert_to_rgb(img) {
     #[allow(clippy::cast_precision_loss)]
     let img_width = img.cols() as f32;
