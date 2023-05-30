@@ -11,4 +11,5 @@ crate-type = ["cdylib"]
 [dependencies]
 pyo3 = { version = "0.18.3", features = ["extension-module"] }
 cv = { path = "../cv"}
+ros = { path = "../ros"}
 mirte-rs = { path = "../mirte-rs"}
