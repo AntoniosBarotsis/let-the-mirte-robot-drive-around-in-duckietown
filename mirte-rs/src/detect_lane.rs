@@ -46,8 +46,8 @@ fn get_average_line(lines: &[LineSegment], colour: Colour) -> Option<Line> {
 }
 
 /// Checks if `pos` lies on the right of `vector`
-pub fn lies_on_right(pos: &Point, vector: &Line) -> bool {
-  pos.x > vector.origin.x + (pos.y - vector.end().y) / vector.slope()
+pub fn lies_on_right(pos: &Point, line: &Line) -> bool {
+  pos.x > line.origin.x + (pos.y - line.origin.y) / line.slope()
 }
 
 /// Returns all lines in `lines` that lie to the right of `vector`
@@ -59,11 +59,11 @@ pub fn lines_on_right(lines: &[LineSegment], vector: &Line) -> Vec<LineSegment> 
     .collect()
 }
 
-/// Returns the bisection between `vec1` and `vec2`, if it exists
-pub fn bisect(vec1: &Line, vec2: &Line) -> Option<Line> {
-  vec2.intersect(vec1).map(|intersection| {
-    let dir1 = vec1.dir;
-    let dir2 = vec2.dir;
+/// Returns the bisection between `line1` and `line2`, if it exists
+pub fn bisect(line1: &Line, line2: &Line) -> Option<Line> {
+  line2.intersect(line1).map(|intersection| {
+    let dir1 = line1.dir;
+    let dir2 = line2.dir;
     let dir = dir1 * dir2.length() + dir2 * dir1.length();
     Line::new(intersection - Point::from_vector(dir), dir * 2.0)
   })
@@ -91,7 +91,7 @@ pub fn detect_lane_debug(lines: &[LineSegment]) -> Option<Vec<LineSegment>> {
     // If there is no intersection, both lines must have the same slope. Thus, we can simply
     // get the slope of one of the lines. Since there is no intersection, we can simply
     // estimate the centre of the lines by averaging their midpoints.
-    let intersection = (y_vec.midpoint() + w_vec.midpoint()) / 2.0;
+    let intersection = (y_vec.origin + w_vec.origin) / 2.0;
     Line::new(
       intersection - Point::from_vector(y_vec.dir),
       y_vec.dir * 2.0,

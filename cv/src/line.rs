@@ -26,7 +26,7 @@ pub fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
   match colour {
     Colour::White => HSV_WHITE,
     Colour::Yellow => HSV_YELLOW,
-    colour => panic!("No HSV constants defined for {colour:?}!"),
+    _ => panic!("No HSV constants defined for {colour:?}!"),
   }
 }
 // Represents a line
@@ -146,19 +146,6 @@ impl Line {
     }
   }
 
-  //TODO: Get rid of this
-  pub fn midpoint(&self) -> Point {
-    self.origin + Point::from_vector(self.dir) / 2.0
-  }
-  //TODO: Get rid of this
-  pub fn end(&self) -> Point {
-    self.origin + Point::from_vector(self.dir)
-  }
-  //TODO: Get rid of this
-  pub fn length(&self) -> f32 {
-    self.dir.length()
-  }
-
   pub fn slope(&self) -> f32 {
     self.dir.y / self.dir.x
   }
@@ -240,20 +227,6 @@ mod tests {
     let line = Line::new(Point::new(6.5, 3.0), Vector::new(1.0, 1.0));
     assert_point_eq(line.origin, Point::new(6.5, 3.0));
     assert_vec_eq(line.dir, Vector::new(1.0, 1.0));
-  }
-
-  #[test]
-  fn line_midpoint() {
-    let line = Line::new(Point::new(5.0, 0.0), Vector::new(0.0, 10.0));
-    let midpoint = line.midpoint();
-    assert_point_eq(midpoint, Point::new(5.0, 5.0));
-  }
-
-  #[test]
-  fn line_end() {
-    let line = Line::new(Point::new(5.0, 0.0), Vector::new(0.0, 10.0));
-    let end = line.end();
-    assert_point_eq(end, Point::new(5.0, 10.0));
   }
 
   #[test]
