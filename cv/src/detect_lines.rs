@@ -149,7 +149,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegme
       )?;
 
       #[cfg(debug_assertions)]
-      opencv::highgui::imshow("yellow dilated", &dilated_img).expect("open window");
+      opencv::highgui::imshow("yellow dilated", &dilated_img)?;
 
       colour_img = dilated_img;
     }
