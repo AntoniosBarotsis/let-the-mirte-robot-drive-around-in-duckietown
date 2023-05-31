@@ -40,10 +40,10 @@ Python wheel:
 
 ```sh
 # In the root folder
-maturin develop -m cv-py/Cargo.toml
+maturin develop -m cv-py/Cargo.toml -r
 
 # Or from the `cv-py` folder
-maturin develop
+maturin develop -r
 ```
 
 This should install this crate's Python bindings in the Python interpreter of your virtual
