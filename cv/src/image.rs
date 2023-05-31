@@ -8,6 +8,8 @@ use opencv::{
 use crate::{cv_error::CvError, image_part::ImagePart};
 
 pub const CROP_HEIGHT: f32 = 0.58;
+// Change this factor for the contrast clipping
+pub const CLIP_FACTOR: f32 = 100.0;
 
 // Reads and image from a file and returns the image in the correct colours
 pub fn read_image(path: &str) -> Result<Mat, CvError> {
@@ -107,9 +109,6 @@ pub fn enhance_contrast(img: &Mat) -> Result<Mat, CvError> {
 ///
 /// Returns gain and bias
 fn calc_gain_bias(hist: &Mat) -> Result<(f32, f32), CvError> {
-  // Change this factor for the contrast clipping
-  const CLIP_FACTOR: f32 = 100.0;
-
   #[allow(clippy::cast_sign_loss)]
   let hist_len = hist.rows() as usize;
 
