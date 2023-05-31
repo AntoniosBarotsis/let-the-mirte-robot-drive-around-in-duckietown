@@ -2,11 +2,10 @@
 
 mod classes;
 
-use classes::{PyColour, PyCvError, PyLine, PyPos};
+use classes::{PyColour, PyCvError, PyLane, PyLine, PyLineSegment, PyPoint, PyVector};
 use cv::{
-  cv_error::CvError,
   detect_lines::detect_line_type,
-  line::{Colour, Line},
+  line::{Colour, LineSegment},
 };
 use mirte_rs::detect_lane::detect_lane;
 
@@ -19,7 +18,7 @@ use pyo3::prelude::*;
 
 #[pyfunction(name = "detect_line_type")]
 #[allow(clippy::unwrap_used, clippy::needless_pass_by_value)]
-fn detect_line_type_py(colours: Vec<PyColour>) -> PyResult<Vec<PyLine>> {
+fn detect_line_type_py(colours: Vec<PyColour>) -> PyResult<Vec<PyLineSegment>> {
   // Gets image from Mirte's camera when "dev" is enabled, otherwise takes it from the assets
   // folder. This is done so it can be tested in CI as well as on the robot.
   #[cfg(not(feature = "dev"))]
@@ -31,7 +30,10 @@ fn detect_line_type_py(colours: Vec<PyColour>) -> PyResult<Vec<PyLine>> {
 
   let lines = detect_line_type(&mat, colours).map_err(PyCvError::from)?;
 
-  let res = lines.into_iter().map(PyLine::from).collect::<Vec<_>>();
+  let res = lines
+    .into_iter()
+    .map(PyLineSegment::from)
+    .collect::<Vec<_>>();
 
   Ok(res)
 }
@@ -40,22 +42,22 @@ fn detect_line_type_py(colours: Vec<PyColour>) -> PyResult<Vec<PyLine>> {
 #[allow(clippy::unnecessary_wraps)]
 #[pyfunction(name = "detect_lane")]
 #[allow(clippy::unwrap_used, clippy::needless_pass_by_value)]
-fn detect_lane_py(lines: Vec<PyLine>) -> PyResult<Vec<PyLine>> {
-  let lines = lines.into_iter().map(Line::from).collect::<Vec<_>>();
+fn detect_lane_py(lines: Vec<PyLineSegment>) -> PyResult<PyLane> {
+  let lines = lines.into_iter().map(LineSegment::from).collect::<Vec<_>>();
 
-  let res = detect_lane(&lines)
-    .map(|res| res.into_iter().map(PyLine::from).collect::<Vec<_>>())
-    .map_err(|_er| CvError::NoLinesDetected)
-    .map_err(PyCvError::from)?;
+  let res = PyLane::from(detect_lane(&lines));
 
   Ok(res)
 }
 
 #[pymodule]
 fn cv_py(_py: Python, m: &PyModule) -> PyResult<()> {
+  m.add_class::<PyLane>()?;
+  m.add_class::<PyLineSegment>()?;
   m.add_class::<PyLine>()?;
+  m.add_class::<PyVector>()?;
   m.add_class::<PyColour>()?;
-  m.add_class::<PyPos>()?;
+  m.add_class::<PyPoint>()?;
 
   m.add_function(wrap_pyfunction!(detect_line_type_py, m)?)?;
   m.add_function(wrap_pyfunction!(detect_lane_py, m)?)?;
