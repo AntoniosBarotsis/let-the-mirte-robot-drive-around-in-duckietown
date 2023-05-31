@@ -1,43 +1,107 @@
-use cv::cv_error::CvError;
-use cv::line::{Colour, Line, LineSegment, Point, Pos};
-use mirte_rs::mirte_error::MirteError;
+use cv::line::{Colour, LineSegment, Point};
+use cv::{
+  cv_error::CvError,
+  line::{Line, Vector},
+};
+use mirte_rs::{lane::Lane, mirte_error::MirteError};
 use pyo3::exceptions::{PyIOError, PyRuntimeError};
 use pyo3::prelude::*;
 use ros::RosError;
 
 #[derive(Debug, Clone)]
-#[pyclass(name = "line")]
-pub(crate) struct PyLine {
+#[pyclass(name = "Lane")]
+pub(crate) struct PyLane {
   #[pyo3(get, set)]
-  pub colour: PyColour,
+  pub centre: PyLine,
   #[pyo3(get, set)]
-  pub start: PyPos,
+  pub left: PyLine,
   #[pyo3(get, set)]
-  pub end: PyPos,
+  pub right: PyLine,
 }
 
-impl From<LineSegment> for PyLine {
-  fn from(value: LineSegment) -> Self {
-    let colour = PyColour::from(value.colour);
-    let start = PyPos::from(value.start);
-    let end = PyPos::from(value.end);
+impl From<Lane> for PyLane {
+  fn from(value: Lane) -> Self {
+    let lane = PyLine::from(value.centre);
+    let left_line = PyLine::from(value.left);
+    let right_line = PyLine::from(value.right);
 
-    PyLine { colour, start, end }
+    PyLane {
+      centre: lane,
+      left: left_line,
+      right: right_line,
+    }
   }
 }
 
-impl From<PyLine> for Line {
-  fn from(value: PyLine) -> Self {
-    let colour = Colour::from(value.colour);
-    let start = Pos::from(value.start);
-    let end = Pos::from(value.end);
+#[derive(Debug, Clone)]
+#[pyclass(name = "LineSegment")]
+pub(crate) struct PyLineSegment {
+  #[pyo3(get, set)]
+  pub colour: PyColour,
+  #[pyo3(get, set)]
+  pub start: PyPoint,
+  #[pyo3(get, set)]
+  pub end: PyPoint,
+}
 
-    Line { colour, start, end }
+impl From<LineSegment> for PyLineSegment {
+  fn from(value: LineSegment) -> Self {
+    let colour = PyColour::from(value.colour);
+    let start = PyPoint::from(value.start);
+    let end = PyPoint::from(value.end);
+
+    PyLineSegment { colour, start, end }
+  }
+}
+
+impl From<PyLineSegment> for LineSegment {
+  fn from(value: PyLineSegment) -> Self {
+    let colour = Colour::from(value.colour);
+    let start = Point::from(value.start);
+    let end = Point::from(value.end);
+
+    LineSegment { colour, start, end }
+  }
+}
+
+#[derive(Debug, Clone)]
+#[pyclass(name = "Line")]
+pub(crate) struct PyLine {
+  #[pyo3(get, set)]
+  pub origin: PyPoint,
+  #[pyo3(get, set)]
+  pub direction: PyVector,
+}
+
+impl From<Line> for PyLine {
+  fn from(value: Line) -> Self {
+    let origin = PyPoint::from(value.origin);
+    let direction = PyVector::from(value.dir);
+
+    Self { origin, direction }
+  }
+}
+
+#[derive(Debug, Clone)]
+#[pyclass(name = "Vector")]
+pub(crate) struct PyVector {
+  #[pyo3(get, set)]
+  pub x: f32,
+  #[pyo3(get, set)]
+  pub y: f32,
+}
+
+impl From<Vector> for PyVector {
+  fn from(value: Vector) -> Self {
+    let x = value.x;
+    let y = value.y;
+
+    Self { x, y }
   }
 }
 
 #[derive(Debug, Clone, Copy)]
-#[pyclass(name = "colour")]
+#[pyclass(name = "Colour")]
 #[allow(nonstandard_style)]
 pub(crate) enum PyColour {
   #[pyo3(name = "red")]
@@ -89,29 +153,29 @@ impl From<PyColour> for Colour {
 }
 
 #[derive(Debug, Clone)]
-#[pyclass(name = "pos")]
-pub(crate) struct PyPos {
+#[pyclass(name = "Point")]
+pub(crate) struct PyPoint {
   #[pyo3(get, set)]
   pub x: f32,
   #[pyo3(get, set)]
   pub y: f32,
 }
 
-impl From<Point> for PyPos {
+impl From<Point> for PyPoint {
   fn from(value: Point) -> Self {
     let x = value.x;
     let y = value.y;
 
-    PyPos { x, y }
+    PyPoint { x, y }
   }
 }
 
-impl From<PyPos> for Pos {
-  fn from(value: PyPos) -> Self {
+impl From<PyPoint> for Point {
+  fn from(value: PyPoint) -> Self {
     let x = value.x;
     let y = value.y;
 
-    Pos { x, y }
+    Point { x, y }
   }
 }
 

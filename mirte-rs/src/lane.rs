@@ -2,17 +2,17 @@ use cv::line::{Colour, Line, LineSegment};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Lane {
-  pub lane: Line,
-  pub left_line: Line,
-  pub right_line: Line,
+  pub centre: Line,
+  pub left: Line,
+  pub right: Line,
 }
 
 impl Lane {
   pub fn new(lane: Line, left_line: Line, right_line: Line) -> Self {
     Self {
-      lane,
-      left_line,
-      right_line,
+      centre: lane,
+      left: left_line,
+      right: right_line,
     }
   }
 
@@ -23,9 +23,9 @@ impl Lane {
     right_colour: Colour,
   ) -> Vec<LineSegment> {
     [
-      (self.lane, lane_colour),
-      (self.left_line, left_colour),
-      (self.right_line, right_colour),
+      (self.centre, lane_colour),
+      (self.left, left_colour),
+      (self.right, right_colour),
     ]
     .iter()
     .map(|&(line, color)| LineSegment::from_line(line, color))
