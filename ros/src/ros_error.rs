@@ -12,6 +12,8 @@ pub enum RosError {
   ClientResponse(String),
   #[error("{0}")]
   SubscriberCreation(String),
+  #[error("A timeout occured: {0}")]
+  Timeout(String),
   #[error("{0}")]
   Generic(#[from] rosrust::error::tcpros::Error),
 }

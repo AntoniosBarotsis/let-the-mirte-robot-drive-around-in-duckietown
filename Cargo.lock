@@ -482,6 +482,7 @@ version = "0.1.0"
 dependencies = [
  "criterion",
  "derive_more",
+ "float-cmp",
  "opencv",
  "thiserror",
  "vec3",
@@ -490,8 +491,7 @@ dependencies = [
 [[package]]
 name = "cv-bridge"
 version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6da5ede9fc0f8df3e772a712a5ab4b4471ecb18aad5e6ba1f192bb13f782b87b"
+source = "git+https://github.com/AntoniosBarotsis/cv-bridge-rs?rev=04742ada4f9a78172c50261abe86d0ff9d4b3812#04742ada4f9a78172c50261abe86d0ff9d4b3812"
 dependencies = [
  "byteorder",
  "opencv",
@@ -503,7 +503,9 @@ name = "cv-py"
 version = "0.1.0"
 dependencies = [
  "cv",
+ "mirte-rs",
  "pyo3",
+ "ros",
 ]
 
 [[package]]
@@ -622,6 +624,15 @@ dependencies = [
  "libc",
  "redox_syscall 0.2.16",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "float-cmp"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "98de4bbd547a563b716d8dfa9aad1cb19bfab00f4fa09a6a4ed21dbcf44ce9c4"
+dependencies = [
+ "num-traits",
 ]
 
 [[package]]
@@ -1045,6 +1056,7 @@ version = "0.1.0"
 dependencies = [
  "cv",
  "ros",
+ "thiserror",
 ]
 
 [[package]]
@@ -1456,8 +1468,7 @@ dependencies = [
 [[package]]
 name = "ros_message"
 version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0bf6267f6ea633c697228fcc70b4041271f4eb09d84a8962f6ee8ff366ee411"
+source = "git+https://github.com/AntoniosBarotsis/rosrust?rev=b2833d40205f2acf1c73fdfacb5cac92ab31a506#b2833d40205f2acf1c73fdfacb5cac92ab31a506"
 dependencies = [
  "array-init",
  "hex",
@@ -1473,8 +1484,7 @@ dependencies = [
 [[package]]
 name = "rosrust"
 version = "0.9.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad4e09ad9845ebe0d558a2ad29bc99270b9f18461b24dfa48a43c2b2d58e1d4e"
+source = "git+https://github.com/AntoniosBarotsis/rosrust?rev=b2833d40205f2acf1c73fdfacb5cac92ab31a506#b2833d40205f2acf1c73fdfacb5cac92ab31a506"
 dependencies = [
  "byteorder",
  "colored",
@@ -1497,8 +1507,7 @@ dependencies = [
 [[package]]
 name = "rosrust_codegen"
 version = "0.9.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "152b6795be28c58d6d1f183499957e3b9b79e288f9fe0fc339a33f8d89662fcb"
+source = "git+https://github.com/AntoniosBarotsis/rosrust?rev=b2833d40205f2acf1c73fdfacb5cac92ab31a506#b2833d40205f2acf1c73fdfacb5cac92ab31a506"
 dependencies = [
  "error-chain 0.12.4",
  "hex",
@@ -1513,8 +1522,7 @@ dependencies = [
 [[package]]
 name = "rosrust_msg"
 version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4c509a1798e767aa6360d66ce25e555fdd7b3c9293fd48056f97561e9d14eec"
+source = "git+https://github.com/AntoniosBarotsis/rosrust?rev=b2833d40205f2acf1c73fdfacb5cac92ab31a506#b2833d40205f2acf1c73fdfacb5cac92ab31a506"
 dependencies = [
  "rosrust",
 ]

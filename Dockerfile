@@ -1,4 +1,4 @@
-# antoniosbarotsis/mirte-rs:opencv-ros
+# antoniosbarotsis/mirte-rs:opencv-ros-py-v3
 
 FROM ros:noetic-ros-base-focal
 

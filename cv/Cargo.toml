@@ -10,6 +10,7 @@ opencv = { version = "0.76.4", default-features = false, features = ["imgproc", 
 thiserror = "1.0.40"
 vec3 = "0.2.1"
 derive_more = { version = "0.99.17", features = ["add", "mul", "sum", "not"] }
+float-cmp = "0.9.0"
 
 [dev-dependencies]
 criterion = { version = "0.4", features = ["html_reports"] }

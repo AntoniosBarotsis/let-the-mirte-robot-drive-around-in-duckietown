@@ -1,5 +1,14 @@
 # CV-PY
 
+## Features
+
+This crate includes a `dev` feature that is used to switch between using images from Mirte's
+camera to `/assets/input_1.jpg`. This feature can be specified by passing the `-F dev` flag to a
+build command as you can see [here](../.gitlab-ci.yml#41).
+
+By default, this feature is *disabled* which means that the input will come from Mirte's camera.
+This will be useful in the next section where compiling is discussed.
+
 ## Compiling
 
 You need Python (>= 3.7) and [Maturin](https://www.maturin.rs/installation.html) installed.
@@ -31,10 +40,10 @@ Python wheel:
 
 ```sh
 # In the root folder
-maturin develop -m cv-py/Cargo.toml
+maturin develop -m cv-py/Cargo.toml -r
 
 # Or from the `cv-py` folder
-maturin develop
+maturin develop -r
 ```
 
 This should install this crate's Python bindings in the Python interpreter of your virtual
