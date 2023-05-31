@@ -1,16 +1,25 @@
-use cv::process_image;
-
-use opencv::{
-  highgui::{imshow, wait_key},
-  imgcodecs::{imread, IMREAD_GRAYSCALE},
-};
+use cv::cv_error::CvError;
+use cv::detect_lines::detect_line_type;
+use cv::draw_lines::draw_lines;
+use cv::image::{downscale, read_image};
+use cv::line::Colour::{White, Yellow};
+use std::time::Instant;
 
 /// Processes the input image from the assets folder and displays it in a window for an easier
 /// inspection. The window can also be closed by pressing any button.
-fn main() {
-  let img = imread("./assets/input_real.jpg", IMREAD_GRAYSCALE).expect("open image");
-  let output = process_image(img).expect("process image");
+fn main() -> Result<(), CvError> {
+  let img = read_image("./assets/input_1.jpg")?;
 
-  imshow("test", &output).expect("open window");
-  let _res = wait_key(0).expect("keep window open");
+  let mut resized = downscale(&img)?;
+
+  let now = Instant::now();
+
+  let colours = vec![Yellow, White];
+  let lines = detect_line_type(&resized, colours)?;
+
+  println!("{:?}", now.elapsed());
+
+  draw_lines(&mut resized, &lines);
+
+  Ok(())
 }

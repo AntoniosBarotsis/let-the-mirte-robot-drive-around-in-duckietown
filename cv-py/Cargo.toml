@@ -1,0 +1,18 @@
+[package]
+name = "cv-py"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "cv_py"
+crate-type = ["cdylib"]
+
+[features]
+dev = []
+
+[dependencies]
+pyo3 = { version = "0.18.3", features = ["extension-module"] }
+cv = { path = "../cv"}
+ros = { path = "../ros"}
+mirte-rs = { path = "../mirte-rs"}

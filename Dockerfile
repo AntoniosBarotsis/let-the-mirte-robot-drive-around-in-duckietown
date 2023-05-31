@@ -1,4 +1,4 @@
-# antoniosbarotsis/mirte-rs:opencv-ros
+# antoniosbarotsis/mirte-rs:opencv-ros-py-v3
 
 FROM ros:noetic-ros-base-focal
 
@@ -24,8 +24,12 @@ RUN apt-get update
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 
 ENV PATH="/root/.cargo/bin:${PATH}"
+
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
+# Get Python and Maturin
+RUN apt-get install python3.7 python3-pip -y
+RUN pip3 install maturin patchelf
 # Source ROS setup
 RUN echo "source /opt/ros/noetic/setup.bash" >> /etc/bash.bashrc
 

@@ -4,6 +4,7 @@ members = [
   "mirte-rs",
   "cv",
   "ros",
+  "cv-py",
 ]
 
 [profile.release.package.cv]
