@@ -7,3 +7,6 @@ repository = "https://gitlab.ewi.tudelft.nl/cse2000-software-project/2022-2023-q
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+ros = { path = "../ros"}
+cv = { path = "../cv"}
+thiserror = "1.0.40"

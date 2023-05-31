@@ -1,15 +1,30 @@
 # TODO: Determine a MSRV and use that here instead
-image: rust:1.69.0
+image: antoniosbarotsis/mirte-rs:opencv-ros-py-v3
+
+variables:
+  CARGO_HOME: $CI_PROJECT_DIR/.cargo
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+
+cache:
+  key:
+    files:
+      - Cargo.lock
+  paths:
+    - .cargo/registry/index
+    - .cargo/registry/cache
+    - target/debug/deps
+    - target/debug/build
 
 stages:
   - build
   - test
+  - python-test
   - lint
 
 build:
   stage: build
   script:
-    cargo build
+    cargo build --all-features
 
 test:
   stage: test
@@ -18,9 +33,20 @@ test:
   script:
     cargo test --verbose
 
+python-test:
+  stage: python-test
+  needs: 
+  - build
+  script:
+    - maturin build --release -F dev -m cv-py/Cargo.toml --skip-auditwheel
+    - pip3 install ./target/wheels/cv_py-0.1.0-cp38-cp38-linux_x86_64.whl --force
+    - python3 cv-py/test.py
+
 lint:
   stage: lint
+  needs: 
+  - build
   script:
     - rustup component add clippy rustfmt
-    - cargo clippy -- -D warnings
+    - cargo clippy --all-features -- -D warnings
     - cargo fmt --check
