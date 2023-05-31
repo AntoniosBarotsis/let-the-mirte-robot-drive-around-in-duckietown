@@ -15,7 +15,7 @@ use crate::{
   line::{get_colour, Colour, Line, Pos},
 };
 
-/// Finds lines in the image with gain specific colour using the `fast_line_detector` from `openCV`
+/// Finds lines in the image with a specific colour using the `fast_line_detector` from `openCV`
 ///
 /// * `img` - The images of which the lines need to be detected
 /// * `colour` - The colour of which you want to detect the lanes
