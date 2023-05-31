@@ -113,7 +113,7 @@ mod tests {
     let boundary = Line::new(Point::new(1.0, 1.0), Vector::new(1.0, -1.0));
     assert!(lies_on_right(Point::new(2.0, 2.0), &boundary));
     assert!(!lies_on_right(Point::new(0.0, 0.0), &boundary));
-    assert!(!lies_on_right(Point::new(1.0, 1.0), &boundary))
+    assert!(!lies_on_right(Point::new(1.0, 1.0), &boundary));
   }
 
   #[test]

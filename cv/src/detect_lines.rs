@@ -126,37 +126,31 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegme
       };
     }
 
-    let mut dilated_img = Mat::default();
-    let magic = morphology_default_border_value()?;
-    let element = get_structuring_element(
-      MORPH_ELLIPSE,
-      Size_ {
-        width: 7,
-        height: 7,
-      },
-      Point_ { x: -1, y: -1 },
-    )?;
-    dilate(
-      &colour_img,
-      &mut dilated_img,
-      &element,
-      Point_ { x: -1, y: -1 },
-      2,
-      BORDER_CONSTANT,
-      magic,
-    )?;
+    if colour_enum == Colour::Yellow {
+      let mut dilated_img = Mat::default();
+      let magic = morphology_default_border_value()?;
+      let element = get_structuring_element(
+        MORPH_ELLIPSE,
+        Size_ {
+          width: 7,
+          height: 7,
+        },
+        Point_ { x: -1, y: -1 },
+      )?;
+      dilate(
+        &colour_img,
+        &mut dilated_img,
+        &element,
+        Point_ { x: -1, y: -1 },
+        2,
+        BORDER_CONSTANT,
+        magic,
+      )?;
 
-    #[cfg(debug_assertions)]
-    {
-      match colour_enum {
-        Colour::Yellow => {
-          opencv::highgui::imshow("yellow dilated", &dilated_img).expect("open window");
-        }
-        Colour::White => {
-          opencv::highgui::imshow("white dilated", &dilated_img).expect("open window");
-        }
-        _ => (),
-      };
+      #[cfg(debug_assertions)]
+      opencv::highgui::imshow("yellow dilated", &dilated_img).expect("open window");
+
+      colour_img = dilated_img;
     }
 
     // Get the lines of this colour
@@ -164,12 +158,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegme
     // the maximum value of an f32.
     // This takes about 1/6 of the time for 2 colours
     #[allow(clippy::cast_precision_loss)]
-    let mut new_lines = get_lines(
-      &dilated_img,
-      colour_enum,
-      img.size()?,
-      top_img_height as f32,
-    )?;
+    let mut new_lines = get_lines(&colour_img, colour_enum, img.size()?, top_img_height as f32)?;
 
     lines.append(&mut new_lines);
   }
