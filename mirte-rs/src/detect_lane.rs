@@ -25,9 +25,6 @@ fn get_average_line(lines: &[LineSegment], colour: Colour) -> Option<Line> {
     .filter(|line| line.colour == colour)
     .copied()
     .collect();
-  if coloured_lines.is_empty() {
-    return None;
-  }
 
   // Get average line with line length as weight
   let weighted_dir: Vector = coloured_lines

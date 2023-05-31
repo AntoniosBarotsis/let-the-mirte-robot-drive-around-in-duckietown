@@ -20,7 +20,21 @@ pub fn read_image(path: &str) -> Result<Mat, CvError> {
 /// * `img` - The image that needs to be cropped
 /// * `keep` - Which part of the image you want to keep. There are two options. `ImagePart::Top` give the top part and `ImagePart::Bottom` gives the bottom
 ///
-/// Returns gain result with the specified part as `Mat`
+/// Returns gain result with the specificed part as `Mat`
+///
+/// # Example
+/// ```
+/// use cv::{
+///   image::{crop_image, dbg_mat},
+///   image_part::ImagePart,
+/// };
+/// use opencv::prelude::MatTraitConst;
+///
+/// let mut img = dbg_mat("../assets/test_images/test_image_2.png").expect("could not read image");
+/// let original_height = img.rows();
+/// let cropped_img = crop_image(&mut img, ImagePart::Top).expect("could not crop image");
+/// assert!(original_height - cropped_img.rows() > 0);
+/// ```
 pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   #[allow(clippy::cast_possible_truncation, clippy::cast_precision_loss)]
   let new_height = (img.size()?.height as f32 * CROP_HEIGHT) as i32;
@@ -189,6 +203,19 @@ pub fn downscale(img: &Mat) -> Result<Mat, CvError> {
   Ok(resized)
 }
 
+/// Method for converting an image path to the `Mat` format used by `OpenCV`
+///
+/// * `path` - The path to the image that needs to be converted
+///  
+/// Returns a result with in it a `Mat` representation of the image
+///
+/// # Example
+/// ```
+/// use cv::image::dbg_mat;
+///
+/// let error = dbg_mat("../this/path/does/not/exist.png");
+/// assert!(error.is_err());
+/// ```
 pub fn dbg_mat(path: &str) -> Result<Mat, CvError> {
   let mat = read_image(path)?;
 
