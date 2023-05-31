@@ -123,6 +123,6 @@ mod tests {
     let boundary = Line::new(Point::new(1.0, 1.0), Vector::new(1.0, -1.0));
     let right_lines = super::lines_on_right(&lines, &boundary);
     assert_eq!(right_lines.len(), 1);
-    // TODO: assert!(right_lines.contains(&lines[0]));
+    assert!(right_lines.contains(&lines[0]));
   }
 }

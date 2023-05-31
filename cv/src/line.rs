@@ -31,7 +31,7 @@ pub fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
   }
 }
 // Represents a line
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct LineSegment {
   pub colour: Colour,
   pub start: Point,
@@ -84,7 +84,7 @@ pub enum Colour {
 }
 
 // Represents a end coordinate of a line
-#[derive(Debug, Clone, Copy, Add, Sub, Div, Mul, Sum)]
+#[derive(Debug, Clone, Copy, PartialEq, Add, Sub, Div, Mul, Sum)]
 pub struct Point {
   pub x: f32,
   pub y: f32,
