@@ -1,6 +1,9 @@
 use opencv::{
-  core::{in_range, Size, Vec4f, Vector},
-  imgproc::{cvt_color, COLOR_RGB2HSV},
+  core::{in_range, Point_, Size, Size_, Vec4f, Vector, BORDER_CONSTANT},
+  imgproc::{
+    cvt_color, dilate, get_structuring_element, morphology_default_border_value, COLOR_RGB2HSV,
+    MORPH_ELLIPSE,
+  },
   prelude::{Mat, MatTraitConst, MatTraitConstManual},
   ximgproc::{create_fast_line_detector, FastLineDetector},
 };
@@ -123,12 +126,50 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegme
       };
     }
 
+    let mut dilated_img = Mat::default();
+    let magic = morphology_default_border_value()?;
+    let element = get_structuring_element(
+      MORPH_ELLIPSE,
+      Size_ {
+        width: 7,
+        height: 7,
+      },
+      Point_ { x: -1, y: -1 },
+    )?;
+    dilate(
+      &colour_img,
+      &mut dilated_img,
+      &element,
+      Point_ { x: -1, y: -1 },
+      2,
+      BORDER_CONSTANT,
+      magic,
+    )?;
+
+    #[cfg(debug_assertions)]
+    {
+      match colour_enum {
+        Colour::Yellow => {
+          opencv::highgui::imshow("yellow dilated", &dilated_img).expect("open window");
+        }
+        Colour::White => {
+          opencv::highgui::imshow("white dilated", &dilated_img).expect("open window");
+        }
+        _ => (),
+      };
+    }
+
     // Get the lines of this colour
     // Casting an i32 to an f32 is fine, as the image height is realistically never going to exceed
     // the maximum value of an f32.
     // This takes about 1/6 of the time for 2 colours
     #[allow(clippy::cast_precision_loss)]
-    let mut new_lines = get_lines(&colour_img, colour_enum, img.size()?, top_img_height as f32)?;
+    let mut new_lines = get_lines(
+      &dilated_img,
+      colour_enum,
+      img.size()?,
+      top_img_height as f32,
+    )?;
 
     lines.append(&mut new_lines);
   }
