@@ -56,14 +56,14 @@ fn get_average_line(lines: &[LineSegment], colour: Colour) -> Option<Line> {
   }) / total_squared_length;
 
   Some(Line {
-    origin: avg_pos - Point::from_vector(weighted_dir) / 2.0,
+    origin: avg_pos,
     dir: weighted_dir,
   })
 }
 
-/// Checks if `point` lies on the right of `line`
-fn lies_on_right(point: Point, line: &Line) -> bool {
-  point.x > line.origin.x + (point.y - line.origin.y) / line.slope()
+/// Checks if `point` lies on the right of `boundary`
+fn lies_on_right(point: Point, boundary: &Line) -> bool {
+  point.x > boundary.origin.x + (point.y - boundary.origin.y) / boundary.slope()
 }
 
 /// Returns all lines in `lines` that lie to the right of `boundary`
@@ -104,5 +104,28 @@ pub fn detect_lane(lines: &[LineSegment]) -> Lane {
 
 #[cfg(test)]
 mod tests {
-  // TODO: add tests for detect_lane
+  use crate::detect_lane::lies_on_right;
+  use cv::line::Colour::Red;
+  use cv::line::{Line, LineSegment, Point, Vector};
+
+  #[test]
+  fn test_lies_on_right() {
+    let boundary = Line::new(Point::new(1.0, 1.0), Vector::new(1.0, -1.0));
+    assert!(lies_on_right(Point::new(2.0, 2.0), &boundary));
+    assert!(!lies_on_right(Point::new(0.0, 0.0), &boundary));
+    assert!(!lies_on_right(Point::new(1.0, 1.0), &boundary))
+  }
+
+  #[test]
+  fn test_lines_on_right() {
+    let lines: Vec<LineSegment> = vec![
+      LineSegment::new(Red, Point::new(0.0, 0.0), Point::new(3.0, 3.0)),
+      LineSegment::new(Red, Point::new(0.0, 0.0), Point::new(2.0, 2.0)),
+      LineSegment::new(Red, Point::new(0.0, 0.0), Point::new(1.0, 1.0)),
+    ];
+    let boundary = Line::new(Point::new(1.0, 1.0), Vector::new(1.0, -1.0));
+    let right_lines = super::lines_on_right(&lines, &boundary);
+    assert_eq!(right_lines.len(), 1);
+    // TODO: assert!(right_lines.contains(&lines[0]));
+  }
 }
