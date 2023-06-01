@@ -80,6 +80,7 @@ rustflags = [
     "-Aclippy::must_use_candidate",
     "-Aclippy::missing_errors_doc",
     "-Wclippy::unwrap_used",
+    "-Wclippy::expect_used",
     # "-Wclippy::nursery",
     "-Wabsolute_paths_not_starting_with_crate",
     "-Welided_lifetimes_in_paths",

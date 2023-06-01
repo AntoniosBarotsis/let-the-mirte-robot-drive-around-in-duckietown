@@ -9,3 +9,4 @@ repository = "https://gitlab.ewi.tudelft.nl/cse2000-software-project/2022-2023-q
 [dependencies]
 ros = { path = "../ros"}
 cv = { path = "../cv"}
+thiserror = "1.0.40"
