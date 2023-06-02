@@ -12,3 +12,4 @@ rosrust_msg = { git = "https://github.com/AntoniosBarotsis/rosrust", rev = "b283
 env_logger = "0.10.0"
 once_cell = "1.17.1"
 thiserror = "1.0.40"
+bridge = { path = "../bridge"}

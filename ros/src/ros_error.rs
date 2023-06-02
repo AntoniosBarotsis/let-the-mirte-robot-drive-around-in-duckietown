@@ -16,4 +16,6 @@ pub enum RosError {
   Timeout(String),
   #[error("{0}")]
   Generic(#[from] rosrust::error::tcpros::Error),
+  #[error("Error instantiating publisher \"{topic}\"")]
+  PublisherCreation { topic: String },
 }

@@ -4,6 +4,7 @@ use std::{
 };
 /// Utility for driving Mirte around.
 pub mod drive;
+pub mod publishers;
 pub mod ros_error;
 
 use cv_bridge::msgs::sensor_msgs::Image;
@@ -17,7 +18,7 @@ use std::sync::Once;
 static INIT: Once = Once::new();
 
 /// Initializes the logger and the webcam listener node exactly once.
-fn init() {
+pub(crate) fn init() {
   INIT.call_once(|| {
     env_logger::init();
 
