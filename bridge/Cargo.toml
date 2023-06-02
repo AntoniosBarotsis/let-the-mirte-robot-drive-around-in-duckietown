@@ -1,0 +1,12 @@
+[package]
+name = "bridge"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rosrust = { git = "https://github.com/AntoniosBarotsis/rosrust", rev = "b2833d40205f2acf1c73fdfacb5cac92ab31a506"}
+rosrust_msg = { git = "https://github.com/AntoniosBarotsis/rosrust", rev = "b2833d40205f2acf1c73fdfacb5cac92ab31a506"}
+# mirte-rs = { path = "../mirte-rs"}
+cv = { path = "../cv"}

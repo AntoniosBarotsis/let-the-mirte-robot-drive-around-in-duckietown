@@ -5,6 +5,7 @@ members = [
   "cv",
   "ros",
   "cv-py",
+  "bridge",
 ]
 
 [profile.release.package.cv]

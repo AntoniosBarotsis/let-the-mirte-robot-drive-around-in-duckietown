@@ -175,6 +175,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bridge"
+version = "0.1.0"
+dependencies = [
+ "cv",
+ "rosrust",
+ "rosrust_msg",
+]
+
+[[package]]
 name = "brotli"
 version = "3.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1457,6 +1466,7 @@ checksum = "436b050e76ed2903236f032a59761c1eb99e1b0aead2c257922771dab1fc8c78"
 name = "ros"
 version = "0.1.0"
 dependencies = [
+ "bridge",
  "cv-bridge",
  "env_logger",
  "once_cell",
