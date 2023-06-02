@@ -153,7 +153,7 @@ impl PyVector {
 
 impl ToString for PyVector {
   fn to_string(&self) -> String {
-    format!("Point: {{x: {}, y: {}}}", self.x, self.y)
+    format!("Vector: {{x: {}, y: {}}}", self.x, self.y)
   }
 }
 
