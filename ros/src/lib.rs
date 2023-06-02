@@ -81,8 +81,6 @@ pub fn process_ros_image_one() -> Result<Image, RosError> {
   // The subscriber is stopped when the returned object is destroyed
   #[allow(clippy::expect_used)]
   let _subscriber_raii = rosrust::subscribe("/webcam/image_raw", 1, move |img: Image| {
-    rosrust::ros_info!("Image received.");
-
     // let img = callback(img);
 
     let (ref img_mutex, ref cond) = *Arc::clone(&arcmut_clone);

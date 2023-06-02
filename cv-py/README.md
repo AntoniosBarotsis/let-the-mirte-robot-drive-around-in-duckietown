@@ -32,7 +32,7 @@ cd cv-py/
 sudo apt install python3.8-venv
 python3 -m venv .venv
 source .venv/bin/activate # You will need to run this on every new shell to enable the environment.
-pip install -U pip maturin maturin[patchelf]
+pip install -U pip maturin maturin patchelf 
 ```
 
 You should then be able to build the Python bindings. The following command builds and installs the

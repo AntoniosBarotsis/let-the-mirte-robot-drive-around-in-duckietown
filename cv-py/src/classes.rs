@@ -19,6 +19,24 @@ pub(crate) struct PyLane {
   pub right: PyLine,
 }
 
+#[pymethods]
+impl PyLane {
+  fn __str__(&self) -> String {
+    self.to_string()
+  }
+}
+
+impl ToString for PyLane {
+  fn to_string(&self) -> String {
+    format!(
+      "Lane {{centre: {}, left: {}, right: {}}}",
+      self.centre.to_string(),
+      self.left.to_string(),
+      self.right.to_string()
+    )
+  }
+}
+
 impl From<Lane> for PyLane {
   fn from(value: Lane) -> Self {
     let lane = PyLine::from(value.centre);
@@ -42,6 +60,24 @@ pub(crate) struct PyLineSegment {
   pub start: PyPoint,
   #[pyo3(get, set)]
   pub end: PyPoint,
+}
+
+#[pymethods]
+impl PyLineSegment {
+  fn __str__(&self) -> String {
+    self.to_string()
+  }
+}
+
+impl ToString for PyLineSegment {
+  fn to_string(&self) -> String {
+    format!(
+      "LineSegment {{colour: {}, start: {}, end: {}}}",
+      self.colour.to_string(),
+      self.start.to_string(),
+      self.end.to_string()
+    )
+  }
 }
 
 impl From<LineSegment> for PyLineSegment {
@@ -73,6 +109,23 @@ pub(crate) struct PyLine {
   pub direction: PyVector,
 }
 
+#[pymethods]
+impl PyLine {
+  fn __str__(&self) -> String {
+    self.to_string()
+  }
+}
+
+impl ToString for PyLine {
+  fn to_string(&self) -> String {
+    format!(
+      "Line {{origin: {}, direction: {}}}",
+      self.origin.to_string(),
+      self.direction.to_string()
+    )
+  }
+}
+
 impl From<Line> for PyLine {
   fn from(value: Line) -> Self {
     let origin = PyPoint::from(value.origin);
@@ -89,6 +142,19 @@ pub(crate) struct PyVector {
   pub x: f32,
   #[pyo3(get, set)]
   pub y: f32,
+}
+
+#[pymethods]
+impl PyVector {
+  fn __str__(&self) -> String {
+    self.to_string()
+  }
+}
+
+impl ToString for PyVector {
+  fn to_string(&self) -> String {
+    format!("Vector: {{x: {}, y: {}}}", self.x, self.y)
+  }
 }
 
 impl From<Vector> for PyVector {
@@ -120,6 +186,29 @@ pub(crate) enum PyColour {
   Black,
   #[pyo3(name = "white")]
   White,
+}
+
+#[pymethods]
+impl PyColour {
+  #[allow(clippy::trivially_copy_pass_by_ref)]
+  fn __str__(&self) -> String {
+    self.to_string()
+  }
+}
+
+impl ToString for PyColour {
+  fn to_string(&self) -> String {
+    match self {
+      PyColour::Red => "Colour: red".to_string(),
+      PyColour::Orange => "Colour: orange".to_string(),
+      PyColour::Yellow => "Colour: yellow".to_string(),
+      PyColour::Green => "Colour: green".to_string(),
+      PyColour::Blue => "Colour: blue".to_string(),
+      PyColour::Purple => "Colour: purple".to_string(),
+      PyColour::Black => "Colour: black".to_string(),
+      PyColour::White => "Colour: white".to_string(),
+    }
+  }
 }
 
 impl From<Colour> for PyColour {
@@ -159,6 +248,19 @@ pub(crate) struct PyPoint {
   pub x: f32,
   #[pyo3(get, set)]
   pub y: f32,
+}
+
+#[pymethods]
+impl PyPoint {
+  fn __str__(&self) -> String {
+    self.to_string()
+  }
+}
+
+impl ToString for PyPoint {
+  fn to_string(&self) -> String {
+    format!("Point: {{x: {}, y: {}}}", self.x, self.y)
+  }
 }
 
 impl From<Point> for PyPoint {

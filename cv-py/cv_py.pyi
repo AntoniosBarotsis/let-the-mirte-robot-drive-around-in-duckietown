@@ -7,6 +7,7 @@ class Lane:
    right: Line
 
 class LineSegment:
+   """Represents a line."""
    colour: Colour
    start: Point
    end: Point
@@ -20,6 +21,7 @@ class Vector:
    y: float
 
 class Colour(Enum):
+  """Represents a line color."""
   red = 1
   orange = 2
   yellow = 3
@@ -30,12 +32,9 @@ class Colour(Enum):
   white = 8
 
 class Point:
+   """Represents a end coordinate of a line."""
    x: float
    y: float
-
-class Line:
-   origin: Point
-   direction: Vector
 
 def detect_line_type(colours: List[Colour]) -> List[LineSegment]:
   """
