@@ -1,11 +1,13 @@
 #![allow(unused)]
 
 use std::{
+  marker,
   sync::{atomic::AtomicU8, mpsc::channel, Once},
-  thread::{self, JoinHandle},
+  thread::{self, JoinHandle, Thread},
 };
 
 use once_cell::sync::OnceCell;
+use rayon::{ThreadPool, ThreadPoolBuilder};
 use rosrust::Publisher;
 
 use crate::{init, RosError};
@@ -97,6 +99,68 @@ impl RosBgPublisher {
       msg,
       &self.line_segment_publisher,
     )
+  }
+
+  fn publish_work<T>(
+    topic: String,
+    msg: impl Into<T>,
+    publisher: &Publisher<T>,
+  ) -> Result<(), RosError>
+  where
+    T: rosrust::Message,
+  {
+    publisher
+      .send(msg.into())
+      .map_err(|_e| RosError::PublisherCreation { topic })
+  }
+}
+
+static INSTANCE: OnceCell<RosBgPublisher2> = OnceCell::new();
+
+/// Alternative implementation using a threadpool behind a singleton.
+#[allow(missing_debug_implementations)]
+pub struct RosBgPublisher2 {
+  thread_pool: ThreadPool,
+  line_segment_publisher: Publisher<LineSegmentList>,
+  lane_publisher: Publisher<Lane>,
+}
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+impl RosBgPublisher2 {
+  pub fn new() -> &'static Self {
+    INSTANCE.get_or_init(|| {
+      init();
+
+      let line_segment_publisher = rosrust::publish::<LineSegmentList>("line_segments", 1)
+        .expect("Create LINE_SEGMENT_PUBLISHER");
+      let lane_publisher = rosrust::publish::<Lane>("lanes", 10).expect("Create LANE_PUBLISHER");
+
+      let thread_pool = ThreadPoolBuilder::new().num_threads(2).build().unwrap();
+
+      Self {
+        thread_pool,
+        line_segment_publisher,
+        lane_publisher,
+      }
+    })
+  }
+
+  pub fn publish_line_segment(&self, msg: impl Into<LineSegmentList> + Send + 'static) {
+    // Clone is required as the thread might outlive &self.
+    let publisher_clone = self.line_segment_publisher.clone();
+
+    self.thread_pool.spawn(move || {
+      Self::publish_work("line_segments".to_string(), msg, &publisher_clone);
+    });
+  }
+
+  pub fn publish_lane(&self, msg: impl Into<Lane> + Send + 'static) {
+    // Clone is required as the thread might outlive &self.
+    let publisher_clone = self.lane_publisher.clone();
+
+    self.thread_pool.spawn(move || {
+      Self::publish_work("lanes".to_string(), msg, &publisher_clone);
+    });
   }
 
   fn publish_work<T>(

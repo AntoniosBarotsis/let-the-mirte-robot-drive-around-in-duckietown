@@ -1470,6 +1470,7 @@ dependencies = [
  "cv-bridge",
  "env_logger",
  "once_cell",
+ "rayon",
  "rosrust",
  "rosrust_msg",
  "thiserror",

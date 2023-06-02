@@ -1,6 +1,6 @@
 use cv::line::Colour::{White, Yellow};
 use cv::{detect_lines::detect_line_type, image::read_image};
-use ros::publishers::RosBgPublisher;
+use ros::publishers::{RosBgPublisher, RosBgPublisher2};
 use std::{env, time::Instant};
 
 #[allow(clippy::expect_used)]
@@ -14,14 +14,12 @@ fn main() {
 
   let lines = detect_line_type(&img, vec![Yellow, White]).expect("Unable to detect line with cv");
 
-  let worker = RosBgPublisher::new();
+  let worker = RosBgPublisher2::new();
 
   loop {
     let start = Instant::now();
 
-    worker
-      .publish_line_segment(lines.clone())
-      .expect("Publish works");
+    worker.publish_line_segment(lines.clone());
 
     println!("{:?}", start.elapsed());
   }
