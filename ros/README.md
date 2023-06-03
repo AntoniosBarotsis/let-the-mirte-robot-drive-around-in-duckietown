@@ -23,7 +23,7 @@ You also need to add a few custom ROS messages that Mirte uses:
 
 ```sh
 # Location does not really matter, we will delete this right after
-git clone https://github.com/mirte-robot/mirte-ros-packages
+git clone https://github.com/AntoniosBarotsis/mirte-ros-packages
 cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
 rm -rf ./mirte-ros-packages
 ```
