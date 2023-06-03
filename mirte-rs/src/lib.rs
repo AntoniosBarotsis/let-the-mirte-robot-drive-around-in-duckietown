@@ -3,11 +3,17 @@ pub mod mirte_error;
 
 use std::time::Instant;
 
-use cv::line::Colour::{Blue, Green, Red};
-use cv::{detect_lines::detect_line_type, draw_lines::draw_lines, image::downscale, Mat};
+use cv::{
+  cv_error::CvError,
+  line::{
+    Colour::{self, Blue, Green, Red},
+    LineSegment,
+  },
+};
+use cv::{draw_lines::draw_lines, image::downscale, Mat};
 use detect_lane::detect_lane;
 use mirte_error::MirteError;
-use ros::{process_ros_image_one, CvImage};
+use ros::{process_ros_image_one, publishers::RosBgPublisher, CvImage};
 
 #[allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
 pub fn get_image() -> Result<Mat, MirteError> {
@@ -48,4 +54,16 @@ pub fn process_mat(mat: Mat) {
   }
 
   println!("total: {:?}", time_total.elapsed());
+}
+
+/// Wrapper around [`cv::detect_lines::detect_line_type`] that also publishes to the corresponding
+/// ROS topic.
+pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegment>, CvError> {
+  #[allow(deprecated)]
+  let res = cv::detect_lines::detect_line_type(img, colours)?;
+
+  let bg_publisher = RosBgPublisher::get_or_create();
+  bg_publisher.publish_line_segment(res.clone());
+
+  Ok(res)
 }
