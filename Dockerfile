@@ -1,4 +1,4 @@
-# antoniosbarotsis/mirte-rs:opencv-ros-py-v3
+# antoniosbarotsis/mirte-rs:opencv-ros-py-v4
 
 FROM ros:noetic-ros-base-focal
 
@@ -31,10 +31,8 @@ ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 RUN apt-get install python3.7 python3-pip -y
 RUN pip3 install maturin patchelf
 # Source ROS setup
-RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 RUN echo "source catkin_ws/devel/setup.sh" >> ~/.bashrc
 
 # Get mirte_msgs
 RUN git clone https://github.com/AntoniosBarotsis/mirte-ros-packages
-RUN cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
 RUN cp ./mirte-ros-packages/mirte_msgs ~/catkin_ws/src/ -r
