@@ -35,4 +35,4 @@ RUN echo "source catkin_ws/devel/setup.sh" >> ~/.bashrc
 
 # Get mirte_msgs
 RUN git clone https://github.com/AntoniosBarotsis/mirte-ros-packages
-RUN cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
+RUN cp ./mirte-ros-packages/mirte_msgs ~/catkin_ws/src/ -r
