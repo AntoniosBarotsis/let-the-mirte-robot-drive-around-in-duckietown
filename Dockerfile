@@ -1,4 +1,4 @@
-# antoniosbarotsis/mirte-rs:opencv-ros-py-v4
+# antoniosbarotsis/mirte-rs:opencv-ros-py-v5
 
 FROM ros:noetic-ros-base-focal
 
@@ -36,5 +36,3 @@ RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 # Get mirte_msgs
 RUN git clone https://github.com/AntoniosBarotsis/mirte-ros-packages
 RUN cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
-
-COPY . .
