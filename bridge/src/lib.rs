@@ -1,4 +1,4 @@
-use mirte_msgs::{Colour, Line, LineSegment, LineSegmentList, Point, Vector};
+use mirte_msgs::{Colour, Lane, Line, LineSegment, LineSegmentList, Point, Vector};
 
 rosrust::rosmsg_include!(
   mirte_msgs / Point,
@@ -84,4 +84,16 @@ impl From<Vec<cv::line::LineSegment>> for LineSegmentList {
   }
 }
 
-// impl From<Vec<LineSegmentList>> for LineSegmentList {}
+impl From<cv::lane::Lane> for Lane {
+  fn from(value: cv::lane::Lane) -> Self {
+    let centre = value.centre.into();
+    let left = value.left.into();
+    let right = value.right.into();
+
+    Lane {
+      centre,
+      left,
+      right,
+    }
+  }
+}

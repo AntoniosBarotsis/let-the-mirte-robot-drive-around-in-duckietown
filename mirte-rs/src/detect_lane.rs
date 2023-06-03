@@ -1,5 +1,7 @@
-use crate::lane::Lane;
-use cv::line::{Colour, Line, LineSegment, Point, Vector};
+use cv::{
+  lane::Lane,
+  line::{Colour, Line, LineSegment, Point, Vector},
+};
 use Colour::{White, Yellow};
 
 // The minimum length of an average line for it to be significant

@@ -1,5 +1,6 @@
 use cv::line::Colour::{White, Yellow};
 use cv::{detect_lines::detect_line_type, image::read_image};
+use mirte_rs::detect_lane::detect_lane;
 use ros::publishers::RosBgPublisher;
 use std::env;
 
@@ -13,10 +14,12 @@ fn main() {
   let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
   let lines = detect_line_type(&img, vec![Yellow, White]).expect("Unable to detect line with cv");
+  let lane = detect_lane(&lines);
 
   let worker = RosBgPublisher::new();
 
   loop {
     worker.publish_line_segment(lines.clone());
+    worker.publish_lane(lane);
   }
 }

@@ -1,5 +1,4 @@
 pub mod detect_lane;
-pub mod lane;
 pub mod mirte_error;
 
 use std::time::Instant;

@@ -1,9 +1,12 @@
-use cv::line::{Colour, LineSegment, Point};
 use cv::{
   cv_error::CvError,
   line::{Line, Vector},
 };
-use mirte_rs::{lane::Lane, mirte_error::MirteError};
+use cv::{
+  lane::Lane,
+  line::{Colour, LineSegment, Point},
+};
+use mirte_rs::mirte_error::MirteError;
 use pyo3::exceptions::{PyIOError, PyRuntimeError};
 use pyo3::prelude::*;
 use ros::RosError;
