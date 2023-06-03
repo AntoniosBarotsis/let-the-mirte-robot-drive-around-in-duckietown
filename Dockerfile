@@ -34,5 +34,5 @@ RUN pip3 install maturin patchelf
 RUN echo "source /opt/ros/noetic/setup.bash" >> /etc/bash.bashrc
 
 # Get mirte_msgs
-RUN git clone https://github.com/mirte-robot/mirte-ros-packages
+RUN git clone https://github.com/AntoniosBarotsis/mirte-ros-packages
 RUN cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
