@@ -16,7 +16,7 @@ fn main() {
   let lines = detect_line_type(&img, vec![Yellow, White]).expect("Unable to detect line with cv");
   let lane = detect_lane(&lines);
 
-  let worker = RosBgPublisher::new();
+  let worker = RosBgPublisher::get_or_create();
 
   loop {
     worker.publish_line_segment(lines.clone());

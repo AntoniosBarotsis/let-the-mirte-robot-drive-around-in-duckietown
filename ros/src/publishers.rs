@@ -24,8 +24,8 @@ pub const LANE_TOPIC_NAME: &str = "lanes";
 ///
 /// # Notes
 ///
-/// This is a singleton so as to not spawn a needless amount of threads. The [`RosBgPublisher::new`]
-/// method takes care of that.
+/// This is a singleton so as to not spawn a needless amount of threads. The
+/// [`RosBgPublisher::get_or_create`] method takes care of that.
 #[allow(missing_debug_implementations)]
 pub struct RosBgPublisher {
   thread_pool: ThreadPool,
@@ -36,7 +36,7 @@ pub struct RosBgPublisher {
 #[allow(clippy::expect_used)]
 impl RosBgPublisher {
   /// Initializes or gets the existing instance of [`RosBgPublisher`].
-  pub fn new() -> &'static Self {
+  pub fn get_or_create() -> &'static Self {
     INSTANCE.get_or_init(|| {
       init();
 
