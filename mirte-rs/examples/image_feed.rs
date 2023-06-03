@@ -1,9 +1,9 @@
+use cv::image::read_image;
 use cv::line::Colour::{White, Yellow};
-use cv::{detect_lines::detect_line_type, image::read_image};
-use mirte_rs::detect_lane::detect_lane;
-use ros::publishers::RosBgPublisher;
+use mirte_rs::{detect_lane::detect_lane, detect_line_type};
 use std::env;
 
+/// Detects line types and lanes + publishes them to their ROS topics.
 #[allow(clippy::expect_used)]
 fn main() {
   let mut args = env::args();
@@ -13,13 +13,8 @@ fn main() {
   });
   let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
-  let lines = detect_line_type(&img, vec![Yellow, White]).expect("Unable to detect line with cv");
-  let lane = detect_lane(&lines);
-
-  let worker = RosBgPublisher::get_or_create();
-
   loop {
-    worker.publish_line_segment(lines.clone());
-    worker.publish_lane(lane);
+    let lines = detect_line_type(&img, vec![Yellow, White]).expect("Unable to detect line with cv");
+    let _lane = detect_lane(&lines);
   }
 }
