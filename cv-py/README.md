@@ -1,5 +1,9 @@
 # CV-PY
 
+> Note: This crate is currently deprecated as we are shifting from Python-Rust bindings to 
+> pub-subbing ROS topics. Even though this crate works as of now, it is not guaranteed to work in
+> the future.
+
 ## Features
 
 This crate includes a `dev` feature that is used to switch between using images from Mirte's
