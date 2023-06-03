@@ -22,10 +22,16 @@ rostopic list
 You also need to add a few custom ROS messages that Mirte uses:
 
 ```sh
+mkdir -p ~/catkin_ws/src
 # Location does not really matter, we will delete this right after
 git clone https://github.com/AntoniosBarotsis/mirte-ros-packages
 cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
+cp ./mirte-ros-packages/mirte_msgs ~/catkin_ws/src -r
 rm -rf ./mirte-ros-packages
+cd ~/catkin_ws/
+catkin_make
+echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+source ~/.bashrc
 ```
 
 If all went well, you should be able to now run a `cargo build`.
