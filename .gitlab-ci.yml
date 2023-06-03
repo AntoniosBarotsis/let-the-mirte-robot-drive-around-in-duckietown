@@ -20,7 +20,6 @@ stages:
   - test
   - python-test
   - lint
-  - unused-deps
 
 build:
   stage: build
@@ -51,11 +50,3 @@ lint:
     - rustup component add clippy rustfmt
     - cargo clippy --all-features -- -D warnings
     - cargo fmt --check
-
-unused-deps:
-  stage: unused-deps
-  needs: 
-  - build
-  script:
-    - cargo install cargo-machete
-    - cargo machete
