@@ -7,6 +7,5 @@ edition = "2021"
 
 [dependencies]
 rosrust = { git = "https://github.com/AntoniosBarotsis/rosrust", rev = "b2833d40205f2acf1c73fdfacb5cac92ab31a506"}
-rosrust_msg = { git = "https://github.com/AntoniosBarotsis/rosrust", rev = "b2833d40205f2acf1c73fdfacb5cac92ab31a506"}
 # mirte-rs = { path = "../mirte-rs"}
 cv = { path = "../cv"}
