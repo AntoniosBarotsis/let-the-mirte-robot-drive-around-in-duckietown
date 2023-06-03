@@ -1,3 +1,4 @@
+//! Utility for driving Mirte around.
 use once_cell::sync::OnceCell;
 use rosrust::Client;
 use rosrust_msg::mirte_msgs::{SetMotorSpeed, SetMotorSpeedReq};

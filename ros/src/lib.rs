@@ -2,7 +2,7 @@ use std::{
   sync::{Arc, Condvar, Mutex},
   time::Duration,
 };
-/// Utility for driving Mirte around.
+
 pub mod drive;
 pub mod publishers;
 pub mod ros_error;
@@ -17,12 +17,13 @@ use std::sync::Once;
 
 static INIT: Once = Once::new();
 
-/// Initializes the logger and the webcam listener node exactly once.
+/// Initializes the logger and the ROS node exactly once.
 pub(crate) fn init() {
   INIT.call_once(|| {
     env_logger::init();
 
     // Initialize node
+    // TODO: Rename this, name should represent the entire project and webcam is annoying me 😭
     rosrust::init("webcam_listener");
   });
 }

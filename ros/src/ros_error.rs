@@ -17,5 +17,5 @@ pub enum RosError {
   #[error("{0}")]
   Generic(#[from] rosrust::error::tcpros::Error),
   #[error("Error instantiating publisher \"{topic}\"")]
-  PublisherCreation { topic: String },
+  Publisher { topic: String },
 }
