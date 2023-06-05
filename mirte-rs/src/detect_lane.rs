@@ -1,6 +1,4 @@
-use cv::{
-  line::{Colour, Line, LineSegment, Point, Vector, Lane},
-};
+use cv::line::{Colour, Lane, Line, LineSegment, Point, Vector};
 use Colour::{White, Yellow};
 
 // The minimum length of an average line for it to be significant
