@@ -24,7 +24,7 @@ pub(crate) fn init() {
 
     // Initialize node
     // TODO: Rename this, name should represent the entire project and webcam is annoying me 😭
-    rosrust::init("webcam_listener");
+    rosrust::init("image_processor");
   });
 }
 
