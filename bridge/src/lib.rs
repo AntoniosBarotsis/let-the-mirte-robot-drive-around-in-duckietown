@@ -84,8 +84,8 @@ impl From<Vec<cv::line::LineSegment>> for LineSegmentList {
   }
 }
 
-impl From<cv::lane::Lane> for Lane {
-  fn from(value: cv::lane::Lane) -> Self {
+impl From<cv::line::Lane> for Lane {
+  fn from(value: cv::line::Lane) -> Self {
     let centre = value.centre.into();
     let left = value.left.into();
     let right = value.right.into();

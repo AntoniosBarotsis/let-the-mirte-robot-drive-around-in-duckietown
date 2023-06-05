@@ -1,6 +1,5 @@
 use cv::{
-  lane::Lane,
-  line::{Colour, Line, LineSegment, Point, Vector},
+  line::{Colour, Line, LineSegment, Point, Vector, Lane},
 };
 use Colour::{White, Yellow};
 
