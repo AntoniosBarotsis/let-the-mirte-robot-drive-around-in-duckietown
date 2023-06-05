@@ -101,6 +101,7 @@ pub struct ProcessWrapper {
 
 /// Function that launches the ROSCORE process and initialized ROSRUST.
 /// Inserted automatically by the `#[ros_test]` macro.
+#[allow(clippy::expect_used)]
 pub fn init() -> ProcessWrapper {
   //this will launch roscore if it isn't already running
   let path = env::var_os("PATH").expect("`PATH` not found");
@@ -145,6 +146,7 @@ pub fn init() -> ProcessWrapper {
 
 impl Drop for ProcessWrapper {
   /// Kills the ROSCORE and ROSMASTER processes.
+  #[allow(clippy::expect_used)]
   fn drop(&mut self) {
     let process_id = i32::try_from(self.process.id()).expect("PID could not be cast to i32.");
 
@@ -178,6 +180,7 @@ where
   T: Message,
 {
   /// Instantiates a [`Topic`] that corresponds to the given topic.
+  #[allow(clippy::expect_used)]
   pub fn create(topic: &str) -> Topic<T> {
     //create the node on a separate thread so waiting for subscribers doesn't deadlock the test
     let received_messages: Arc<Mutex<VecDeque<T>>> = Arc::new(Mutex::new(VecDeque::new()));
@@ -222,6 +225,7 @@ where
   /// Gets received topic messages.
   /// # Panics
   /// if there was no message in the queue after waiting for the timeout
+  #[allow(clippy::expect_used)]
   pub fn get_messages_timeout(&self, timeout: Duration) -> MutexGuard<'_, VecDeque<T>> {
     let start = Instant::now();
 
@@ -247,6 +251,7 @@ where
   /// # Panics
   /// if the message was not equal
   #[allow(clippy::needless_pass_by_value)] // makes test code more readable
+  #[allow(clippy::expect_used)]
   pub fn assert_message(&self, message: T) {
     let messages = self.get_messages();
     let actual = messages
@@ -268,6 +273,7 @@ where
   T: ServicePair,
 {
   /// Instantiates a [`Service`] that corresponds to the given service.
+  #[allow(clippy::expect_used)]
   pub fn create(topic: &str) -> Service<T> {
     let client = rosrust::client::<T>(topic).expect("Could not create client on topic");
     Service {
@@ -281,6 +287,7 @@ where
   /// # Panics
   /// if the response was not equal to the expected response
   #[allow(clippy::needless_pass_by_value)] // makes test code more readable
+  #[allow(clippy::expect_used)]
   pub fn assert_response(&self, request: T::Request, response: T::Response)
   where
     T::Response: PartialEq,

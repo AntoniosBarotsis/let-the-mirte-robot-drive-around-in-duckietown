@@ -4,6 +4,7 @@ use syn::{parse_macro_input, ItemFn};
 
 /// Currently marks the method as a test that will be ran serially.
 #[proc_macro_attribute]
+#[allow(clippy::expect_used)]
 pub fn ros_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
   // Parse the input function
   let mut input = parse_macro_input!(item as ItemFn);
