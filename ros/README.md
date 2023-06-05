@@ -23,6 +23,7 @@ You also need to add a few custom ROS messages that Mirte uses:
 
 ```sh
 mkdir -p ~/catkin_ws/src
+
 # Location does not really matter, we will delete this right after
 git clone https://github.com/AntoniosBarotsis/mirte-ros-packages
 cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
