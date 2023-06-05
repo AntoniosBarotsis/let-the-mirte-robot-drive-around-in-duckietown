@@ -35,6 +35,10 @@ echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
+> The `catkin_make` command might fail if `python3` is not in your path for whatever reason in which 
+> case, running `catkin_make -DPYTHON_EXECUTABLE=/usr/bin/python3` (or to whatever your path is)
+> might help.
+
 If all went well, you should be able to now run a `cargo build`.
 
 ## Running Outside of Mirte
