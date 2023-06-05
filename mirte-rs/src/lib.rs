@@ -1,14 +1,18 @@
 pub mod detect_lane;
-pub mod lane;
 pub mod mirte_error;
 
 use std::time::Instant;
 
-use cv::line::Colour::{Blue, Green, Red};
-use cv::{detect_lines::detect_line_type, draw_lines::draw_lines, image::downscale, Mat};
+use cv::{
+  detect_lines::detect_line_type,
+  draw_lines::draw_lines,
+  image::downscale,
+  line::Colour::{Blue, Green, Red},
+  Mat,
+};
 use detect_lane::detect_lane;
 use mirte_error::MirteError;
-use ros::{process_ros_image_one, CvImage};
+use ros::{process_ros_image_one, publishers::RosBgPublisher, CvImage};
 
 #[allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
 pub fn get_image() -> Result<Mat, MirteError> {
@@ -35,10 +39,15 @@ pub fn process_mat(mat: Mat) {
   let time_2 = Instant::now();
 
   if let Ok(lines) = detect_line_type(&resized, colours) {
+    let publisher = RosBgPublisher::get_or_create();
+    publisher.publish_line_segment(lines.clone());
+
     println!("detecting lines: {:?}", time_2.elapsed());
 
     let time_3 = Instant::now();
     let lane = detect_lane(&lines);
+
+    publisher.publish_lane(lane);
 
     let all_lines = [lines, lane.get_coloured_segments(Green, Blue, Red)].concat();
     println!("detecting lane: {:?}", time_3.elapsed());
