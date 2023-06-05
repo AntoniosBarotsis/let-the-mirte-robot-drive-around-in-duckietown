@@ -4,13 +4,12 @@ pub mod mirte_error;
 use std::time::Instant;
 
 use cv::{
-  cv_error::CvError,
-  line::{
-    Colour::{self, Blue, Green, Red},
-    LineSegment,
-  },
+  detect_lines::detect_line_type,
+  draw_lines::draw_lines,
+  image::downscale,
+  line::Colour::{Blue, Green, Red},
+  Mat,
 };
-use cv::{draw_lines::draw_lines, image::downscale, Mat};
 use detect_lane::detect_lane;
 use mirte_error::MirteError;
 use ros::{process_ros_image_one, publishers::RosBgPublisher, CvImage};
@@ -40,10 +39,15 @@ pub fn process_mat(mat: Mat) {
   let time_2 = Instant::now();
 
   if let Ok(lines) = detect_line_type(&resized, colours) {
+    let publisher = RosBgPublisher::get_or_create();
+    publisher.publish_line_segment(lines.clone());
+
     println!("detecting lines: {:?}", time_2.elapsed());
 
     let time_3 = Instant::now();
     let lane = detect_lane(&lines);
+
+    publisher.publish_lane(lane);
 
     let all_lines = [lines, lane.get_coloured_segments(Green, Blue, Red)].concat();
     println!("detecting lane: {:?}", time_3.elapsed());
@@ -54,16 +58,4 @@ pub fn process_mat(mat: Mat) {
   }
 
   println!("total: {:?}", time_total.elapsed());
-}
-
-/// Wrapper around [`cv::detect_lines::detect_line_type`] that also publishes to the corresponding
-/// ROS topic.
-pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegment>, CvError> {
-  #[allow(deprecated)]
-  let res = cv::detect_lines::detect_line_type(img, colours)?;
-
-  let bg_publisher = RosBgPublisher::get_or_create();
-  bg_publisher.publish_line_segment(res.clone());
-
-  Ok(res)
 }

@@ -1,6 +1,6 @@
-use cv::image::read_image;
 use cv::line::Colour::{White, Yellow};
-use mirte_rs::{detect_lane::detect_lane, detect_line_type};
+use cv::{detect_lines::detect_line_type, image::read_image};
+use mirte_rs::detect_lane::detect_lane;
 use std::env;
 
 /// Detects line types and lanes + publishes them to their ROS topics.

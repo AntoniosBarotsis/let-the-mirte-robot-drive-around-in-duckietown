@@ -1,6 +1,9 @@
-use cv::line::Colour::{Blue, Green, Red, White, Yellow};
+use cv::{
+  detect_lines::detect_line_type,
+  line::Colour::{Blue, Green, Red, White, Yellow},
+};
 use cv::{draw_lines::draw_lines, image::read_image};
-use mirte_rs::{detect_lane::detect_lane, detect_line_type};
+use mirte_rs::detect_lane::detect_lane;
 use std::env;
 
 #[allow(clippy::expect_used)]

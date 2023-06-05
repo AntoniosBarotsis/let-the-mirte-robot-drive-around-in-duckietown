@@ -2,7 +2,6 @@ use cv::{
   lane::Lane,
   line::{Colour, Line, LineSegment, Point, Vector},
 };
-use ros::publishers::RosBgPublisher;
 use Colour::{White, Yellow};
 
 // The minimum length of an average line for it to be significant
@@ -99,12 +98,8 @@ pub fn detect_lane(lines: &[LineSegment]) -> Lane {
   let right_lines = lines_on_right(lines, &yellow_line);
   let white_line = get_average_line(&right_lines, White).unwrap_or(DEFAULT_WHITE_LINE);
   let lane = get_midline(&yellow_line, &white_line);
-  let res = Lane::new(lane, yellow_line, white_line);
 
-  let bg_publisher = RosBgPublisher::get_or_create();
-  bg_publisher.publish_lane(res);
-
-  res
+  Lane::new(lane, yellow_line, white_line)
 }
 
 #[cfg(test)]

@@ -79,12 +79,6 @@ pub fn get_lines(
 /// * `colours` - A vector of all the colours if which you want to detect the lines
 ///
 /// Returns a result with a vector of all the lines found in the image
-#[deprecated(
-  note = "This function does not publish the data to the corresponding ROS topic.
-You most likely wanted to use the one defined in the mirte-rs crate."
-)]
-// This function is technically not deprecated as it is supposed to be used. The deprecation just
-// makes it so a warning is thrown when someone mistakingly uses it over the mirte-rs version
 pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegment>, CvError> {
   let mut copy_img = Mat::copy(img)?;
 
