@@ -7,48 +7,52 @@
 //!
 //! ```toml
 //! [dev-dependencies]
-//! test-framework = { path = "../test-framework" }
-//! rostest = { path = "../test-framework/rostest" }
+//! test-framework = { path = "../rostest" }
+//! rostest = { path = "../rostest/rostest-macro" }
 //! serial_test  = "2.0.0"
 //! ```
 //!
 //! ```
-//! use rostest::ros_test;
+//! use rostest-macro::ros_test;
+//! use rosrust_msg::std_msgs as msgs
 //!
 //! #[ros_test]
 //! fn test() {
 //!   // Init topics
-//!   let strings = test_framework::Topic::<rosrust_msg::std_msgs::String>::create("/test/strings");
-//!   let ints = test_framework::Topic::<rosrust_msg::std_msgs::UInt32>::create("/test/lengths");
+//!   let strings = test_framework::Topic::<msgs::String>::create("/test/strings");
+//!   let ints = test_framework::Topic::<msgs::UInt32>::create("/test/lengths");
 //!
 //!   // Create node
 //!   test_framework::instantiate_node(strlen);
 //!
 //!   // Publish message
-//!   let message = rosrust_msg::std_msgs::String {
+//!   let message = msgs::String {
 //!     data: "Hello World".to_string(),
 //!   };
 //!   strings.ros_publish(message);
 //!
 //!   // Assert response
-//!   let expected = rosrust_msg::std_msgs::UInt32 { data: 11 };
+//!   let expected = msgs::UInt32 { data: 11 };
 //!   ints.assert_message(expected);
 //! }
 //! ```
 //! Testing ROS services of a node:
 //! ```
+//! use rostest-macro::ros_test;
+//! use rosrust_msg::roscpp_tutorials as msgs
+//!
 //! #[ros_test]
 //! fn test_service() {
 //!   // Init
 //!   let service =
-//!     test_framework::Service::<rosrust_msg::roscpp_tutorials::TwoInts>::create("/test/add");
+//!     test_framework::Service::<msgs::TwoInts>::create("/test/add");
 //!
 //!   // Create node
 //!   test_framework::instantiate_node(add_service);
 //!
 //!   // Publish message & assert response
-//!   let message = rosrust_msg::roscpp_tutorials::TwoIntsReq { a: 9, b: 10 };
-//!   let expected = rosrust_msg::roscpp_tutorials::TwoIntsRes { sum: 19 };
+//!   let message = msgs::TwoIntsReq { a: 9, b: 10 };
+//!   let expected = msgs::TwoIntsRes { sum: 19 };
 //!   service.assert_response(message, expected);
 //! }
 //! ```
@@ -56,6 +60,8 @@
 //! Note that this function must not call `rosrust::init()` as this is done automatically by the test framework.
 //! The following is an example of the strlen node used by the first example:
 //! ```
+//! use rosrust_msg::std_msgs as msgs
+//!
 //! /// A subscriber that listens to the '/test/strings' topic and publishes the length of the string to '/test/lengths'
 //! pub fn strlen() {
 //!   let publisher = publish("/test/lengths", 1).expect("Create publisher");
@@ -65,8 +71,8 @@
 //!   let _subscriber_raii = subscribe(
 //!     "/test/strings",
 //!     1,
-//!     move |msg: rosrust_msg::std_msgs::String| {
-//!       let message = rosrust_msg::std_msgs::UInt32 {
+//!     move |msg: msgs::String| {
+//!       let message = msgs::UInt32 {
 //!         data: msg.data.len().to_owned() as u32,
 //!       };
 //!       let _ = publisher.send(message);
@@ -159,6 +165,10 @@ impl Drop for ProcessWrapper {
 }
 
 /// Handles sending/receiving on a topic
+/// * `topic` The topic to subscribe to.
+/// * `publisher` A publisher to topic `topic` with messages of type `T`
+/// * `subscriber` A subscriber to topic `topic`
+/// * `received_messages` a thread-safe queue of messages
 pub struct Topic<T: Message> {
   topic: String,
   publisher: Publisher<T>,
