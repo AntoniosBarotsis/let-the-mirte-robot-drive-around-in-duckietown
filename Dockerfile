@@ -27,9 +27,6 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
-# Get Python and Maturin
-RUN apt-get install python3.7 python3-pip -y
-RUN pip3 install maturin patchelf
 # Source ROS setup
 RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 

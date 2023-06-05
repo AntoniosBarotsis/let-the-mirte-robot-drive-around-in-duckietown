@@ -18,7 +18,6 @@ cache:
 stages:
   - build
   - test
-  # - python-test
   - lint
 
 build:
@@ -32,15 +31,6 @@ test:
   - build
   script:
     cargo test --verbose
-
-# python-test:
-#   stage: python-test
-#   needs: 
-#   - build
-#   script:
-#     - maturin build --release -F dev -m cv-py/Cargo.toml --skip-auditwheel
-#     - pip3 install ./target/wheels/cv_py-0.1.0-cp38-cp38-linux_x86_64.whl --force
-#     - python3 cv-py/test.py
 
 lint:
   stage: lint

@@ -4,7 +4,6 @@ members = [
   "mirte-rs",
   "cv",
   "ros",
-  # "cv-py",
   "bridge",
 ]
 
