@@ -282,6 +282,7 @@ mod tests {
   }
 
   #[test]
+  #[allow(clippy::expect_used)]
   fn intersect() {
     let line1 = Line::new(Point::new(4.0, 0.0), Vector::new(1.0, 1.0));
     let line2 = Line::new(Point::new(0.0, 0.0), Vector::new(1.0, -1.0));
@@ -290,6 +291,7 @@ mod tests {
   }
 
   #[test]
+  #[allow(clippy::expect_used)]
   fn intersect_with_vertical() {
     let line1 = Line::new(Point::new(4.0, 0.0), Vector::new(0.0, 1.0));
     let line2 = Line::new(Point::new(0.0, 0.0), Vector::new(1.0, 1.0));
