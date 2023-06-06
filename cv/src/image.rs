@@ -143,11 +143,6 @@ fn calc_gain_bias(hist: &Mat) -> Result<(f32, f32), CvError> {
   Ok((gain, bias))
 }
 
-/// # Panics
-pub fn get_road_binary(_img: &Mat) -> Result<Mat, CvError> {
-  todo!()
-}
-
 /// converts a given image with a BGR colour format to one with a RGB colour format
 ///
 /// * `img` - The image who's colour format needs to be chanced
