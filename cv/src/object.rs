@@ -13,14 +13,11 @@ pub fn get_road_binary(img: &Mat) -> Result<(), CvError> {
 
   let params = SimpleBlobDetector_Params::default()?;
 
-  let mut keypoints: Vector<KeyPoint>;
-
   let mut blob_detector_ptr = SimpleBlobDetector::create(params)?;
 
-  keypoints = Vector::<KeyPoint>::new();
-  println!("before");
+  let mut keypoints = Vector::<KeyPoint>::new();
+
   blob_detector_ptr.detect(&img_gray, &mut keypoints, &Mat::default())?;
-  println!("after");
 
   let mut output_img = Mat::default();
   draw_keypoints(
@@ -35,5 +32,4 @@ pub fn get_road_binary(img: &Mat) -> Result<(), CvError> {
   let _res = wait_key(0)?;
 
   Ok(())
-  // todo!()
 }

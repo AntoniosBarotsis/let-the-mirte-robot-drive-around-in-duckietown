@@ -5,7 +5,7 @@ use std::env;
 fn main() {
   let mut args = env::args();
   let path = args.nth(1).unwrap_or_else(|| {
-    println!("\nError: no input path given!\nExample usage: cargo r --example detect_obstacles ./assets/input_1.jpg\n");
+    println!("\nError: no input path given!\nExample usage: cargo r --example detect_obstacles ./assets/obstacle_1.png\n");
     std::process::exit(1);
   });
   let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
