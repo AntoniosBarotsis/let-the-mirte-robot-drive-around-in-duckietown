@@ -2,8 +2,9 @@ use std::{
   sync::{Arc, Condvar, Mutex},
   time::Duration,
 };
-/// Utility for driving Mirte around.
+
 pub mod drive;
+pub mod publishers;
 pub mod ros_error;
 
 use cv_bridge::msgs::sensor_msgs::Image;
@@ -16,13 +17,14 @@ use std::sync::Once;
 
 static INIT: Once = Once::new();
 
-/// Initializes the logger and the webcam listener node exactly once.
-fn init() {
+/// Initializes the logger and the ROS node exactly once.
+pub(crate) fn init() {
   INIT.call_once(|| {
     env_logger::init();
 
     // Initialize node
-    rosrust::init("webcam_listener");
+    // TODO: Rename this, name should represent the entire project and webcam is annoying me 😭
+    rosrust::init("image_processor");
   });
 }
 
@@ -81,8 +83,6 @@ pub fn process_ros_image_one() -> Result<Image, RosError> {
   // The subscriber is stopped when the returned object is destroyed
   #[allow(clippy::expect_used)]
   let _subscriber_raii = rosrust::subscribe("/webcam/image_raw", 1, move |img: Image| {
-    rosrust::ros_info!("Image received.");
-
     // let img = callback(img);
 
     let (ref img_mutex, ref cond) = *Arc::clone(&arcmut_clone);

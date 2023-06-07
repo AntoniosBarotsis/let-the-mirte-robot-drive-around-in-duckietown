@@ -6,6 +6,7 @@ members = [
   "ros",
   "cv-py",
   "rostest"
+  "bridge",
 ]
 
 [profile.release.package.cv]

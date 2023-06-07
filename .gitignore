@@ -18,3 +18,5 @@ target/
 **/Cargo.lock
 
 assets/output.jpg
+
+python/.venv
