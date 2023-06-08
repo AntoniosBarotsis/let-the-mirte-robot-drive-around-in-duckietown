@@ -7,7 +7,7 @@ use cv::{
   detect_lines::detect_line_type,
   draw_lines::draw_lines,
   image::downscale,
-  line::Colour::{Blue, Green, Red},
+  line::Colour::{Orange, Black, Green, Red, Yellow, White},
   Mat,
 };
 use detect_lane::detect_lane;
@@ -34,7 +34,7 @@ pub fn process_mat(mat: Mat) {
   let mut resized = downscale(&mat).unwrap_or(mat);
   println!("resizing: {:?}", time_1.elapsed());
 
-  let colours = vec![cv::line::Colour::Yellow, cv::line::Colour::White];
+  let colours = vec![Yellow, White, Red];
 
   let time_2 = Instant::now();
 
@@ -49,7 +49,7 @@ pub fn process_mat(mat: Mat) {
 
     publisher.publish_lane(lane);
 
-    let all_lines = [lines, lane.get_coloured_segments(Green, Blue, Red)].concat();
+    let all_lines = [lines, lane.get_coloured_segments(Green, Orange, Black)].concat();
     println!("detecting lane: {:?}", time_3.elapsed());
 
     draw_lines(&mut resized, &all_lines);

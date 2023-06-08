@@ -1,6 +1,6 @@
 use cv::{
   detect_lines::detect_line_type,
-  line::Colour::{Blue, Green, Red, White, Yellow},
+  line::Colour::{Orange, Black, Green, Red, White, Yellow},
 };
 use cv::{draw_lines::draw_lines, image::read_image};
 use mirte_rs::detect_lane::detect_lane;
@@ -15,11 +15,11 @@ fn main() {
   });
   let mut img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
-  let lines = detect_line_type(&img, vec![Yellow, White]).expect("Unable to detect line with cv");
+  let lines = detect_line_type(&img, vec![Yellow, White, Red]).expect("Unable to detect line with cv");
   let lane = detect_lane(&lines);
 
   draw_lines(
     &mut img,
-    &[lines, lane.get_coloured_segments(Green, Blue, Red)].concat(),
+    &[lines, lane.get_coloured_segments(Green, Orange, Black)].concat(),
   );
 }

@@ -107,12 +107,30 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegme
   for colour_enum in colours {
     let colour: &[[u8; 3]; 2] = get_colour(colour_enum);
 
-    // Extract the colours
-    let colour_low = Mat::from_slice::<u8>(&colour[0])?;
-    let colour_high = Mat::from_slice::<u8>(&colour[1])?;
-
     let mut colour_img = Mat::default();
-    in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img)?;
+    // Check if the hue wraps around the 0 degree border
+    if colour[0][0] > colour[1][0] {
+      let range_lower = &[colour[0], [179, colour[1][1], colour[1][2]]];
+      let range_upper = &[[0, colour[0][1], colour[0][2]], colour[1]];
+
+      let colour_lower1 = Mat::from_slice::<u8>(&range_lower[0])?;
+      let colour_lower2 = Mat::from_slice::<u8>(&range_lower[1])?;
+      let colour_upper1 = Mat::from_slice::<u8>(&range_upper[0])?;
+      let colour_upper2 = Mat::from_slice::<u8>(&range_upper[1])?;
+
+      let mut img_lower = Mat::default();
+      let mut img_upper = Mat::default();
+      in_range(&hsv_img, &colour_lower1, &colour_lower2, &mut img_lower)?;
+      in_range(&hsv_img, &colour_upper1, &colour_upper2, &mut img_upper)?;
+
+      opencv::core::bitwise_or(&img_lower, &img_upper, &mut colour_img, &Mat::default())?;
+    } else {
+      // Extract the colours
+      let colour_low = Mat::from_slice::<u8>(&colour[0])?;
+      let colour_high = Mat::from_slice::<u8>(&colour[1])?;
+
+      in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img)?;
+    }
 
     #[cfg(debug_assertions)]
     {
@@ -122,6 +140,9 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegme
         }
         Colour::White => {
           opencv::highgui::imshow("white", &colour_img)?;
+        }
+        Colour::Red => {
+          opencv::highgui::imshow("red", &colour_img)?;
         }
         _ => (),
       };
