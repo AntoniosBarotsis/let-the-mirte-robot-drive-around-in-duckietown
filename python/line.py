@@ -20,6 +20,14 @@ class Point:
 
   def __str__(self):
     return "({}, {})".format(self.x, self.y)
+  
+class Vector:
+  def __init__(self, x: float, y: float):
+    self.x = x
+    self.y = y
+
+  def __str__(self):
+    return "({}, {})".format(self.x, self.y)
 
 class LineSegment:
   def __init__(self, colour: Colour, start: Point, end: Point):
@@ -32,3 +40,14 @@ class LineSegment:
   
   def from_message(message):
     return LineSegment(Colour(message.colour.type), Point(message.start.x, message.start.y), Point(message.end.x, message.end.y))
+
+class Line:
+  def __init__(self, origin: Point, direction: Vector):
+    self.origin = origin
+    self.direction = direction
+
+  def __str__(self):
+    return "Line(origin={}, direction={})".format(self.origin, self.direction)
+  
+  def from_message(message):
+    return Line(Point(message.origin.x, message.origin.y), Vector(message.direction.x, message.direction.y))
