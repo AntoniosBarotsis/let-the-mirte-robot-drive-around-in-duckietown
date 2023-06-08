@@ -40,3 +40,4 @@ lint:
     - rustup component add clippy rustfmt
     - cargo clippy --all-features -- -D warnings
     - cargo fmt --check
+    - pylint --ignore='.venv' --recursive=y .
