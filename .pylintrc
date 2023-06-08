@@ -438,6 +438,9 @@ disable=raw-checker-failed,
 # it should appear only once). See also the "--disable" option for examples.
 enable=c-extension-no-member
 
+# Ignore errors caused by modules that cannot be imported.
+disable=E0401
+
 
 [METHOD_ARGS]
 
