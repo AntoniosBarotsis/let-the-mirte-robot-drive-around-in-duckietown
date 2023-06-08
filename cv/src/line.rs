@@ -5,7 +5,7 @@ use float_cmp::approx_eq;
 // H: 0-179, S: 0-255, V: 0-255
 pub static HSV_YELLOW: &[[u8; 3]; 2] = &[[20, 100, 115], [45, 255, 255]];
 pub static HSV_WHITE: &[[u8; 3]; 2] = &[[0, 0, 190], [179, 40, 255]];
-pub static HSV_RED: &[[u8; 3]; 2] = &[[160, 100, 100], [20, 255, 255]];
+pub static HSV_RED: &[[u8; 3]; 2] = &[[165, 125, 125], [10, 255, 255]];
 
 /// given a colour type it will return the lower and upper bound of the range of that colour in HSV
 ///

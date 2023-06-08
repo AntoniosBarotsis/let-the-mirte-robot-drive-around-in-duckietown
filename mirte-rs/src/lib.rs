@@ -1,4 +1,4 @@
-pub mod detect_lane;
+pub mod detection;
 pub mod mirte_error;
 
 use std::time::Instant;
@@ -7,10 +7,10 @@ use cv::{
   detect_lines::detect_line_type,
   draw_lines::draw_lines,
   image::downscale,
-  line::Colour::{Orange, Black, Green, Red, Yellow, White},
+  line::Colour::{Black, Green, Orange, Red, White, Yellow},
   Mat,
 };
-use detect_lane::detect_lane;
+use detection::{detect_lane, detect_stop_line};
 use mirte_error::MirteError;
 use ros::{process_ros_image_one, publishers::RosBgPublisher, CvImage};
 
@@ -49,9 +49,16 @@ pub fn process_mat(mat: Mat) {
 
     publisher.publish_lane(lane);
 
-    let all_lines = [lines, lane.get_coloured_segments(Green, Orange, Black)].concat();
     println!("detecting lane: {:?}", time_3.elapsed());
 
+    let time_4 = Instant::now();
+    let stop_line = detect_stop_line(&lines);
+
+    publisher.publish_stop_line(stop_line);
+
+    println!("detecting stop line: {:?}", time_4.elapsed());
+
+    let all_lines = [lines, lane.get_coloured_segments(Green, Orange, Black)].concat();
     draw_lines(&mut resized, &all_lines);
   } else {
     eprintln!("Could not detect lines");
