@@ -40,5 +40,6 @@ lint:
     - rustup component add clippy rustfmt
     - cargo clippy --all-features -- -D warnings
     - cargo fmt --check
+    - pip3 install -r python/requirements.txt
     - pip3 install pylint
     - pylint --ignore='.venv' --recursive=y ./python
