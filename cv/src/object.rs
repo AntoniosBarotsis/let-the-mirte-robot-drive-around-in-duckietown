@@ -1,5 +1,5 @@
 use opencv::{
-  core::{in_range, KeyPoint, Point2f, Scalar, Vector},
+  core::{in_range, KeyPoint, Scalar, Size, Vector},
   features2d::{draw_keypoints, SimpleBlobDetector, SimpleBlobDetector_Params},
   highgui::{imshow, wait_key},
   prelude::{Feature2DTrait, KeyPointTraitConst, Mat},
@@ -8,6 +8,7 @@ use opencv::{
 use crate::{
   cv_error::CvError,
   image::{convert_to_hsv, downscale},
+  line::Point,
 };
 
 pub static HSV_DUCK: &[[u8; 3]; 2] = &[[0, 100, 115], [45, 255, 255]];
@@ -21,13 +22,13 @@ pub enum Object {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Obstacle {
-  pub location: Point2f,
+  pub location: Point,
   pub diameter: f32,
   pub object: Object,
 }
 
 impl Obstacle {
-  pub fn new(location: Point2f, diameter: f32, object: Object) -> Self {
+  pub fn new(location: Point, diameter: f32, object: Object) -> Self {
     Self {
       location,
       diameter,
@@ -36,8 +37,14 @@ impl Obstacle {
   }
 }
 
-/// # Panics
-pub fn get_obstacles(img: &Mat, object: Object) -> Result<Vec<Obstacle>, CvError> {
+/// Method for decting a given object in the image.
+///
+/// * `img` - The image in which objects needs to be detected
+/// * `object` - The object that needs to be detected. This `Object` can be either a `Duck` or a `Mirte`
+/// * `img_size` - The size of the image
+///
+/// Returns an Result with a vector of the detected Obstacles containing its location, Diameter and the Type of Object it is.
+pub fn get_obstacles(img: &Mat, object: Object, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   let img_hsv = convert_to_hsv(img)?;
 
   let downscaled_img = downscale(&img_hsv)?;
@@ -88,9 +95,20 @@ pub fn get_obstacles(img: &Mat, object: Object) -> Result<Vec<Obstacle>, CvError
     opencv::features2d::DrawMatchesFlags::DEFAULT,
   )?;
 
+  #[allow(clippy::cast_precision_loss)]
+  let width = img_size.width as f32;
+  #[allow(clippy::cast_precision_loss)]
+  let height = img_size.height as f32;
+
   let points: Vec<Obstacle> = keypoints
     .into_iter()
-    .map(|x| Obstacle::new(x.pt(), x.size(), object))
+    .map(|x| {
+      Obstacle::new(
+        Point::new(x.pt().x / width, x.pt().y / height),
+        x.size(),
+        object,
+      )
+    })
     .collect();
 
   for p in points.clone().into_iter().rev() {
