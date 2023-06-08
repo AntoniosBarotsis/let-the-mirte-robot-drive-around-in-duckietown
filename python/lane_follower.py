@@ -1,9 +1,13 @@
 import math
 import threading
+import os
 
 import rospy
 from mirte_msgs.msg import Lane as LaneROS
 from mirte_msgs.srv import SetMotorSpeed
+
+clear = lambda: os.system('clear')
+
 
 
 class Line:
@@ -79,11 +83,27 @@ class Follower:
     def __follower(self):
         while not rospy.is_shutdown():
             if self.following and self.current_lane is not None:
+                clear()
+                SPEED = 65
+                TURN_SPEED = 10
+                TURN_SPEED_CORR = 5
+
                 angle = self.current_lane.centre_line.angle
                 print(angle)
-                #if angle < 170:
-                #self.__set_motor_speed('left', 100)
-                #self.__set_motor_speed('right', 0)
+                speed_left = SPEED
+                speed_right = SPEED
+                if angle > 10:
+                    print("Turning right")
+                    speed_left += TURN_SPEED
+                    speed_right -= (TURN_SPEED + TURN_SPEED_CORR)
+                elif angle < -10:
+                    print("Turning left")
+                    speed_left -= (TURN_SPEED + TURN_SPEED_CORR)
+                    speed_right += TURN_SPEED
+                else:
+                    print("Going straight")
+                self.__set_motor_speed('left', int(speed_left * 0.985))
+                self.__set_motor_speed('right', speed_right)
             else:
                 self.__set_motor_speed('left', 0)
                 self.__set_motor_speed('right', 0)
@@ -96,7 +116,7 @@ def calculate_radians(x, y):
 
 # Converts an angle in radians to degrees, where 0 degrees is straight up, and positive angles are clockwise
 def convert_angle_to_degrees(angle):
-    return (math.degrees(angle) - 90) + 180
+    return math.degrees(angle) + 90
 
 # Calculates the intercept of a line given by two points with the line y=1 (the bottom of the image)
 def calculate_y1_intercept(x1, y1, x2, y2):
