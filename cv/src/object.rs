@@ -1,8 +1,8 @@
 use opencv::{
-  core::{in_range, KeyPoint, Scalar, Size, Vector},
+  core::{in_range, KeyPoint, Scalar, Vector},
   features2d::{draw_keypoints, SimpleBlobDetector, SimpleBlobDetector_Params},
   highgui::{imshow, wait_key},
-  prelude::{Feature2DTrait, KeyPointTraitConst, Mat},
+  prelude::{Feature2DTrait, KeyPointTraitConst, Mat, MatTraitConstManual},
 };
 
 use crate::{
@@ -41,10 +41,10 @@ impl Obstacle {
 ///
 /// * `img` - The image in which objects needs to be detected
 /// * `object` - The object that needs to be detected. This `Object` can be either a `Duck` or a `Mirte`
-/// * `img_size` - The size of the image
 ///
 /// Returns an Result with a vector of the detected Obstacles containing its location, Diameter and the Type of Object it is.
-pub fn get_obstacles(img: &Mat, object: Object, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
+pub fn get_obstacles(img: &Mat, object: Object) -> Result<Vec<Obstacle>, CvError> {
+  let img_size = img.size()?;
   let img_hsv = convert_to_hsv(img)?;
 
   let downscaled_img = downscale(&img_hsv)?;
