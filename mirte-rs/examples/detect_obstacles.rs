@@ -1,5 +1,5 @@
 use cv::image::read_image;
-use cv::object::get_road_binary;
+use cv::object::get_obstacles;
 use std::env;
 
 fn main() {
@@ -11,5 +11,5 @@ fn main() {
   let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
   #[allow(clippy::expect_used)]
-  get_road_binary(&img).expect("get obstacles");
+  let _obstacles = get_obstacles(&img, cv::object::Object::Duck).expect("get obstacles");
 }

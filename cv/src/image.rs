@@ -1,7 +1,9 @@
 use opencv::{
   core::{convert_scale_abs, Size_, CV_32SC1},
   imgcodecs::{imread, IMREAD_UNCHANGED},
-  imgproc::{calc_hist, cvt_color, resize, COLOR_BGR2RGB, COLOR_RGB2GRAY, INTER_AREA},
+  imgproc::{
+    calc_hist, cvt_color, resize, COLOR_BGR2RGB, COLOR_RGB2GRAY, COLOR_RGB2HSV, INTER_AREA,
+  },
   prelude::{Mat, MatTrait, MatTraitConst, MatTraitConstManual},
 };
 
@@ -163,6 +165,17 @@ pub fn convert_to_gray(img: &Mat) -> Result<Mat, CvError> {
   let mut gray_img = Mat::default();
   cvt_color(&img, &mut gray_img, COLOR_RGB2GRAY, 0)?;
   Ok(gray_img)
+}
+
+/// converts a given image with a RGB colour format to one with a HSV colour format
+///
+/// * `img` - The image who's colour format needs to be chanced
+///
+/// Returns a result of the image with the HSV colour format as a `Mat`
+pub fn convert_to_hsv(img: &Mat) -> Result<Mat, CvError> {
+  let mut hsv_img = Mat::default();
+  cvt_color(&img, &mut hsv_img, COLOR_RGB2HSV, 0)?;
+  Ok(hsv_img)
 }
 
 /// Given an image it will downscale that image to a width of 320 and height of 240
