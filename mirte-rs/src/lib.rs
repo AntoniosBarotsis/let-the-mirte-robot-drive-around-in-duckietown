@@ -7,7 +7,10 @@ use cv::{
   detect_lines::detect_line_type,
   draw_lines::draw_lines,
   image::downscale,
-  line::{Colour::{Black, Green, Orange, Red, White, Yellow, Purple}, LineSegment},
+  line::{
+    Colour::{Black, Green, Orange, Purple, Red, White, Yellow},
+    LineSegment,
+  },
   Mat,
 };
 use detection::{detect_lane, detect_stop_line};
@@ -58,7 +61,12 @@ pub fn process_mat(mat: Mat) {
 
     println!("detecting stop line: {:?}", time_4.elapsed());
 
-    let all_lines = [lines, lane.get_coloured_segments(Green, Orange, Black), vec![LineSegment::from_line(stop_line, Purple)]].concat();
+    let all_lines = [
+      lines,
+      lane.get_coloured_segments(Green, Orange, Black),
+      vec![LineSegment::from_line(stop_line, Purple)],
+    ]
+    .concat();
     draw_lines(&mut resized, &all_lines);
   } else {
     eprintln!("Could not detect lines");

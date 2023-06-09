@@ -1,9 +1,9 @@
 use cv::{
   detect_lines::detect_line_type,
-  line::Colour::{Orange, Black, Green, Red, White, Yellow},
+  line::Colour::{Black, Green, Orange, Red, White, Yellow},
 };
 use cv::{draw_lines::draw_lines, image::read_image};
-use mirte_rs::detect_lane::detect_lane;
+use mirte_rs::detection::detect_lane;
 use std::env;
 
 #[allow(clippy::expect_used)]
@@ -15,7 +15,8 @@ fn main() {
   });
   let mut img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
-  let lines = detect_line_type(&img, vec![Yellow, White, Red]).expect("Unable to detect line with cv");
+  let lines =
+    detect_line_type(&img, vec![Yellow, White, Red]).expect("Unable to detect line with cv");
   let lane = detect_lane(&lines);
 
   draw_lines(
