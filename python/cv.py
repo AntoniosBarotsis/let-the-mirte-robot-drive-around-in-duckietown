@@ -1,6 +1,9 @@
 import rospy
-from mirte_msgs.msg import LineSegmentList
-from line import LineSegment
+from mirte_msgs.msg import (
+    LineSegmentList as LineSegmentMsg,
+    Line as LineMsg,
+)
+from line import LineSegment, Line
 
 
 class Camera:
@@ -13,16 +16,22 @@ class Camera:
     def __init__(self):
         # Initialise line segments
         self.line_segments = []
+        self.stop_line = None
 
         # Callback for line segments
-        def line_segment_cb(data: LineSegmentList):
+        def line_segment_cb(data: LineSegmentMsg):
             self.line_segments = []
             for segment in data.segments:
                 self.line_segments.append(LineSegment.fromMessage(segment))
 
+        # Callback for stop line
+        def stop_line_cb(data: LineMsg):
+            self.stop_line = Line.fromMessage(data)
+
         # Initialise node and subscribers
         rospy.init_node("camera", anonymous=True)
-        rospy.Subscriber("line_segments", LineSegmentList, line_segment_cb)
+        rospy.Subscriber("line_segments", LineSegmentMsg, line_segment_cb)
+        rospy.Subscriber("stop_line", LineMsg, stop_line_cb)
 
         # Listen at 30 Hz
         self.rate = rospy.Rate(30)
@@ -44,3 +53,11 @@ class Camera:
             list: List of LineSegment objects
         """
         return self.line_segments
+
+    def getStopLine(self):
+        """Gets the stop line from the camera
+
+        Returns:
+            Line: Stop line
+        """
+        return self.stop_line

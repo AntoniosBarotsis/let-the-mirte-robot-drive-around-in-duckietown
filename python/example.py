@@ -4,11 +4,10 @@ from cv import Camera
 processor = Camera()
 
 while True:
-    # Get the line segments
-    line_segments = processor.getLines()
-    # Print them
-    for segment in line_segments:
-        print(segment)
+    # Get the stop line
+    stop_line = processor.getStopLine()
+    # Print the stop line
+    print(f"Stop line: {stop_line}")
     print()
     # Sleep for 1/30th of a second
     processor.sleep()
