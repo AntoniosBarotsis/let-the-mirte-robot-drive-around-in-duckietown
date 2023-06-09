@@ -1,7 +1,7 @@
 use opencv::{
   core::{in_range, KeyPoint, Scalar, Size, Vector},
   features2d::{draw_keypoints, SimpleBlobDetector, SimpleBlobDetector_Params},
-  highgui::{imshow, wait_key},
+  highgui::wait_key,
   prelude::{Feature2DTrait, KeyPointTraitConst, Mat, MatTraitConstManual},
 };
 
@@ -65,7 +65,7 @@ pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
   let img = downscale(&img_hsv)?;
   let img_size = img.size()?;
 
-  imshow("hsv", &img)?;
+  // imshow("hsv", &img)?;
 
   let mirtes = get_mirtes(&img, img_size)?;
   let duckies = get_duckies(&img, img_size)?;
@@ -75,12 +75,34 @@ pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
   Ok([mirtes, duckies].concat())
 }
 
-/// Method for detecting the `Duckie` Obstacle
+/// Method for detecting the `Duckie` Obstacle.
 ///
 /// * `img` - The image in which objects needs to be detected
 /// * `img_size` - The size of the image
 ///
-/// Returns an Result with a vector of the detected Duckies containing its location, Diameter and that it is a Duckie type
+/// Returns an Result with a vector of the detected Duckies containing its location, Diameter and that it is a Duckie type.
+///
+/// # Example
+///
+/// ```
+/// use cv::image::{convert_to_hsv, dbg_mat, downscale};
+/// use cv::object::{get_duckies, Object, Obstacle};
+///
+/// use opencv::{
+///   core::Size,
+///   prelude::{Mat, MatTraitConstManual},
+/// };
+///
+/// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get image");
+/// let img_hsv = convert_to_hsv(&mat).expect("couldn't conver to HSV");
+/// let img = downscale(&img_hsv).expect("couldn't downscale image");
+/// let img_size = img.size().expect("couldn't get size of image");
+///
+/// let obstacles = get_duckies(&img, img_size).expect("couldn't get dukies :(");
+/// assert_eq!(obstacles[0].object, Object::Duck);
+/// assert!(obstacles[0].location.x < 0.55 && obstacles[0].location.x > 0.45);
+/// assert!(obstacles[0].location.y < 0.35 && obstacles[0].location.y > 0.25);
+/// ```
 pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   // Extract the colours
   let colour_low = Mat::from_slice::<u8>(&HSV_DUCK[0])?;
@@ -100,7 +122,7 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
   params.filter_by_convexity = false;
   params.filter_by_circularity = false;
 
-  imshow("inrange duck", &colour_img)?;
+  // imshow("inrange duck", &colour_img)?;
 
   let points = detect_obstacles_with_params(&colour_img, params, img_size, Object::Duck)?;
   Ok(points)
@@ -112,6 +134,28 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
 /// * `img_size` - The size of the image
 ///
 /// Returns an Result with a vector of the detected Mirte bots containing its location, Diameter and that it is a Mirte bot
+///
+/// # Example
+///
+/// ```
+/// use cv::image::{convert_to_hsv, dbg_mat, downscale};
+/// use cv::object::{get_mirtes, Object, Obstacle};
+///
+/// use opencv::{
+///   core::Size,
+///   prelude::{Mat, MatTraitConstManual},
+/// };
+///
+/// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get image");
+/// let img_hsv = convert_to_hsv(&mat).expect("couldn't conver to HSV");
+/// let img = downscale(&img_hsv).expect("couldn't downscale image");
+/// let img_size = img.size().expect("couldn't get size of image");
+/// let obstacles = get_mirtes(&img, img_size).expect("couldn't find mirte bots");
+///
+/// assert_eq!(obstacles[0].object, Object::Mirte);
+/// assert!(obstacles[0].location.x < 0.55 && obstacles[0].location.x > 0.45);
+/// assert!(obstacles[0].location.y < 0.5 && obstacles[0].location.y > 0.4);
+/// ```
 pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   // Extract the colours
   let colour_low = Mat::from_slice::<u8>(&HSV_MIRTE[0])?;
@@ -136,7 +180,7 @@ pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   params.filter_by_circularity = false;
   params.min_circularity = 0.5;
 
-  imshow("inrange mirte", &colour_img)?;
+  // imshow("inrange mirte", &colour_img)?;
 
   let points = detect_obstacles_with_params(&colour_img, params, img_size, Object::Mirte)?;
   Ok(points)
@@ -222,7 +266,7 @@ fn detect_obstacles_with_params(
     opencv::features2d::DrawMatchesFlags::DEFAULT,
   )?;
 
-  imshow("blob", &output_img)?;
+  // imshow("blob", &output_img)?;
 
   let obstacles: Vec<Obstacle> = keypoints
     .into_iter()
