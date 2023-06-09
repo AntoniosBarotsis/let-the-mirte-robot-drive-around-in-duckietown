@@ -19,6 +19,15 @@ target/
 
 assets/output.jpg
 
+# Mirte Web Interface ignores
+mirte-web-interface/node_modules/
+mirte-web-interface/dist/
+mirte-web-interface/node_env/
+mirte-web-interface/.git_disabled/
+mirte-web-interface/.gitignore_disabled
+mirte-web-interface/nodejs-backend/node_modules/
+mirte-web-interface/vue-frontend/node_modules/
+
 python/.venv
 
 python/__pycache__/
