@@ -13,7 +13,7 @@ use crate::{
 
 // H: 0-179, S: 0-255, V: 0-255
 pub static HSV_DUCK: &[[u8; 3]; 2] = &[[0, 100, 180], [45, 255, 255]];
-pub static HSV_MIRTE: &[[u8; 3]; 2] = &[[70, 70, 100], [100, 255, 255]];
+pub static HSV_MIRTE: &[[u8; 3]; 2] = &[[70, 80, 70], [100, 255, 255]];
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 /// All object types the Mirte bot needs to detect.
@@ -127,8 +127,8 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
   params.filter_by_color = true;
   params.blob_color = 255;
   params.filter_by_area = true;
-  params.min_area = 40.0;
-  params.max_area = 100_000.0;
+  params.min_area = 100.0;
+  params.max_area = 12_800.0; // 1/6th of the image
   params.filter_by_inertia = true;
   params.min_inertia_ratio = 0.1;
   params.filter_by_convexity = false;
@@ -185,7 +185,7 @@ pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   params.blob_color = 255;
   params.filter_by_area = true;
   params.min_area = 20.0;
-  params.max_area = 100_000.0;
+  params.max_area = 1536.0; // 1/50 of the image
   params.filter_by_inertia = true;
   params.min_inertia_ratio = 0.1;
   params.filter_by_convexity = false;
