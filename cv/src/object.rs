@@ -38,6 +38,11 @@ impl Obstacle {
   }
 }
 
+/// Method for detecting all types of Objects. This inlcudes `Duck`and `Mirte`.
+///
+/// * `input_img` - The image in which obstacles need to be detected
+///
+/// Returns a Result with a vector of Obstacles containing its location, diameter and what Type of object it is.
 pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
   let img_hsv = convert_to_hsv(input_img)?;
 
@@ -54,12 +59,12 @@ pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
   Ok([duckies, mirtes].concat())
 }
 
-/// Method for decting a given object in the image.
+/// Method for detecting the `Duckie` Obstacle
 ///
 /// * `img` - The image in which objects needs to be detected
-/// * `object` - The object that needs to be detected. This `Object` can be either a `Duck` or a `Mirte`
+/// * `img_size` - The size of the image
 ///
-/// Returns an Result with a vector of the detected Obstacles containing its location, Diameter and the Type of Object it is.
+/// Returns an Result with a vector of the detected Duckies containing its location, Diameter and that it is a Duckie type
 pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   // Extract the colours
   let colour_low = Mat::from_slice::<u8>(&HSV_DUCK[0])?;
@@ -85,12 +90,12 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
   Ok(points)
 }
 
-/// Method for decting a given object in the image.
+/// Method for detecting Mirte bots
 ///
 /// * `img` - The image in which objects needs to be detected
-/// * `object` - The object that needs to be detected. This `Object` can be either a `Duck` or a `Mirte`
+/// * `img_size` - The size of the image
 ///
-/// Returns an Result with a vector of the detected Obstacles containing its location, Diameter and the Type of Object it is.
+/// Returns an Result with a vector of the detected Mirte bots containing its location, Diameter and that it is a Mirte bot
 pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   // Extract the colours
   let colour_low = Mat::from_slice::<u8>(&HSV_MIRTE[0])?;
@@ -167,6 +172,14 @@ pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
 //   Ok(dilated_img)
 // }
 
+/// Given an image and the `simpleBlobDetector` parameters it will construct a `simpleBlobDetector` and use that to detect a given object on the screen.
+///
+/// * `img` - The image in which the object needs to be detected
+/// * `params` - The `simpleBlobDetector` parameters
+/// * `img_size` - The size of the image
+/// * `object` - The type of object it is. This includes `Duck` and `Mirte`
+///
+/// Returns a result with a vector of the detected object type containing its location, diameter and the type of object it is.
 fn detect_obstacles_with_params(
   img: &Mat,
   params: SimpleBlobDetector_Params,
