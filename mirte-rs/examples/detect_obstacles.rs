@@ -1,5 +1,6 @@
 use cv::image::read_image;
 use cv::object::get_obstacles;
+use ros::publishers::RosBgPublisher;
 use std::env;
 
 fn main() {
@@ -11,5 +12,8 @@ fn main() {
   let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
   #[allow(clippy::expect_used)]
-  let _obstacles = get_obstacles(&img).expect("get obstacles");
+  let obstacles = get_obstacles(&img).expect("get obstacles");
+
+  let publisher = RosBgPublisher::get_or_create();
+  publisher.publish_obstacle(obstacles);
 }
