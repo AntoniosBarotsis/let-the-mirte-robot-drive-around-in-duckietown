@@ -15,5 +15,7 @@ fn main() {
   let obstacles = get_obstacles(&img).expect("get obstacles");
 
   let publisher = RosBgPublisher::get_or_create();
-  publisher.publish_obstacle(obstacles);
+  loop {
+    publisher.publish_obstacle(obstacles.clone());
+  }
 }
