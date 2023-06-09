@@ -43,6 +43,22 @@ impl Obstacle {
 /// * `input_img` - The image in which obstacles need to be detected
 ///
 /// Returns a Result with a vector of Obstacles containing its location, diameter and what Type of object it is.
+///
+/// # Example
+///
+/// ```
+/// use cv::image::dbg_mat;
+/// use cv::object::{get_obstacles, Object, Obstacle};
+///
+/// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get the image");
+/// let obstacles = get_obstacles(&mat).expect("was not able to get any obstacles");
+/// assert_eq!(obstacles[0].object, Object::Mirte);
+/// assert_eq!(obstacles[1].object, Object::Duck);
+/// assert!(obstacles[0].location.x < 0.55 && obstacles[0].location.x > 0.45);
+/// assert!(obstacles[0].location.y < 0.5 && obstacles[0].location.y > 0.4);
+/// assert!(obstacles[1].location.x < 0.55 && obstacles[1].location.x > 0.45);
+/// assert!(obstacles[1].location.y < 0.35 && obstacles[1].location.y > 0.25);
+/// ```
 pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
   let img_hsv = convert_to_hsv(input_img)?;
 
@@ -56,7 +72,7 @@ pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
 
   let _res = wait_key(0)?;
 
-  Ok([duckies, mirtes].concat())
+  Ok([mirtes, duckies].concat())
 }
 
 /// Method for detecting the `Duckie` Obstacle
