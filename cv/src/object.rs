@@ -16,12 +16,18 @@ pub static HSV_DUCK: &[[u8; 3]; 2] = &[[0, 100, 180], [45, 255, 255]];
 pub static HSV_MIRTE: &[[u8; 3]; 2] = &[[70, 70, 100], [100, 255, 255]];
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+/// All object types the Mirte bot needs to detect.
 pub enum Object {
   Mirte,
   Duck,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+/// How obstacles are definded
+///
+/// * `location` - The location of the object in the image given in percentages
+/// * `diameter` - The diamater of the detected object
+/// * `object` - The type of object it is. This consist of either `Mirte` or `Duck`
 pub struct Obstacle {
   pub location: Point,
   pub diameter: f32,
@@ -38,7 +44,7 @@ impl Obstacle {
   }
 }
 
-/// Method for detecting all types of Objects. This inlcudes `Duck`and `Mirte`.
+/// Method for detecting all types of Objects. This inlcudes `Duck` and `Mirte`.
 ///
 /// * `input_img` - The image in which obstacles need to be detected
 ///
