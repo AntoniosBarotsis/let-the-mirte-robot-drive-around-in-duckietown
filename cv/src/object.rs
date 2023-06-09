@@ -58,12 +58,17 @@ impl Obstacle {
 ///
 /// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get the image");
 /// let obstacles = get_obstacles(&mat).expect("was not able to get any obstacles");
-/// assert_eq!(obstacles[0].object, Object::Mirte);
-/// assert_eq!(obstacles[1].object, Object::Duck);
-/// assert!(obstacles[0].location.x < 0.55 && obstacles[0].location.x > 0.45);
-/// assert!(obstacles[0].location.y < 0.5 && obstacles[0].location.y > 0.4);
-/// assert!(obstacles[1].location.x < 0.55 && obstacles[1].location.x > 0.45);
-/// assert!(obstacles[1].location.y < 0.35 && obstacles[1].location.y > 0.25);
+/// let duckstacles: Vec<Obstacle> = obstacles.clone().into_iter().filter(|x| {x.object == Object::Duck}).collect();
+/// let mirtstacles: Vec<Obstacle> = obstacles.clone().into_iter().filter(|x| {x.object == Object::Mirte}).collect();
+///
+/// assert_eq!(duckstacles[0].object, Object::Duck);
+/// assert_eq!(mirtstacles[0].object, Object::Mirte);
+/// assert_eq!(duckstacles.len(), 1);
+/// assert!(mirtstacles.len() >= 1);
+/// assert!(mirtstacles[0].location.x < 0.55 && mirtstacles[0].location.x > 0.45);
+/// assert!(mirtstacles[0].location.y < 0.5 && mirtstacles[0].location.y > 0.4);
+/// assert!(duckstacles[0].location.x < 0.55 && duckstacles[0].location.x > 0.45);
+/// assert!(duckstacles[0].location.y < 0.35 && duckstacles[0].location.y > 0.25);
 /// ```
 pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
   let img_hsv = convert_to_hsv(input_img)?;
@@ -106,6 +111,7 @@ pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
 ///
 /// let obstacles = get_duckies(&img, img_size).expect("couldn't get dukies :(");
 /// assert_eq!(obstacles[0].object, Object::Duck);
+/// assert_eq!(obstacles.len(), 1);
 /// assert!(obstacles[0].location.x < 0.55 && obstacles[0].location.x > 0.45);
 /// assert!(obstacles[0].location.y < 0.35 && obstacles[0].location.y > 0.25);
 /// ```
@@ -159,6 +165,7 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
 /// let obstacles = get_mirtes(&img, img_size).expect("couldn't find mirte bots");
 ///
 /// assert_eq!(obstacles[0].object, Object::Mirte);
+/// assert!(obstacles.len() >= 1);
 /// assert!(obstacles[0].location.x < 0.55 && obstacles[0].location.x > 0.45);
 /// assert!(obstacles[0].location.y < 0.5 && obstacles[0].location.y > 0.4);
 /// ```
