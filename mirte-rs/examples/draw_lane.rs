@@ -4,8 +4,8 @@ use cv::{
 };
 use cv::{draw_lines::draw_lines, image::read_image};
 use mirte_rs::detect_lane::detect_lane;
-use std::env;
 use std::collections::HashMap;
+use std::env;
 
 #[allow(clippy::expect_used)]
 fn main() {
@@ -16,7 +16,8 @@ fn main() {
   });
   let mut img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
-  let lines = detect_line_type(&img, &HashMap::new(), vec![Yellow, White]).expect("Unable to detect line with cv");
+  let lines = detect_line_type(&img, &HashMap::new(), vec![Yellow, White])
+    .expect("Unable to detect line with cv");
   let lane = detect_lane(&lines);
 
   draw_lines(
