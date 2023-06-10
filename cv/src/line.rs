@@ -6,8 +6,6 @@ use serde::{Deserialize, Serialize};
 // H: 0-179, S: 0-255, V: 0-255
 pub type ColourValue = [u8; 3];
 
-//pub type Thresholds<S> = HashMap<Colour, Threshold, S>;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
 pub struct Threshold {
   pub lower: ColourValue,
