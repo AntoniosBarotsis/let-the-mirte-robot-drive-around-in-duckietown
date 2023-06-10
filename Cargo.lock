@@ -492,6 +492,7 @@ dependencies = [
  "derive_more",
  "float-cmp",
  "opencv",
+ "serde",
  "thiserror",
 ]
 
@@ -1503,6 +1504,7 @@ name = "ros"
 version = "0.1.0"
 dependencies = [
  "bridge",
+ "cv",
  "cv-bridge",
  "env_logger",
  "once_cell",
