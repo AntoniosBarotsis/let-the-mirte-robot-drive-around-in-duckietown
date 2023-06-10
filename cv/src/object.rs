@@ -1,7 +1,6 @@
 use opencv::{
   core::{in_range, KeyPoint, Scalar, Size, Vector},
   features2d::{draw_keypoints, SimpleBlobDetector, SimpleBlobDetector_Params},
-  highgui::wait_key,
   prelude::{Feature2DTrait, KeyPointTraitConst, Mat, MatTraitConstManual},
 };
 
@@ -11,7 +10,7 @@ use crate::{
   line::Point,
 };
 
-// H: 0-179, S: 0-255, V: 0-255
+// H: 0-179, S: 0-255, V: 0-255         lower bound     upper bound
 pub static HSV_DUCK: &[[u8; 3]; 2] = &[[0, 100, 180], [45, 255, 255]];
 pub static HSV_MIRTE: &[[u8; 3]; 2] = &[[70, 80, 70], [100, 255, 255]];
 
@@ -76,13 +75,13 @@ pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
   let img = downscale(&img_hsv)?;
   let img_size = img.size()?;
 
-  // imshow("hsv", &img)?;
-
+  #[cfg(debug_assertions)]
+  //imshow("hsv", &img)?;
   let mirtes = get_mirtes(&img, img_size)?;
   let duckies = get_duckies(&img, img_size)?;
 
-  let _res = wait_key(0)?;
-
+  #[cfg(debug_assertions)]
+  // let _res = wait_key(0)?;
   Ok([mirtes, duckies].concat())
 }
 
@@ -124,18 +123,19 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
   in_range(&img, &colour_low, &colour_high, &mut colour_img)?;
 
   let mut params: SimpleBlobDetector_Params = SimpleBlobDetector_Params::default()?;
+  // all parameters for detecting duckies
   params.filter_by_color = true;
   params.blob_color = 255;
   params.filter_by_area = true;
-  params.min_area = 55.0; // TODO: Change this back after getting a better test image
+  params.min_area = 55.0; // 55 right now. Might change later if problem occur
   params.max_area = 12_800.0; // 1/6th of the image
   params.filter_by_inertia = true;
   params.min_inertia_ratio = 0.1;
   params.filter_by_convexity = false;
   params.filter_by_circularity = false;
 
+  #[cfg(debug_assertions)]
   // imshow("inrange duck", &colour_img)?;
-
   let points = detect_obstacles_with_params(&colour_img, params, img_size, Object::Duck)?;
   Ok(points)
 }
@@ -177,10 +177,8 @@ pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   let mut colour_img = Mat::default();
   in_range(&img, &colour_low, &colour_high, &mut colour_img)?;
 
-  // let colour_img = denoise(&or_img)?;
-
   let mut params: SimpleBlobDetector_Params = SimpleBlobDetector_Params::default()?;
-
+  // all paramters for detecting mirte bots
   params.filter_by_color = true;
   params.blob_color = 255;
   params.filter_by_area = true;
@@ -193,57 +191,11 @@ pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   params.filter_by_circularity = false;
   params.min_circularity = 0.5;
 
+  #[cfg(debug_assertions)]
   // imshow("inrange mirte", &colour_img)?;
-
   let points = detect_obstacles_with_params(&colour_img, params, img_size, Object::Mirte)?;
   Ok(points)
 }
-
-// fn denoise(input_img: &Mat) -> Result<Mat, CvError> {
-//   let mut eroded_img = Mat::default();
-//   let magic = morphology_default_border_value()?;
-//   let element = get_structuring_element(
-//     MORPH_ELLIPSE,
-//     Size_ {
-//       width: 4,
-//       height: 4,
-//     },
-//     Point_ { x: -1, y: -1 },
-//   )?;
-//   erode(
-//     &input_img,
-//     &mut eroded_img,
-//     &element,
-//     Point_ { x: -1, y: -1 },
-//     1,
-//     BORDER_CONSTANT,
-//     magic,
-//   )?;
-
-//   imshow("eroded mirte", &eroded_img)?;
-
-//   let mut dilated_img = Mat::default();
-//   let magic = morphology_default_border_value()?;
-//   let element = get_structuring_element(
-//     MORPH_ELLIPSE,
-//     Size_ {
-//       width: 20,
-//       height: 20,
-//     },
-//     Point_ { x: -1, y: -1 },
-//   )?;
-//   dilate(
-//     &eroded_img,
-//     &mut dilated_img,
-//     &element,
-//     Point_ { x: -1, y: -1 },
-//     1,
-//     BORDER_CONSTANT,
-//     magic,
-//   )?;
-
-//   Ok(dilated_img)
-// }
 
 /// Given an image and the `simpleBlobDetector` parameters it will construct a `simpleBlobDetector` and use that to detect a given object on the screen.
 ///
@@ -270,16 +222,19 @@ fn detect_obstacles_with_params(
   #[allow(clippy::cast_precision_loss)]
   let height = img_size.height as f32;
 
-  let mut output_img = Mat::default();
-  draw_keypoints(
-    &img,
-    &keypoints,
-    &mut output_img,
-    Scalar::new(0.0, 0.0, 255.0, 0.0),
-    opencv::features2d::DrawMatchesFlags::DEFAULT,
-  )?;
+  #[cfg(debug_assertions)]
+  {
+    let mut output_img = Mat::default();
+    draw_keypoints(
+      &img,
+      &keypoints,
+      &mut output_img,
+      Scalar::new(0.0, 0.0, 255.0, 0.0),
+      opencv::features2d::DrawMatchesFlags::DEFAULT,
+    )?;
 
-  // imshow("blob", &output_img)?;
+    // imshow("blob", &output_img)?;
+  }
 
   let obstacles: Vec<Obstacle> = keypoints
     .into_iter()
