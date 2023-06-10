@@ -1,6 +1,6 @@
 use opencv::{
-  core::{in_range, KeyPoint, Scalar, Size, Vector},
-  features2d::{draw_keypoints, SimpleBlobDetector, SimpleBlobDetector_Params},
+  core::{in_range, KeyPoint, Size, Vector},
+  features2d::{SimpleBlobDetector, SimpleBlobDetector_Params},
   prelude::{Feature2DTrait, KeyPointTraitConst, Mat, MatTraitConstManual},
 };
 
@@ -26,7 +26,7 @@ pub enum Object {
 ///
 /// * `location` - The location of the object in the image given in percentages
 /// * `diameter` - The diamater of the detected object
-/// * `object` - The type of object it is. This consist of either `Mirte` or `Duck`
+/// * `object` - The type of object it is.
 pub struct Obstacle {
   pub location: Point,
   pub diameter: f32,
@@ -75,13 +75,9 @@ pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
   let img = downscale(&img_hsv)?;
   let img_size = img.size()?;
 
-  #[cfg(debug_assertions)]
-  //imshow("hsv", &img)?;
   let mirtes = get_mirtes(&img, img_size)?;
   let duckies = get_duckies(&img, img_size)?;
 
-  #[cfg(debug_assertions)]
-  // let _res = wait_key(0)?;
   Ok([mirtes, duckies].concat())
 }
 
@@ -134,8 +130,6 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
   params.filter_by_convexity = false;
   params.filter_by_circularity = false;
 
-  #[cfg(debug_assertions)]
-  // imshow("inrange duck", &colour_img)?;
   let points = detect_obstacles_with_params(&colour_img, params, img_size, Object::Duck)?;
   Ok(points)
 }
@@ -191,8 +185,6 @@ pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   params.filter_by_circularity = false;
   params.min_circularity = 0.5;
 
-  #[cfg(debug_assertions)]
-  // imshow("inrange mirte", &colour_img)?;
   let points = detect_obstacles_with_params(&colour_img, params, img_size, Object::Mirte)?;
   Ok(points)
 }
@@ -202,7 +194,7 @@ pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
 /// * `img` - The image in which the object needs to be detected
 /// * `params` - The `simpleBlobDetector` parameters
 /// * `img_size` - The size of the image
-/// * `object` - The type of object it is. This includes `Duck` and `Mirte`
+/// * `object` - The type of object it is.
 ///
 /// Returns a result with a vector of the detected object type containing its location, diameter and the type of object it is.
 fn detect_obstacles_with_params(
@@ -221,20 +213,6 @@ fn detect_obstacles_with_params(
   let width = img_size.width as f32;
   #[allow(clippy::cast_precision_loss)]
   let height = img_size.height as f32;
-
-  #[cfg(debug_assertions)]
-  {
-    let mut output_img = Mat::default();
-    draw_keypoints(
-      &img,
-      &keypoints,
-      &mut output_img,
-      Scalar::new(0.0, 0.0, 255.0, 0.0),
-      opencv::features2d::DrawMatchesFlags::DEFAULT,
-    )?;
-
-    // imshow("blob", &output_img)?;
-  }
 
   let obstacles: Vec<Obstacle> = keypoints
     .into_iter()
