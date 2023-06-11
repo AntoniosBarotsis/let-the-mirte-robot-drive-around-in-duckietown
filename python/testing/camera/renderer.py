@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class Renderer:
+    camera_node = None
     camera_pose = None
     scene = None
 
@@ -75,13 +76,17 @@ class Renderer:
         self.camera_pose = np.matmul(self.camera_pose, rotation_matrix)
 
     def render(self):
-        # Add camera
+        # Update camera
         camera = pyrender.camera.PerspectiveCamera(yfov=np.pi / 3.0, aspectRatio=640 / 480)
-        self.scene.add(camera, pose=self.camera_pose)
+        if self.camera_node is not None:
+            self.scene.remove_node(self.camera_node)
+        self.camera_node = self.scene.add(camera, pose=self.camera_pose)
 
         # Render scene
         pyrender.viewer.Viewer(self.scene, use_raymond_lighting=True)
 
 
 renderer = Renderer()
-renderer.render()
+while True:
+    renderer.render()
+    renderer.position(0, 0, -1)
