@@ -6,15 +6,15 @@ from PIL import Image
 
 
 class Renderer:
-    camera_node = None
-    camera_pose = None
-    scene = None
+    __camera_node = None
+    __camera_pose = None
+    __scene = None
 
     def __init__(self, scenario='duckievoort'):
         # Initialize camera pose
-        self.camera_pose = tf.identity_matrix()
+        self.__camera_pose = tf.identity_matrix()
         rotation_matrix = tf.rotation_matrix(np.radians(90), [1, 0, 0])  # Parallel to the ground
-        self.camera_pose = np.matmul(self.camera_pose, rotation_matrix)
+        self.__camera_pose = np.matmul(self.__camera_pose, rotation_matrix)
 
         # Create materials
         mat_black = pyrender.MetallicRoughnessMaterial(
@@ -54,19 +54,19 @@ class Renderer:
         pose_track = np.matmul(pose_track, rotation_matrix)
 
         # Create scene
-        self.scene = pyrender.Scene()
-        self.scene.bg_color = [0.5, 0.75, 0.9]
-        self.scene.add(mesh_black, pose=pose_track)
-        self.scene.add(mesh_white, pose=pose_track)
-        self.scene.add(mesh_yellow, pose=pose_track)
+        self.__scene = pyrender.Scene()
+        self.__scene.bg_color = [0.5, 0.75, 0.9]
+        self.__scene.add(mesh_black, pose=pose_track)
+        self.__scene.add(mesh_white, pose=pose_track)
+        self.__scene.add(mesh_yellow, pose=pose_track)
 
         # Add light
         light = pyrender.DirectionalLight(color=[1.0, 1.0, 1.0], intensity=2.0)
-        self.scene.add(light)
+        self.__scene.add(light)
 
     def position(self, x, y, z):
         translation_matrix = tf.translation_matrix([x, y, z])
-        self.camera_pose = np.matmul(self.camera_pose, translation_matrix)
+        self.__camera_pose = np.matmul(self.__camera_pose, translation_matrix)
 
     def rotate(self, angle, axis):
         if axis == 'x':
@@ -77,18 +77,18 @@ class Renderer:
             rotation_matrix = tf.rotation_matrix(np.radians(angle), [0, 0, 1])
         else:
             raise Exception('Invalid axis')
-        self.camera_pose = np.matmul(self.camera_pose, rotation_matrix)
+        self.__camera_pose = np.matmul(self.__camera_pose, rotation_matrix)
 
     def render(self):
         # Update camera
         camera = pyrender.camera.PerspectiveCamera(yfov=np.pi / 3.0, aspectRatio=640 / 480)
-        if self.camera_node is not None:
-            self.scene.remove_node(self.camera_node)
-        self.camera_node = self.scene.add(camera, pose=self.camera_pose)
+        if self.__camera_node is not None:
+            self.__scene.remove_node(self.__camera_node)
+        self.__camera_node = self.__scene.add(camera, pose=self.__camera_pose)
 
         # Render scene
         r = pyrender.OffscreenRenderer(640, 480)
-        color, depth = r.render(self.scene)
+        color, depth = r.render(self.__scene)
         return color.flatten()
 
 
