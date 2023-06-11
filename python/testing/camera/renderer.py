@@ -2,7 +2,7 @@ import pyrender.material
 import trimesh.visual
 import numpy as np
 import transformations as tf
-import matplotlib.pyplot as plt
+from PIL import Image
 
 
 class Renderer:
@@ -60,6 +60,10 @@ class Renderer:
         self.scene.add(mesh_white, pose=pose_track)
         self.scene.add(mesh_yellow, pose=pose_track)
 
+        # Add light
+        light = pyrender.DirectionalLight(color=[1.0, 1.0, 1.0], intensity=2.0)
+        self.scene.add(light)
+
     def position(self, x, y, z):
         translation_matrix = tf.translation_matrix([x, y, z])
         self.camera_pose = np.matmul(self.camera_pose, translation_matrix)
@@ -83,10 +87,11 @@ class Renderer:
         self.camera_node = self.scene.add(camera, pose=self.camera_pose)
 
         # Render scene
-        pyrender.viewer.Viewer(self.scene, use_raymond_lighting=True)
+        r = pyrender.OffscreenRenderer(640, 480)
+        color, depth = r.render(self.scene)
+        return color.flatten()
 
 
 renderer = Renderer()
-while True:
-    renderer.render()
-    renderer.position(0, 0, -1)
+buffer = renderer.render()
+Image.frombuffer('RGB', (640, 480), buffer, 'raw', 'RGB', 0, 1).show()
