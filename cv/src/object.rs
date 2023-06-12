@@ -225,9 +225,5 @@ fn detect_obstacles_with_params(
     })
     .collect();
 
-  for ob in obstacles.clone().into_iter().rev() {
-    println!("{ob:?}");
-  }
-
   Ok(obstacles)
 }
