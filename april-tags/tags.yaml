@@ -46,7 +46,7 @@ standalone_tags:
     {id: 99, size: 0.065, name: "Slow down pedestrian crossing"},
     {id: 100, size: 0.065, name: "Slow down pedestrian crossing"},
     {id: 101, size: 0.065, name: "Slow down pedestrian crossing"},
-    {id: 102, size: 0.065, name: "Slow down pedestrian "},
+    {id: 102, size: 0.065, name: "Slow down pedestrian crossing"},
     {id: 125, size: 0.065, name: "Parking"},
     {id: 530, size: 0.065, name: "Barfoot st"},
     {id: 531, size: 0.065, name: "Dudek St"},
