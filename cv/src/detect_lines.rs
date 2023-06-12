@@ -1,27 +1,24 @@
 use opencv::{
   core::{in_range, Point_, Size, Size_, Vec4f, Vector, BORDER_CONSTANT},
-  imgproc::{
-    cvt_color, dilate, get_structuring_element, morphology_default_border_value, COLOR_RGB2HSV,
-    MORPH_ELLIPSE,
-  },
+  imgproc::{dilate, get_structuring_element, morphology_default_border_value, MORPH_ELLIPSE},
   prelude::{Mat, MatTraitConst, MatTraitConstManual},
   ximgproc::{create_fast_line_detector, FastLineDetector},
 };
 use std::collections::HashMap;
 
 #[cfg(debug_assertions)]
-use crate::image::convert_to_rgb;
+use crate::image::convert_hsv_to_bgr;
 
 use crate::{
   cv_error::CvError,
-  image::{crop_image, enhance_contrast},
+  image::crop_image,
   image_part::ImagePart,
   line::{Colour, LineSegment, Point, Threshold},
 };
 
 /// Finds lines in the image with a specific colour using the `fast_line_detector` from `openCV`
 ///
-/// * `img` - The images of which the lines need to be detected
+/// * `img` - The HSV image in which the lines need to be detected
 /// * `colour` - The colour of which you want to detect the lanes
 /// * `line_offset` - The Y offset of where to draw the lines
 ///
@@ -74,9 +71,9 @@ pub fn get_lines(
   Ok(line_vec)
 }
 
-/// Given a image and a vector of colours this method will detect lines in the image for all given colours.
+/// Given an HSV image and a vector of colours this method will detect lines in the image for all given colours.
 ///
-/// * `img` - The image in which the lines need to be detected
+/// * `img` - The HSV image in which the lines need to be detected
 /// * `thresholds` - A hashmap which maps a `Colour` to a `Threshold`, which determines when a colour
 /// is detected.
 /// * `colours` - A vector of all the colours of which you want to detect the lines
@@ -93,21 +90,11 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
 
   let top_img_height = img.rows() - cropped_img.rows();
 
-  // Contrast stretching
-  let contrast_img = enhance_contrast(&cropped_img)?;
-
   #[cfg(debug_assertions)]
   {
-    let rgb_img = convert_to_rgb(&contrast_img)?;
+    let rgb_img = convert_hsv_to_bgr(&cropped_img)?;
     opencv::highgui::imshow("contrast", &rgb_img)?;
   }
-
-  let mut hsv_img = Mat::default();
-
-  // Converting colour takes about half of the time of this funciton
-  // Colour code should be `COLOR_BGR2HSV` when image file is used.
-  // Colour code should be `COLOR_RGB2HSV` when ROS image is used.
-  cvt_color(&contrast_img, &mut hsv_img, COLOR_RGB2HSV, 0)?;
 
   let mut lines: Vec<LineSegment> = Vec::new();
 
@@ -121,17 +108,17 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
     let colour_low = Mat::from_slice::<u8>(&threshold.lower)?;
     let colour_high = Mat::from_slice::<u8>(&threshold.upper)?;
 
-    let mut colour_img = Mat::default();
-    in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img)?;
+    let mut in_range_img = Mat::default();
+    in_range(&cropped_img, &colour_low, &colour_high, &mut in_range_img)?;
 
     #[cfg(debug_assertions)]
     {
       match colour {
         Colour::Yellow => {
-          opencv::highgui::imshow("yellow", &colour_img)?;
+          opencv::highgui::imshow("yellow", &in_range_img)?;
         }
         Colour::White => {
-          opencv::highgui::imshow("white", &colour_img)?;
+          opencv::highgui::imshow("white", &in_range_img)?;
         }
         _ => (),
       };
@@ -149,7 +136,7 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
         Point_ { x: -1, y: -1 },
       )?;
       dilate(
-        &colour_img,
+        &in_range_img,
         &mut dilated_img,
         &element,
         Point_ { x: -1, y: -1 },
@@ -161,7 +148,7 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
       #[cfg(debug_assertions)]
       opencv::highgui::imshow("yellow dilated", &dilated_img)?;
 
-      colour_img = dilated_img;
+      in_range_img = dilated_img;
     }
 
     // Get the lines of this colour
@@ -169,7 +156,7 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
     // the maximum value of an f32.
     // This takes about 1/6 of the time for 2 colours
     #[allow(clippy::cast_precision_loss)]
-    let mut new_lines = get_lines(&colour_img, colour, img.size()?, top_img_height as f32)?;
+    let mut new_lines = get_lines(&in_range_img, colour, img.size()?, top_img_height as f32)?;
 
     lines.append(&mut new_lines);
   }

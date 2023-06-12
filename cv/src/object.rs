@@ -1,14 +1,11 @@
 use opencv::{
-  core::{in_range, KeyPoint, Size, Vector},
-  features2d::{SimpleBlobDetector, SimpleBlobDetector_Params},
+  core::{in_range, KeyPoint, Scalar, Size, Vector},
+  features2d::{draw_keypoints, SimpleBlobDetector, SimpleBlobDetector_Params},
+  highgui::{imshow, wait_key},
   prelude::{Feature2DTrait, KeyPointTraitConst, Mat, MatTraitConstManual},
 };
 
-use crate::{
-  cv_error::CvError,
-  image::{convert_to_hsv, downscale},
-  line::Point,
-};
+use crate::{cv_error::CvError, line::Point};
 
 // H: 0-179, S: 0-255, V: 0-255         lower bound     upper bound
 pub static HSV_DUCK: &[[u8; 3]; 2] = &[[0, 100, 180], [45, 255, 255]];
@@ -52,11 +49,14 @@ impl Obstacle {
 /// # Example
 ///
 /// ```
-/// use cv::image::dbg_mat;
-/// use cv::object::{get_obstacles, Object, Obstacle};
+/// use cv::image::{dbg_mat, convert_to_hsv, downscale, enhance_contrast};
+/// use cv::object::{detect_obstacles, Object, Obstacle};
 ///
 /// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get the image");
-/// let obstacles = get_obstacles(&mat).expect("was not able to get any obstacles");
+/// let img = downscale(&mat).expect("couldn't downscale image");
+/// let contrast_img = enhance_contrast(&img).expect("enhance contrast");
+/// let img_hsv = convert_to_hsv(&img).expect("couldn't conver to HSV");
+/// let obstacles = detect_obstacles(&img_hsv).expect("was not able to get any obstacles");
 /// let duckstacles: Vec<Obstacle> = obstacles.clone().into_iter().filter(|x| {x.object == Object::Duck}).collect();
 /// let mirtstacles: Vec<Obstacle> = obstacles.clone().into_iter().filter(|x| {x.object == Object::Mirte}).collect();
 ///
@@ -69,14 +69,11 @@ impl Obstacle {
 /// assert!(duckstacles[0].location.x < 0.55 && duckstacles[0].location.x > 0.45);
 /// assert!(duckstacles[0].location.y < 0.35 && duckstacles[0].location.y > 0.25);
 /// ```
-pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
-  let img_hsv = convert_to_hsv(input_img)?;
-
-  let img = downscale(&img_hsv)?;
+pub fn detect_obstacles(img: &Mat) -> Result<Vec<Obstacle>, CvError> {
   let img_size = img.size()?;
 
-  let mirtes = get_mirtes(&img, img_size)?;
-  let duckies = get_duckies(&img, img_size)?;
+  let mirtes = get_mirtes(img, img_size)?;
+  let duckies = get_duckies(img, img_size)?;
 
   Ok([mirtes, duckies].concat())
 }
@@ -91,7 +88,7 @@ pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
 /// # Example
 ///
 /// ```
-/// use cv::image::{convert_to_hsv, dbg_mat, downscale};
+/// use cv::image::{convert_to_hsv, dbg_mat, downscale, enhance_contrast};
 /// use cv::object::{get_duckies, Object, Obstacle};
 ///
 /// use opencv::{
@@ -100,8 +97,9 @@ pub fn get_obstacles(input_img: &Mat) -> Result<Vec<Obstacle>, CvError> {
 /// };
 ///
 /// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get image");
-/// let img_hsv = convert_to_hsv(&mat).expect("couldn't conver to HSV");
-/// let img = downscale(&img_hsv).expect("couldn't downscale image");
+/// let img = downscale(&mat).expect("couldn't downscale image");
+/// let contrast_img = enhance_contrast(&img).expect("enhance contrast");
+/// let img_hsv = convert_to_hsv(&img).expect("couldn't conver to HSV");
 /// let img_size = img.size().expect("couldn't get size of image");
 /// let obstacles = get_duckies(&img, img_size).expect("couldn't get dukies :(");
 ///
@@ -144,7 +142,7 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
 /// # Example
 ///
 /// ```
-/// use cv::image::{convert_to_hsv, dbg_mat, downscale};
+/// use cv::image::{convert_to_hsv, dbg_mat, downscale, enhance_contrast};
 /// use cv::object::{get_mirtes, Object, Obstacle};
 ///
 /// use opencv::{
@@ -153,8 +151,9 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
 /// };
 ///
 /// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get image");
-/// let img_hsv = convert_to_hsv(&mat).expect("couldn't conver to HSV");
-/// let img = downscale(&img_hsv).expect("couldn't downscale image");
+/// let img = downscale(&mat).expect("couldn't downscale image");
+/// let contrast_img = enhance_contrast(&img).expect("enhance contrast");
+/// let img_hsv = convert_to_hsv(&img).expect("couldn't conver to HSV");
 /// let img_size = img.size().expect("couldn't get size of image");
 /// let obstacles = get_mirtes(&img, img_size).expect("couldn't find mirte bots");
 ///
@@ -214,6 +213,21 @@ fn detect_obstacles_with_params(
   #[allow(clippy::cast_precision_loss)]
   let height = img_size.height as f32;
 
+  #[cfg(debug_assertions)]
+  {
+    let mut output_img = Mat::default();
+    draw_keypoints(
+      &img,
+      &keypoints,
+      &mut output_img,
+      Scalar::new(0.0, 0.0, 255.0, 0.0),
+      opencv::features2d::DrawMatchesFlags::DEFAULT,
+    )?;
+
+    imshow("blob", &output_img)?;
+    let _res = wait_key(0).expect("keep window open");
+  }
+
   let obstacles: Vec<Obstacle> = keypoints
     .into_iter()
     .map(|x| {
@@ -224,6 +238,10 @@ fn detect_obstacles_with_params(
       )
     })
     .collect();
+
+  for ob in obstacles.clone().into_iter().rev() {
+    println!("{ob:?}");
+  }
 
   Ok(obstacles)
 }

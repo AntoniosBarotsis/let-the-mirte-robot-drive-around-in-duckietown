@@ -1,5 +1,5 @@
-use cv::image::read_image;
-use cv::object::get_obstacles;
+use cv::image::{downscale_enhance_hsv, read_image};
+use cv::object::detect_obstacles;
 use ros::publishers::RosBgPublisher;
 use std::env;
 
@@ -10,9 +10,11 @@ fn main() {
     std::process::exit(1);
   });
   let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
+  let usable_img = downscale_enhance_hsv(&img)
+    .unwrap_or_else(|_| panic!("Unable to downscale, enhance or convert to hsv"));
 
   #[allow(clippy::expect_used)]
-  let obstacles = get_obstacles(&img).expect("get obstacles");
+  let obstacles = detect_obstacles(&usable_img).expect("get obstacles");
 
   let publisher = RosBgPublisher::get_or_create();
   loop {

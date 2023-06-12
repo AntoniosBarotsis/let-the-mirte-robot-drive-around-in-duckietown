@@ -2,7 +2,8 @@ use opencv::{
   core::{convert_scale_abs, Size_, CV_32SC1},
   imgcodecs::{imread, IMREAD_UNCHANGED},
   imgproc::{
-    calc_hist, cvt_color, resize, COLOR_BGR2RGB, COLOR_RGB2GRAY, COLOR_RGB2HSV, INTER_AREA,
+    calc_hist, cvt_color, resize, COLOR_BGR2RGB, COLOR_HSV2BGR, COLOR_RGB2GRAY, COLOR_RGB2HSV,
+    INTER_AREA,
   },
   prelude::{Mat, MatTrait, MatTraitConst, MatTraitConstManual},
 };
@@ -156,6 +157,17 @@ pub fn convert_to_rgb(img: &Mat) -> Result<Mat, CvError> {
   Ok(rgb_img)
 }
 
+/// converts a given image with a HSV colour format to one with a BGR colour format
+///
+/// * `img` - The image who's colour format needs to be chanced
+///
+/// Returns a result of the image with the BGR colour format as a `Mat`
+pub fn convert_hsv_to_bgr(img: &Mat) -> Result<Mat, CvError> {
+  let mut rgb_img = Mat::default();
+  cvt_color(&img, &mut rgb_img, COLOR_HSV2BGR, 0)?;
+  Ok(rgb_img)
+}
+
 /// converts a given image with a RGB colour format to one in grayscale
 ///
 /// * `img` - The image who's colour format needs to be chanced
@@ -176,6 +188,14 @@ pub fn convert_to_hsv(img: &Mat) -> Result<Mat, CvError> {
   let mut hsv_img = Mat::default();
   cvt_color(&img, &mut hsv_img, COLOR_RGB2HSV, 0)?;
   Ok(hsv_img)
+}
+
+pub fn downscale_enhance_hsv(img: &Mat) -> Result<Mat, CvError> {
+  let downscaled = downscale(img)?;
+  let enhanced = enhance_contrast(&downscaled)?;
+  let hsv = convert_to_hsv(&enhanced)?;
+
+  Ok(hsv)
 }
 
 /// Given an image it will downscale that image to a width of 320 and height of 240
