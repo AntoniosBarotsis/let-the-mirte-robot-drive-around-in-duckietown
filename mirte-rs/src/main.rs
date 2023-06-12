@@ -4,7 +4,6 @@ use ros::{process_ros_image, CvImage};
 /// For now, just reads an image from ROS and shows it on screen.
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 fn main() {
-  ros::init();
   let thresholds = ros::param::get_thresholds();
 
   let res = process_ros_image(move |img| {
