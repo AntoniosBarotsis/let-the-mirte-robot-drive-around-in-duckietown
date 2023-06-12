@@ -58,10 +58,11 @@ class TestLaneFollower(unittest.TestCase):
         self.assertAlmostEqual(res, -2.571, places=3)
 
     def test_mock_setup(self):
-        follower = lane_follower.Follower(set_speed_mock)
-        follower.start_following()
         publisher = ImagePublisher()
-        publisher.publish()
+        while True:
+            publisher.step(20, 100, 0.1)
+            publisher.show_image()
+            input("Press enter to continue")
 
 
 def set_speed_mock(motor, value):
