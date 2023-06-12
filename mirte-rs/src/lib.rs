@@ -9,8 +9,7 @@ use cv::{
   image::downscale,
   line::{
     Colour::{self, Black, Green, Orange, Purple, Red, White, Yellow},
-    LineSegment,
-    Threshold,
+    LineSegment, Threshold,
   },
   Mat,
 };
