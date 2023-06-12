@@ -1,35 +1,56 @@
 use crate::image::CROP_HEIGHT;
 use derive_more::{Add, Div, Mul, Neg, Sub, Sum};
 use float_cmp::approx_eq;
+use serde::{Deserialize, Serialize};
 
-// H: 0-179, S: 0-255, V: 0-255           lower bound      upper bound
-pub static HSV_YELLOW: &[[u8; 3]; 2] = &[[20, 100, 115], [45, 255, 255]];
-pub static HSV_WHITE: &[[u8; 3]; 2] = &[[0, 0, 190], [179, 40, 255]];
+// H: 0-179, S: 0-255, V: 0-255
+pub type ColourValue = [u8; 3];
 
-/// given a colour type it will return the lower and upper bound of the range of that colour in HSV
-///
-/// # Panics
-///
-/// * `colour` - The colour of which the colour range needs to be extracted
-///
-/// Return an 2d-array with the lower bound on index 0 and upper bound on index 1
-///
-/// # Examples
-///
-/// ```
-/// use cv::line::{get_colour, Colour};
-///
-/// let yellow = *get_colour(Colour::Yellow);
-/// let white = *get_colour(Colour::White);
-/// assert_ne!(white, yellow);
-/// ```
-pub fn get_colour(colour: Colour) -> &'static [[u8; 3]; 2] {
-  match colour {
-    Colour::White => HSV_WHITE,
-    Colour::Yellow => HSV_YELLOW,
-    _ => panic!("No HSV constants defined for {colour:?}!"),
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+pub struct Threshold {
+  pub lower: ColourValue,
+  pub upper: ColourValue,
+}
+
+impl Threshold {
+  /// given a colour type, it will return the default lower and upper bound of the range of that colour in HSV
+  ///
+  /// # Panics
+  ///
+  /// When called with a colour other than `White`, `Yellow` or `Red`.
+  ///
+  /// * `colour` - The colour of which the colour range needs to be extracted
+  ///
+  /// Return an 2d-array with the lower bound on index 0 and upper bound on index 1
+  ///
+  /// # Examples
+  ///
+  /// ```
+  /// use cv::line::{Threshold, Colour};
+  ///
+  /// let yellow = Threshold::by_colour(Colour::Yellow);
+  /// let white = Threshold::by_colour(Colour::White);
+  /// assert_ne!(white, yellow);
+  /// ```
+  pub fn by_colour(colour: Colour) -> Self {
+    match colour {
+      Colour::White => Self {
+        lower: [0, 0, 190],
+        upper: [179, 40, 255],
+      },
+      Colour::Yellow => Self {
+        lower: [20, 100, 115],
+        upper: [45, 255, 255],
+      },
+      Colour::Red => Self {
+        lower: [165, 125, 125],
+        upper: [10, 255, 255],
+      },
+      _ => panic!("No colour threshold defined for {colour:?}!"),
+    }
   }
 }
+
 // Represents a line
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct LineSegment {
@@ -71,7 +92,7 @@ impl LineSegment {
 }
 
 // Represents a line color
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Colour {
   Red,
   Orange,
@@ -81,6 +102,21 @@ pub enum Colour {
   Purple,
   Black,
   White,
+}
+
+impl Colour {
+  pub fn parameter_name(&self) -> &'static str {
+    match self {
+      Colour::Red => "red",
+      Colour::Orange => "orange",
+      Colour::Yellow => "yellow",
+      Colour::Green => "green",
+      Colour::Blue => "blue",
+      Colour::Purple => "purple",
+      Colour::Black => "black",
+      Colour::White => "white",
+    }
+  }
 }
 
 // Represents a end coordinate of a line

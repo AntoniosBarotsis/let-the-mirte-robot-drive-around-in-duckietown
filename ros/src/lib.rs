@@ -4,6 +4,7 @@ use std::{
 };
 
 pub mod drive;
+pub mod param;
 pub mod publishers;
 pub mod ros_error;
 
