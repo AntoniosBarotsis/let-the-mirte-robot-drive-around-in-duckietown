@@ -44,12 +44,12 @@ impl RosBgPublisher {
 
       // Init publishers
       let line_segment_publisher =
-        rosrust::publish::<LineSegmentList>(LINE_SEGMENTS_TOPIC_NAME, 10)
+        rosrust::publish::<LineSegmentList>(LINE_SEGMENTS_TOPIC_NAME, 1)
           .expect("Create LINE_SEGMENT_PUBLISHER");
       let lane_publisher =
-        rosrust::publish::<Lane>(LANE_TOPIC_NAME, 10).expect("Create LANE_PUBLISHER");
+        rosrust::publish::<Lane>(LANE_TOPIC_NAME, 1).expect("Create LANE_PUBLISHER");
       let stop_line_publisher =
-        rosrust::publish::<Line>(STOP_LINE_TOPIC_NAME, 10).expect("Create STOP_LINE_PUBLISHER");
+        rosrust::publish::<Line>(STOP_LINE_TOPIC_NAME, 1).expect("Create STOP_LINE_PUBLISHER");
 
       // Use 2 threads in the thread pool since *in theory* we shouldn't need more for the 2
       // topics we have now.
