@@ -4,6 +4,8 @@ import numpy as np
 import transformations as tf
 from PIL import Image
 
+import rospy
+from sensor_msgs.msg import Image
 
 class Renderer:
     __camera_node = None
@@ -91,3 +93,25 @@ class Renderer:
         color, depth = r.render(self.__scene)
         bytea = color.flatten()
         return Image.frombuffer('RGB', (640, 480), bytea, 'raw', 'RGB', 0, 1)
+
+
+class ImagePublisher:
+    publisher = rospy.Publisher('/webcam/image_raw', Image, queue_size=10)
+    renderer = None
+
+    def __init__(self, renderer=Renderer()):
+        rospy.init_node("mocked_camera")
+        self.renderer = renderer
+
+    def publish(self, image=None):
+        if image is None:
+            image = self.renderer.render()
+        msg = Image()
+        msg.header.stamp = rospy.Time.now()
+        msg.height = image.height
+        msg.width = image.width
+        msg.encoding = "rgb8"
+        msg.is_bigendian = False
+        msg.step = 3 * image.width
+        msg.data = np.array(image).tobytes()
+        self.publisher.publish(msg)
