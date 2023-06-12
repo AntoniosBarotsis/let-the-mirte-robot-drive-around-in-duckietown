@@ -14,7 +14,8 @@ fn criterion_benchmark(c: &mut Criterion) {
       b.iter(|| {
         for img in input.clone() {
           let colours = vec![Colour::Yellow, Colour::White];
-          let _lines = detect_line_type(&img, &HashMap::new(), colours).expect("Line detection does not crash.");
+          let _lines = detect_line_type(&img, &HashMap::new(), colours)
+            .expect("Line detection does not crash.");
         }
       });
     });
@@ -22,8 +23,8 @@ fn criterion_benchmark(c: &mut Criterion) {
     let _res = c.bench_function("detect lines (single)", |b| {
       b.iter(|| {
         let colours = vec![Colour::Yellow, Colour::White];
-        let _lines =
-          detect_line_type(&img.clone(), &HashMap::new(), colours).expect("Line detection does not crash.");
+        let _lines = detect_line_type(&img.clone(), &HashMap::new(), colours)
+          .expect("Line detection does not crash.");
       });
     });
   }

@@ -1,6 +1,6 @@
+use crate::init;
 use cv::line::{Colour, Threshold};
 use std::collections::HashMap;
-use crate::init;
 
 /// Gets the threshold per colour from private parameters like `/thresholds/white` or
 /// `/thresholds/yellow`. If it can't find the parameter, it uses the default threshold for that
