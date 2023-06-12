@@ -1,6 +1,7 @@
 use criterion::{criterion_group, Criterion};
 use cv::{detect_lines::detect_line_type, line::Colour};
 use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE};
+use std::collections::HashMap;
 
 fn criterion_benchmark(c: &mut Criterion) {
   #[allow(clippy::expect_used)]
@@ -13,7 +14,7 @@ fn criterion_benchmark(c: &mut Criterion) {
       b.iter(|| {
         for img in input.clone() {
           let colours = vec![Colour::Yellow, Colour::White];
-          let _lines = detect_line_type(&img, colours).expect("Line detection does not crash.");
+          let _lines = detect_line_type(&img, &HashMap::new(), colours).expect("Line detection does not crash.");
         }
       });
     });
@@ -22,7 +23,7 @@ fn criterion_benchmark(c: &mut Criterion) {
       b.iter(|| {
         let colours = vec![Colour::Yellow, Colour::White];
         let _lines =
-          detect_line_type(&img.clone(), colours).expect("Line detection does not crash.");
+          detect_line_type(&img.clone(), &HashMap::new(), colours).expect("Line detection does not crash.");
       });
     });
   }
