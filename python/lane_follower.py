@@ -1,13 +1,9 @@
 import math
 import threading
-import os
 
 import rospy
 from mirte_msgs.msg import Lane as LaneROS
 from mirte_msgs.srv import SetMotorSpeed
-
-clear = lambda: os.system('clear')
-
 
 
 class Line:
@@ -91,27 +87,20 @@ class Follower:
 
     def __follower(self):
         while not rospy.is_shutdown():
-            print(self.current_lane)
             if self.following and self.current_lane is not None:
-                clear()
                 SPEED = 65
                 TURN_SPEED = 10
                 TURN_SPEED_CORR = 5
 
                 angle = self.current_lane.centre_line.angle
-                print(angle)
                 speed_left = SPEED
                 speed_right = SPEED
                 if angle > 10:
-                    print("Turning right")
                     speed_left += TURN_SPEED
                     speed_right -= (TURN_SPEED + TURN_SPEED_CORR)
                 elif angle < -10:
-                    print("Turning left")
                     speed_left -= (TURN_SPEED + TURN_SPEED_CORR)
                     speed_right += TURN_SPEED
-                else:
-                    print("Going straight")
                 self.__set_motor_speed('left', int(speed_left * 0.985))
                 self.__set_motor_speed('right', speed_right)
             else:
