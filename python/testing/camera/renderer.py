@@ -89,9 +89,5 @@ class Renderer:
         # Render scene
         r = pyrender.OffscreenRenderer(640, 480)
         color, depth = r.render(self.__scene)
-        return color.flatten()
-
-
-renderer = Renderer()
-buffer = renderer.render()
-Image.frombuffer('RGB', (640, 480), buffer, 'raw', 'RGB', 0, 1).show()
+        bytea = color.flatten()
+        return Image.frombuffer('RGB', (640, 480), bytea, 'raw', 'RGB', 0, 1)
