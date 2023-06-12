@@ -101,7 +101,7 @@ class Follower:
                 elif angle < -10:
                     speed_left -= (TURN_SPEED + TURN_SPEED_CORR)
                     speed_right += TURN_SPEED
-                self.__set_motor_speed('left', int(speed_left * 0.985))
+                self.__set_motor_speed('left', speed_left)
                 self.__set_motor_speed('right', speed_right)
             else:
                 self.__set_motor_speed('left', 0)
@@ -116,6 +116,7 @@ def calculate_radians(x, y):
 # Converts an angle in radians to degrees, where 0 degrees is straight up, and positive angles are clockwise
 def convert_angle_to_degrees(angle):
     return math.degrees(angle) + 90
+
 
 # Calculates the intercept of a line given by two points with the line y=1 (the bottom of the image)
 def calculate_y1_intercept(x1, y1, x2, y2):
