@@ -1,4 +1,5 @@
 use cv::image::read_image;
+use std::collections::HashMap;
 use std::env;
 
 #[allow(clippy::expect_used)]
@@ -11,6 +12,6 @@ fn main() {
   let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
   loop {
-    mirte_rs::process_mat(img.clone());
+    mirte_rs::process_mat(img.clone(), &HashMap::new());
   }
 }

@@ -7,6 +7,7 @@ use opencv::{
   prelude::{Mat, MatTraitConst, MatTraitConstManual},
   ximgproc::{create_fast_line_detector, FastLineDetector},
 };
+use std::collections::HashMap;
 
 #[cfg(debug_assertions)]
 use crate::image::convert_to_rgb;
@@ -15,7 +16,7 @@ use crate::{
   cv_error::CvError,
   image::{crop_image, enhance_contrast},
   image_part::ImagePart,
-  line::{get_colour, Colour, LineSegment, Point},
+  line::{Colour, LineSegment, Point, Threshold},
 };
 
 /// Finds lines in the image with a specific colour using the `fast_line_detector` from `openCV`
@@ -76,10 +77,16 @@ pub fn get_lines(
 /// Given a image and a vector of colours this method will detect lines in the image for all given colours.
 ///
 /// * `img` - The image in which the lines need to be detected
-/// * `colours` - A vector of all the colours if which you want to detect the lines
+/// * `thresholds` - A hashmap which maps a `Colour` to a `Threshold`, which determines when a colour
+/// is detected.
+/// * `colours` - A vector of all the colours of which you want to detect the lines
 ///
 /// Returns a result with a vector of all the lines found in the image
-pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegment>, CvError> {
+pub fn detect_line_type<S: std::hash::BuildHasher>(
+  img: &Mat,
+  thresholds: &HashMap<Colour, Threshold, S>,
+  colours: Vec<Colour>,
+) -> Result<Vec<LineSegment>, CvError> {
   let mut copy_img = Mat::copy(img)?;
 
   let cropped_img = crop_image(&mut copy_img, ImagePart::Bottom)?;
@@ -104,19 +111,22 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegme
 
   let mut lines: Vec<LineSegment> = Vec::new();
 
-  for colour_enum in colours {
-    let colour: &[[u8; 3]; 2] = get_colour(colour_enum);
+  for colour in colours {
+    let threshold: Threshold = thresholds
+      .get(&colour)
+      .copied()
+      .unwrap_or_else(|| Threshold::by_colour(colour));
 
     // Extract the colours
-    let colour_low = Mat::from_slice::<u8>(&colour[0])?;
-    let colour_high = Mat::from_slice::<u8>(&colour[1])?;
+    let colour_low = Mat::from_slice::<u8>(&threshold.lower)?;
+    let colour_high = Mat::from_slice::<u8>(&threshold.upper)?;
 
     let mut colour_img = Mat::default();
     in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img)?;
 
     #[cfg(debug_assertions)]
     {
-      match colour_enum {
+      match colour {
         Colour::Yellow => {
           opencv::highgui::imshow("yellow", &colour_img)?;
         }
@@ -127,7 +137,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegme
       };
     }
 
-    if colour_enum == Colour::Yellow {
+    if colour == Colour::Yellow {
       let mut dilated_img = Mat::default();
       let magic = morphology_default_border_value()?;
       let element = get_structuring_element(
@@ -159,7 +169,7 @@ pub fn detect_line_type(img: &Mat, colours: Vec<Colour>) -> Result<Vec<LineSegme
     // the maximum value of an f32.
     // This takes about 1/6 of the time for 2 colours
     #[allow(clippy::cast_precision_loss)]
-    let mut new_lines = get_lines(&colour_img, colour_enum, img.size()?, top_img_height as f32)?;
+    let mut new_lines = get_lines(&colour_img, colour, img.size()?, top_img_height as f32)?;
 
     lines.append(&mut new_lines);
   }

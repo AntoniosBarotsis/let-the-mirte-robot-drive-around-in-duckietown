@@ -7,12 +7,16 @@ use cv::{
   detect_lines::detect_line_type,
   draw_lines::draw_lines,
   image::downscale,
-  line::Colour::{Blue, Green, Red},
+  line::{
+    Colour::{self, Blue, Green, Red},
+    Threshold,
+  },
   Mat,
 };
 use detect_lane::detect_lane;
 use mirte_error::MirteError;
 use ros::{process_ros_image_one, publishers::RosBgPublisher, CvImage};
+use std::collections::HashMap;
 
 #[allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
 pub fn get_image() -> Result<Mat, MirteError> {
@@ -27,7 +31,10 @@ pub fn get_image() -> Result<Mat, MirteError> {
   Ok(mat.clone())
 }
 
-pub fn process_mat(mat: Mat) {
+pub fn process_mat<S: std::hash::BuildHasher>(
+  mat: Mat,
+  thresholds: &HashMap<Colour, Threshold, S>,
+) {
   let time_total = Instant::now();
   let time_1 = Instant::now();
 
@@ -38,7 +45,7 @@ pub fn process_mat(mat: Mat) {
 
   let time_2 = Instant::now();
 
-  if let Ok(lines) = detect_line_type(&resized, colours) {
+  if let Ok(lines) = detect_line_type(&resized, thresholds, colours) {
     let publisher = RosBgPublisher::get_or_create();
     publisher.publish_line_segment(lines.clone());
 
