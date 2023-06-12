@@ -51,20 +51,29 @@ class Follower:
     following: bool = False
     __motors = {}
     __motor_services = {}
+    __set_speed_func = None
 
-    def __init__(self):
-        print()
-        # Copied from robot.py
-        if rospy.has_param("/mirte/motor"):
-            self.__motors = rospy.get_param("/mirte/motor")
-            for motor in self.__motors:
-                self.__motor_services[motor] = rospy.ServiceProxy('/mirte/set_' + self.__motors[motor]["name"] + '_speed',
-                                                                  SetMotorSpeed, persistent=True)
+    def __init__(self, set_motor_speed_func=None):
+        if set_motor_speed_func is None:
+            self.__default_init()
+        else:
+            self.__set_motor_speed = set_motor_speed_func
+
         threading.Thread(target=self.__follower).start()  # Run the follower in a separate thread
         rospy.init_node("lane_follower", anonymous=True)
         rospy.Subscriber("lanes", LaneROS, self.ros_callback)
 
-    def __set_motor_speed(self, motor, value):
+    def __default_init(self):
+        # Copied from robot.py
+        if rospy.has_param("/mirte/motor"):
+            self.__motors = rospy.get_param("/mirte/motor")
+            for motor in self.__motors:
+                self.__motor_services[motor] = rospy.ServiceProxy(
+                    '/mirte/set_' + self.__motors[motor]["name"] + '_speed',
+                    SetMotorSpeed, persistent=True)
+        self.__set_motor_speed = self.__default_set_motor_speed
+
+    def __default_set_motor_speed(self, motor, value):
         motor = self.__motor_services[motor](value)
         return motor.status
 
@@ -82,6 +91,7 @@ class Follower:
 
     def __follower(self):
         while not rospy.is_shutdown():
+            print(self.current_lane)
             if self.following and self.current_lane is not None:
                 clear()
                 SPEED = 65

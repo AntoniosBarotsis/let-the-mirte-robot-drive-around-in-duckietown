@@ -2,7 +2,7 @@ import pyrender.material
 import trimesh.visual
 import numpy as np
 import transformations as tf
-from PIL import Image
+from PIL import Image as PILImage
 
 import rospy
 from sensor_msgs.msg import Image
@@ -37,9 +37,9 @@ class Renderer:
 
         # Load meshes
         if scenario == 'duckievoort':
-            mesh_black_raw = trimesh.load('../towns/duckievoort/black.obj')
-            mesh_white_raw = trimesh.load('../towns/duckievoort/white.obj')
-            mesh_yellow_raw = trimesh.load('../towns/duckievoort/yellow.obj')
+            mesh_black_raw = trimesh.load('./testing/towns/duckievoort/black.obj')
+            mesh_white_raw = trimesh.load('./testing/towns/duckievoort/white.obj')
+            mesh_yellow_raw = trimesh.load('./testing/towns/duckievoort/yellow.obj')
             self.position(20.5, 0.4, -35)
             self.rotate(-18, 'y')
         else:
@@ -92,7 +92,7 @@ class Renderer:
         r = pyrender.OffscreenRenderer(640, 480)
         color, depth = r.render(self.__scene)
         bytea = color.flatten()
-        return Image.frombuffer('RGB', (640, 480), bytea, 'raw', 'RGB', 0, 1)
+        return PILImage.frombuffer('RGB', (640, 480), bytea, 'raw', 'RGB', 0, 1)
 
 
 class ImagePublisher:
@@ -100,7 +100,6 @@ class ImagePublisher:
     renderer = None
 
     def __init__(self, renderer=Renderer()):
-        rospy.init_node("mocked_camera")
         self.renderer = renderer
 
     def publish(self, image=None):
