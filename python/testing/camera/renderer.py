@@ -155,7 +155,11 @@ class ImagePublisher:
         kinematics_vl = float(left)
         kinematics_vr = float(right)
         if kinematics_vl == kinematics_vr:
-            kinematics_r = 1  # Should be infinity, but this works
+            if kinematics_vl > 0:
+                self.renderer.translate(0, 0, -dt)  # Move dt forward if both motors are going at the same speed
+            else:
+                self.renderer.translate(0, 0, dt)  # Move dt backwards if both motors are going at the same speed
+            return
         else:
             kinematics_r = (kinematics_l/2)*((kinematics_vl+kinematics_vr)/(kinematics_vr-kinematics_vl))
         kinematics_omega = (kinematics_vr-kinematics_vl)/kinematics_l
