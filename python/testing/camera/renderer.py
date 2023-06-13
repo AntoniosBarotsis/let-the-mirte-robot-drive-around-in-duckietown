@@ -125,6 +125,10 @@ class ImagePublisher:
 
     def __init__(self, renderer=Renderer()):
         self.renderer = renderer
+        try:
+            rospy.init_node("mock_camera")
+        except rospy.exceptions.ROSException as e:
+            pass
 
     def publish(self, image=None):
         if image is None:
@@ -140,8 +144,8 @@ class ImagePublisher:
         self.publisher.publish(msg)
 
     def step(self, left, right, dt):
-        scalar_pos = 10
-        scalar_angle = 0.1
+        scalar_pos = 5  # Higher = smaller change in position
+        scalar_angle = 0.5  # Higher = smaller change in angle
 
         swapped = False
         if right < left:
@@ -197,8 +201,5 @@ class ImagePublisher:
         self.renderer.translate(x_diff, 0, -y_diff)
         self.renderer.rotate(theta_diff, 'y')
 
-        print("forward: ", y_diff, "right:", x_diff)
-        print("turn: ", theta_diff)
-
-    def show_image(self):
-        self.renderer.render().show()
+    def get_image(self):
+        self.renderer.render()

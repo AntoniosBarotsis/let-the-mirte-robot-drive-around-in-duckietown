@@ -56,7 +56,10 @@ class Follower:
             self.__set_motor_speed = set_motor_speed_func
 
         threading.Thread(target=self.__follower).start()  # Run the follower in a separate thread
-        rospy.init_node("lane_follower", anonymous=True)
+        try:
+            rospy.init_node("lane_follower", anonymous=True)
+        except rospy.exceptions.ROSException as e:
+            pass
         rospy.Subscriber("lanes", LaneROS, self.ros_callback)
 
     def __default_init(self):
