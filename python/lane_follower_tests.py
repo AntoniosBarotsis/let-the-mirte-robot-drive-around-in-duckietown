@@ -1,4 +1,5 @@
 import math
+import time
 import unittest
 import lane_follower
 
@@ -60,14 +61,16 @@ class TestLaneFollower(unittest.TestCase):
     def test_mock_setup(self):
         publisher = ImagePublisher()
         while True:
-            publisher.step(20, 100, 0.1)
+            publisher.step(100, 100, 0.01)
             publisher.show_image()
-            input("Press enter to continue")
-
+            time.sleep(1)
 
 def set_speed_mock(motor, value):
     print("Setting speed of motor {} to {}".format(motor, value))
 
 
 if __name__ == '__main__':
-    unittest.main()
+    #unittest.main()
+    t = TestLaneFollower()
+    t.test_mock_setup()
+

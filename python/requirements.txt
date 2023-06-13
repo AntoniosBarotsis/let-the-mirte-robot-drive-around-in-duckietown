@@ -3,3 +3,4 @@ pyyaml
 rospkg
 pyrender
 transformations
+quaternionic

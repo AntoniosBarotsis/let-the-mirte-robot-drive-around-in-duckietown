@@ -1,6 +1,7 @@
 import math
 
 import pyrender.material
+import quaternionic
 import trimesh.visual
 import numpy as np
 import transformations as tf
@@ -77,6 +78,7 @@ class Renderer:
         self.__camera_pose = np.matmul(self.__camera_pose, translation_matrix)
 
     # Rotates the camera, in place, by the given amount (in degrees) around the given axis
+    # Positive is rotating anticlockwise
     def rotate(self, angle, axis):
         if axis == 'x':
             vec = [1, 0, 0]
@@ -138,25 +140,61 @@ class ImagePublisher:
         self.publisher.publish(msg)
 
     def step(self, left, right, dt):
+        scalar_pos = 10
+        scalar_angle = 0.1
+
+        swapped = False
+        if right < left:
+            temp = left
+            left = right
+            right = temp
+            swapped = True
+
         # https://www.cs.columbia.edu/~allen/F19/NOTES/icckinematics.pdf
-        kinematics_l = 0.85
+        kinematics_l = 1
         kinematics_vl = float(left)
         kinematics_vr = float(right)
         if kinematics_vl == kinematics_vr:
-            kinematics_r = 0  # Should be infinity, but 0 has the same effect
+            kinematics_r = 1  # Should be infinity, but this works
         else:
-            kinematics_r = (kinematics_l/2)*(kinematics_vl+kinematics_vr)/(kinematics_vr-kinematics_vl)
+            kinematics_r = (kinematics_l/2)*((kinematics_vl+kinematics_vr)/(kinematics_vr-kinematics_vl))
         kinematics_omega = (kinematics_vr-kinematics_vl)/kinematics_l
 
         # r = signed distance from the midpoint of the wheels (== camera position) to the point of rotation
-        # omega = angle of rotation
+        # omega = Rate of rotation
 
-        forward_movement = kinematics_r - math.cos(kinematics_omega*dt)*kinematics_r
-        sideways_movement = math.sin(kinematics_omega*dt)*kinematics_r
-        rotation = kinematics_omega*dt
+        [rot_x, rot_y, rot_z, rot_w] = self.renderer.get_rotation()
+        [_, euler_y, _] = quaternionic.array([rot_w, rot_x, rot_y, rot_z]).to_euler_angles
+        kinematics_theta = np.degrees(euler_y)
 
-        self.renderer.translate(-sideways_movement, 0, -forward_movement)
-        self.renderer.rotate(rotation, 'y')
+        [x, _, z] = self.renderer.get_translation()
+        kinematics_curr_x = x  # positive x is to the right
+        kinematics_curr_y = -z  # negative z is forwards
+        kinematics_icc_x = kinematics_curr_x - kinematics_r * math.sin(kinematics_theta)
+        kinematics_icc_y = kinematics_curr_y + kinematics_r * math.cos(kinematics_theta)
+
+        mat1 = np.array([
+            [math.cos(kinematics_omega * dt), -math.sin(kinematics_omega * dt), 0],
+            [math.sin(kinematics_omega * dt), math.cos(kinematics_omega * dt), 0],
+            [0, 0, 1]
+        ])
+        vec1 = np.array([kinematics_curr_x - kinematics_icc_x, kinematics_curr_y - kinematics_icc_y, kinematics_theta])
+        vec2 = np.array([kinematics_icc_x, kinematics_icc_y, kinematics_omega * dt])
+
+        [x_prime, y_prime, theta_prime] = np.add(mat1.dot(vec1), vec2)
+        x_diff = (x_prime - kinematics_curr_x) / scalar_pos
+        y_diff = (y_prime - kinematics_curr_y) / scalar_pos
+        theta_diff = (theta_prime - kinematics_theta) / scalar_angle
+
+        if swapped:
+            theta_diff = -theta_diff
+            x_diff = -x_diff
+
+        self.renderer.translate(x_diff, 0, -y_diff)
+        self.renderer.rotate(theta_diff, 'y')
+
+        print("forward: ", y_diff, "right:", x_diff)
+        print("turn: ", theta_diff)
 
     def show_image(self):
         self.renderer.render().show()
