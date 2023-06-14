@@ -58,10 +58,11 @@ class TestLaneFollower(unittest.TestCase):
         res = lane_follower.calculate_y1_intercept(2, 9, -2, 2)
         self.assertAlmostEqual(res, -2.571, places=3)
 
-        speed_l = 0
-        speed_r = 0
     def test_mock_setup(self):
         publisher = ImagePublisher()
+        self.speed_l = 0
+        self.speed_r = 0
+
         def speed_mock(motor, value):
             if motor == 'left':
                 self.speed_l = value
@@ -72,7 +73,7 @@ class TestLaneFollower(unittest.TestCase):
         while True:
             publisher.step(self.speed_l, self.speed_r, 0.01)
             publisher.publish()
-            print("is: ", self.speed_l, self.speed_r)
+            time.sleep(0.25)
 
 
 if __name__ == '__main__':

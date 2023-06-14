@@ -144,9 +144,7 @@ class ImagePublisher:
         self.publisher.publish(msg)
 
     def step(self, left, right, dt):
-        scalar_pos = 5  # Higher = smaller change in position
-        scalar_angle = 0.5  # Higher = smaller change in angle
-
+        print("left: ", left, " right: ", right)
         swapped = False
         if right < left:
             temp = left
@@ -159,10 +157,11 @@ class ImagePublisher:
         kinematics_vl = float(left)
         kinematics_vr = float(right)
         if kinematics_vl == kinematics_vr:
+            print("forward: ", dt * kinematics_vl)
             if kinematics_vl > 0:
-                self.renderer.translate(0, 0, -dt)  # Move dt forward if both motors are going at the same speed
+                self.renderer.translate(0, 0, -dt * kinematics_vl / 7.5)  # Move forward if both motors are going at the same speed
             else:
-                self.renderer.translate(0, 0, dt)  # Move dt backwards if both motors are going at the same speed
+                self.renderer.translate(0, 0, dt * kinematics_vl / 7.5)  # Move dt backwards if both motors are going at the same speed
             return
         else:
             kinematics_r = (kinematics_l/2)*((kinematics_vl+kinematics_vr)/(kinematics_vr-kinematics_vl))
@@ -190,9 +189,9 @@ class ImagePublisher:
         vec2 = np.array([kinematics_icc_x, kinematics_icc_y, kinematics_omega * dt])
 
         [x_prime, y_prime, theta_prime] = np.add(mat1.dot(vec1), vec2)
-        x_diff = (x_prime - kinematics_curr_x) / scalar_pos
-        y_diff = (y_prime - kinematics_curr_y) / scalar_pos
-        theta_diff = (theta_prime - kinematics_theta) / scalar_angle
+        x_diff = (x_prime - kinematics_curr_x) / 7.5
+        y_diff = (y_prime - kinematics_curr_y) / 7.5
+        theta_diff = (theta_prime - kinematics_theta) * 2
 
         if swapped:
             theta_diff = -theta_diff
@@ -200,6 +199,8 @@ class ImagePublisher:
 
         self.renderer.translate(x_diff, 0, -y_diff)
         self.renderer.rotate(theta_diff, 'y')
+
+        print("forward: ", y_diff, "sideways: ", x_diff, "angle: ", theta_diff)
 
     def get_image(self):
         self.renderer.render()

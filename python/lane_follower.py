@@ -109,6 +109,7 @@ class Follower:
             else:
                 self.__set_motor_speed('left', 0)
                 self.__set_motor_speed('right', 0)
+            rospy.sleep(0.01)  # Prevent overloading ROS with messages
 
 
 # Calculates an angle from a vector [x, y]
