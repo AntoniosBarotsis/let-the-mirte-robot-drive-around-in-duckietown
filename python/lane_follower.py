@@ -1,13 +1,9 @@
 import math
 import threading
-import os
 
 import rospy
 from mirte_msgs.msg import Lane as LaneROS
 from mirte_msgs.srv import SetMotorSpeed
-
-clear = lambda: os.system('clear')
-
 
 
 class Line:
@@ -51,20 +47,32 @@ class Follower:
     following: bool = False
     __motors = {}
     __motor_services = {}
+    __set_speed_func = None
 
-    def __init__(self):
-        print()
+    def __init__(self, set_motor_speed_func=None):
+        if set_motor_speed_func is None:
+            self.__default_init()
+        else:
+            self.__set_motor_speed = set_motor_speed_func
+
+        threading.Thread(target=self.__follower).start()  # Run the follower in a separate thread
+        try:
+            rospy.init_node("lane_follower", anonymous=True)
+        except rospy.exceptions.ROSException as e:
+            pass
+        rospy.Subscriber("lanes", LaneROS, self.ros_callback)
+
+    def __default_init(self):
         # Copied from robot.py
         if rospy.has_param("/mirte/motor"):
             self.__motors = rospy.get_param("/mirte/motor")
             for motor in self.__motors:
-                self.__motor_services[motor] = rospy.ServiceProxy('/mirte/set_' + self.__motors[motor]["name"] + '_speed',
-                                                                  SetMotorSpeed, persistent=True)
-        threading.Thread(target=self.__follower).start()  # Run the follower in a separate thread
-        rospy.init_node("lane_follower", anonymous=True)
-        rospy.Subscriber("lanes", LaneROS, self.ros_callback)
+                self.__motor_services[motor] = rospy.ServiceProxy(
+                    '/mirte/set_' + self.__motors[motor]["name"] + '_speed',
+                    SetMotorSpeed, persistent=True)
+        self.__set_motor_speed = self.__default_set_motor_speed
 
-    def __set_motor_speed(self, motor, value):
+    def __default_set_motor_speed(self, motor, value):
         motor = self.__motor_services[motor](value)
         return motor.status
 
@@ -83,30 +91,25 @@ class Follower:
     def __follower(self):
         while not rospy.is_shutdown():
             if self.following and self.current_lane is not None:
-                clear()
                 SPEED = 65
                 TURN_SPEED = 10
                 TURN_SPEED_CORR = 5
 
                 angle = self.current_lane.centre_line.angle
-                print(angle)
                 speed_left = SPEED
                 speed_right = SPEED
                 if angle > 10:
-                    print("Turning right")
                     speed_left += TURN_SPEED
                     speed_right -= (TURN_SPEED + TURN_SPEED_CORR)
                 elif angle < -10:
-                    print("Turning left")
                     speed_left -= (TURN_SPEED + TURN_SPEED_CORR)
                     speed_right += TURN_SPEED
-                else:
-                    print("Going straight")
-                self.__set_motor_speed('left', int(speed_left * 0.985))
+                self.__set_motor_speed('left', speed_left)
                 self.__set_motor_speed('right', speed_right)
             else:
                 self.__set_motor_speed('left', 0)
                 self.__set_motor_speed('right', 0)
+            rospy.sleep(0.01)  # Prevent overloading ROS with messages
 
 
 # Calculates an angle from a vector [x, y]
@@ -117,6 +120,7 @@ def calculate_radians(x, y):
 # Converts an angle in radians to degrees, where 0 degrees is straight up, and positive angles are clockwise
 def convert_angle_to_degrees(angle):
     return math.degrees(angle) + 90
+
 
 # Calculates the intercept of a line given by two points with the line y=1 (the bottom of the image)
 def calculate_y1_intercept(x1, y1, x2, y2):

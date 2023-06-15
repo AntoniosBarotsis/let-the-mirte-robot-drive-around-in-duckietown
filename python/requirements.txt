@@ -1,3 +1,6 @@
 rospy
 pyyaml
 rospkg
+pyrender
+transformations
+quaternionic

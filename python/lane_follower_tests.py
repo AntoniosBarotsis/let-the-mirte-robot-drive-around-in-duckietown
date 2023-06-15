@@ -1,6 +1,11 @@
 import math
+import time
 import unittest
 import lane_follower
+
+from testing.camera.renderer import ImagePublisher
+
+
 class TestLaneFollower(unittest.TestCase):
     def test_radians_from_vector(self):
         # 1, 1 -> 45 degrees -> pi/4 radians
@@ -53,6 +58,26 @@ class TestLaneFollower(unittest.TestCase):
         res = lane_follower.calculate_y1_intercept(2, 9, -2, 2)
         self.assertAlmostEqual(res, -2.571, places=3)
 
+    def test_mock_setup(self):
+        publisher = ImagePublisher()
+        self.speed_l = 0
+        self.speed_r = 0
+
+        def speed_mock(motor, value):
+            if motor == 'left':
+                self.speed_l = value
+            else:
+                self.speed_r = value
+        follower = lane_follower.Follower(speed_mock)
+        follower.start_following()
+        while True:
+            publisher.step(self.speed_l, self.speed_r, 0.01)
+            publisher.publish()
+            time.sleep(0.25)
+
 
 if __name__ == '__main__':
-    unittest.main()
+    #unittest.main()
+    t = TestLaneFollower()
+    t.test_mock_setup()
+

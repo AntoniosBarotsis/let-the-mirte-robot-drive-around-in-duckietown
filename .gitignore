@@ -20,3 +20,5 @@ target/
 assets/output.jpg
 
 python/.venv
+
+*.pyc
