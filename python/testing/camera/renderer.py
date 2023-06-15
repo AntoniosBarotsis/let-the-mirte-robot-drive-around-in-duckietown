@@ -144,7 +144,6 @@ class ImagePublisher:
         self.publisher.publish(msg)
 
     def step(self, left, right, dt):
-        print("left: ", left, " right: ", right)
         swapped = False
         if right < left:
             temp = left
@@ -157,7 +156,6 @@ class ImagePublisher:
         kinematics_vl = float(left)
         kinematics_vr = float(right)
         if kinematics_vl == kinematics_vr:
-            print("forward: ", dt * kinematics_vl)
             if kinematics_vl > 0:
                 self.renderer.translate(0, 0, -dt * kinematics_vl / 6.5)  # Move forward if both motors are going at the same speed
             else:
@@ -199,8 +197,6 @@ class ImagePublisher:
 
         self.renderer.translate(x_diff, 0, -y_diff)
         self.renderer.rotate(theta_diff, 'y')
-
-        print("forward: ", y_diff, "sideways: ", x_diff, "angle: ", theta_diff)
 
     def get_image(self):
         self.renderer.render()
