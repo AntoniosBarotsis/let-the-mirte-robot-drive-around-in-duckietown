@@ -1,5 +1,6 @@
 use cv::{
   detect_lines::detect_line_type,
+  image::{downscale, downscale_enhance_hsv},
   line::Colour::{Black, Green, Orange, Red, White, Yellow},
 };
 use cv::{draw_lines::draw_lines, image::read_image};
@@ -14,14 +15,20 @@ fn main() {
     println!("\nError: no input path given!\nExample usage: cargo r -r --example draw_lane ./assets/input_1.jpg\n");
     std::process::exit(1);
   });
-  let mut img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
+  let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
-  let lines = detect_line_type(&img, &HashMap::new(), vec![Yellow, White, Red])
+  let usable_img = downscale_enhance_hsv(&img)
+    .unwrap_or_else(|_| panic!("Unable to downscale, enhance or convert to hsv"));
+
+  let lines = detect_line_type(&usable_img, &HashMap::new(), vec![Yellow, White, Red])
     .expect("Unable to detect line with cv");
   let lane = detect_lane(&lines);
 
+  let resized =
+    downscale(&img).unwrap_or_else(|_| panic!("Unable to downscale image for draing lines"));
+
   draw_lines(
-    &mut img,
+    &resized,
     &[lines, lane.get_coloured_segments(Green, Orange, Black)].concat(),
   );
 }

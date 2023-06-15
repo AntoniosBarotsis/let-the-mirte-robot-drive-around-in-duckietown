@@ -13,12 +13,13 @@ use rosrust::Publisher;
 
 use crate::{init, RosError};
 
-use bridge::mirte_msgs::{Lane, Line, LineSegmentList};
+use bridge::mirte_msgs::{Lane, Line, LineSegmentList, ObstacleList};
 
 static THREAD_COUNT: AtomicU8 = AtomicU8::new(0);
 static INSTANCE: OnceCell<RosBgPublisher> = OnceCell::new();
 pub const LINE_SEGMENTS_TOPIC_NAME: &str = "line_segments";
 pub const LANE_TOPIC_NAME: &str = "lanes";
+pub const OBSTACLE_TOPIC_NAME: &str = "obstacles";
 pub const STOP_LINE_TOPIC_NAME: &str = "stop_line";
 
 /// Publishes ROS messages to topics using background threads.
@@ -32,6 +33,7 @@ pub struct RosBgPublisher {
   thread_pool: ThreadPool,
   line_segment_publisher: Publisher<LineSegmentList>,
   lane_publisher: Publisher<Lane>,
+  obstacle_publisher: Publisher<ObstacleList>,
   stop_line_publisher: Publisher<Line>,
 }
 
@@ -47,6 +49,8 @@ impl RosBgPublisher {
         .expect("Create LINE_SEGMENT_PUBLISHER");
       let lane_publisher =
         rosrust::publish::<Lane>(LANE_TOPIC_NAME, 1).expect("Create LANE_PUBLISHER");
+      let obstacle_publisher = rosrust::publish::<ObstacleList>(OBSTACLE_TOPIC_NAME, 1)
+        .expect("Create OBSTACLE_PUBLISHER");
       let stop_line_publisher =
         rosrust::publish::<Line>(STOP_LINE_TOPIC_NAME, 1).expect("Create STOP_LINE_PUBLISHER");
 
@@ -61,6 +65,7 @@ impl RosBgPublisher {
         thread_pool,
         line_segment_publisher,
         lane_publisher,
+        obstacle_publisher,
         stop_line_publisher,
       }
     })
@@ -80,6 +85,13 @@ impl RosBgPublisher {
     let publisher_clone = self.lane_publisher.clone();
 
     self.publish_work(LANE_TOPIC_NAME.to_string(), msg, publisher_clone);
+  }
+
+  /// Publishes an obstacle to the [`OBSTACLE_TOPIC_NAME`] ROS topic.
+  pub fn publish_obstacle(&self, msg: impl Into<ObstacleList> + Send + 'static) {
+    let publisher_clone = self.obstacle_publisher.clone();
+
+    self.publish_work(OBSTACLE_TOPIC_NAME.to_string(), msg, publisher_clone);
   }
 
   /// Publishes a lane to the [`LANE_TOPIC_NAME`] ROS topic.

@@ -15,7 +15,7 @@ fn main() {
     #[allow(clippy::redundant_clone)]
     let mat = mat.clone();
 
-    process_mat(mat, &thresholds);
+    process_mat(&mat, &thresholds);
   });
 
   if let Err(e) = res {

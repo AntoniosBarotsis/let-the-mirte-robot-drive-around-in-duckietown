@@ -1,4 +1,6 @@
-use mirte_msgs::{Colour, Lane, Line, LineSegment, LineSegmentList, Point, Vector};
+use mirte_msgs::{
+  Colour, Lane, Line, LineSegment, LineSegmentList, Object, Obstacle, ObstacleList, Point, Vector,
+};
 
 rosrust::rosmsg_include!(
   mirte_msgs / Point,
@@ -8,7 +10,45 @@ rosrust::rosmsg_include!(
   mirte_msgs / Lane,
   mirte_msgs / LineSegment,
   mirte_msgs / LineSegmentList,
+  mirte_msgs / Object,
+  mirte_msgs / Obstacle,
+  mirte_msgs / ObstacleList,
 );
+
+impl From<cv::object::Object> for Object {
+  fn from(value: cv::object::Object) -> Self {
+    match value {
+      cv::object::Object::Duck => Object {
+        type_: Object::DUCK,
+      },
+      cv::object::Object::Mirte => Object {
+        type_: Object::MIRTE,
+      },
+    }
+  }
+}
+
+impl From<cv::object::Obstacle> for Obstacle {
+  fn from(value: cv::object::Obstacle) -> Self {
+    let location = value.location.into();
+    let diameter = value.diameter;
+    let object = value.object.into();
+
+    Obstacle {
+      location,
+      diameter,
+      object,
+    }
+  }
+}
+
+impl From<Vec<cv::object::Obstacle>> for ObstacleList {
+  fn from(value: Vec<cv::object::Obstacle>) -> Self {
+    let obstacles = value.into_iter().map(Obstacle::from).collect::<Vec<_>>();
+
+    ObstacleList { obstacles }
+  }
+}
 
 impl From<cv::line::Point> for Point {
   fn from(value: cv::line::Point) -> Self {
