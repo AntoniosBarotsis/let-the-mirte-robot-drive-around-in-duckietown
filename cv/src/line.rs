@@ -47,7 +47,7 @@ impl Threshold {
         upper: [45, 255, 255],
       },
       Colour::Red => Self {
-        lower: [165, 125, 125],
+        lower: [165, 90, 60],
         upper: [10, 255, 255],
       },
       _ => panic!("No colour threshold defined for {colour:?}!"),
