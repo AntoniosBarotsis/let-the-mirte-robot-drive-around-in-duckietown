@@ -9,12 +9,7 @@ use cv::{
 };
 use detection::{detect_lane, detect_stop_line};
 use mirte_error::MirteError;
-use ros::{
-  mirte_msgs::Colour,
-  process_ros_image_one,
-  publishers::RosBgPublisher,
-  CvImage,
-};
+use ros::{mirte_msgs::Colour, process_ros_image_one, publishers::RosBgPublisher, CvImage};
 use std::collections::HashMap;
 
 #[cfg(debug_assertions)]
@@ -22,7 +17,6 @@ use cv::{draw_lines::draw_lines, image::downscale};
 
 #[cfg(debug_assertions)]
 use ros::mirte_msgs::LineSegment;
-
 
 #[allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
 pub fn get_image() -> Result<Mat, MirteError> {
