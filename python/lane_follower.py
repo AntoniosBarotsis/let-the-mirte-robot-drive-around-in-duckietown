@@ -4,6 +4,7 @@ import threading
 import rospy
 from mirte_msgs.msg import Lane as LaneROS
 from mirte_msgs.srv import SetMotorSpeed
+from simple_pid import PID
 
 
 class Line:
@@ -48,6 +49,7 @@ class Follower:
     __motors = {}
     __motor_services = {}
     __set_speed_func = None
+    __pid = PID(0.5, 0.1, 0.05, setpoint=0)
 
     def __init__(self, set_motor_speed_func=None):
         if set_motor_speed_func is None:
@@ -91,21 +93,47 @@ class Follower:
     def __follower(self):
         while not rospy.is_shutdown():
             if self.following and self.current_lane is not None:
-                SPEED = 65
-                TURN_SPEED = 10
-                TURN_SPEED_CORR = 5
+                # Convert position and angle to a single value
+                process_value = self.current_lane.centre_line.angle
+                bias = self.current_lane.centre_line.start
+                if bias < 0:
+                    bias = bias - 1  # bias is a percentage, convert from -0.xx to -1.xx
+                else:
+                    bias = bias + 1  # bias is a percentage, convert from 0.xx to 1.xx
+                negative = False
+                if process_value < 0:
+                    negative = True
+                    process_value = -process_value
+                process_value *= bias
+                if negative:
+                    process_value = -process_value
 
-                angle = self.current_lane.centre_line.angle
-                speed_left = SPEED
-                speed_right = SPEED
-                if angle > 10:
-                    speed_left += TURN_SPEED
-                    speed_right -= (TURN_SPEED + TURN_SPEED_CORR)
-                elif angle < -10:
-                    speed_left -= (TURN_SPEED + TURN_SPEED_CORR)
-                    speed_right += TURN_SPEED
-                self.__set_motor_speed('left', speed_left)
-                self.__set_motor_speed('right', speed_right)
+                # Calculate the correction
+                output = self.__pid(process_value)
+                print(output)
+
+                # 30 is good enough as a maximum PID output
+                output = output / 30
+
+                # clip to [-1, 1] to prevent out-of-range errors
+                if output > 1:
+                    output = 1
+                elif output < -1:
+                    output = -1
+
+                # Set the motor speeds
+                # -1 -> left motor full speed, right motor stopped
+                #  0 -> both motors full speed
+                #  1 -> left motor stopped, right motor full speed
+                # left motor sigmoid function:
+                # 100/(1+e^(-5-12x))
+                # right motor sigmoid function:
+                # 100-(100/(1+e^(5-12x)))
+                left_speed = 100/(1+math.exp(-5-12*output))
+                right_speed = 100-(100/(1+math.exp(5-12*output)))
+                self.__set_motor_speed('left', left_speed)
+                self.__set_motor_speed('right', right_speed)
+
             else:
                 self.__set_motor_speed('left', 0)
                 self.__set_motor_speed('right', 0)
