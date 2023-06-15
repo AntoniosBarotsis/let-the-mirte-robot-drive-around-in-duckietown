@@ -1,15 +1,15 @@
 use opencv::{
   core::{in_range, KeyPoint, Scalar, Size, Vector},
   features2d::{draw_keypoints, SimpleBlobDetector, SimpleBlobDetector_Params},
-  //highgui::{imshow, wait_key},
+  highgui::{imshow, wait_key},
   prelude::{Feature2DTrait, KeyPointTraitConst, Mat, MatTraitConstManual},
 };
 
 use crate::{cv_error::CvError, line::Point};
 
 // H: 0-179, S: 0-255, V: 0-255         lower bound     upper bound
-pub static HSV_DUCK: &[[u8; 3]; 2] = &[[0, 90, 180], [45, 255, 255]]; //original lower was 0, 100, 180
-pub static HSV_MIRTE: &[[u8; 3]; 2] = &[[70, 70, 70], [100, 255, 255]]; //original lower was 70, 80, 70
+pub static HSV_DUCK: &[[u8; 3]; 2] = &[[0, 100, 100], [45, 255, 255]]; //original lower was 0, 100, 180
+pub static HSV_MIRTE: &[[u8; 3]; 2] = &[[70, 100, 70], [100, 255, 255]]; //original lower was 70, 80, 70
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 /// All object types the Mirte bot needs to detect.
@@ -218,9 +218,9 @@ fn detect_obstacles_with_params(
       opencv::features2d::DrawMatchesFlags::DEFAULT,
     )?;
 
-    //imshow("blob", &output_img)?;
-    //#[allow(clippy::expect_used)]
-    //let _res = wait_key(0).expect("keep window open");
+    imshow("blob", &output_img)?;
+    #[allow(clippy::expect_used)]
+    let _res = wait_key(0).expect("keep window open");
   }
 
   let obstacles: Vec<Obstacle> = keypoints
