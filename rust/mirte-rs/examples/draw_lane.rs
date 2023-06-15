@@ -1,4 +1,7 @@
-use cv::detect_lines::detect_line_type;
+use cv::{
+  detect_lines::detect_line_type,
+  image::{downscale, downscale_enhance_hsv},
+};
 use cv::{draw_lines::draw_lines, image::read_image};
 use mirte_rs::detection::detect_lane;
 use ros::mirte_msgs::Colour;
@@ -14,8 +17,11 @@ fn main() {
   });
   let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
+  let usable_img = downscale_enhance_hsv(&img)
+    .unwrap_or_else(|_| panic!("Unable to downscale, enhance or convert to hsv"));
+
   let lines = detect_line_type(
-    &img,
+    &usable_img,
     &HashMap::new(),
     vec![
       Colour {
@@ -30,8 +36,11 @@ fn main() {
   .expect("Unable to detect line with cv");
   let lane = detect_lane(&lines);
 
+  let resized =
+    downscale(&img).unwrap_or_else(|_| panic!("Unable to downscale image for draing lines"));
+
   draw_lines(
-    &img,
+    &resized,
     &[
       lines,
       lane.get_coloured_segments(
