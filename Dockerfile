@@ -27,6 +27,9 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
+# Get Python
+RUN apt-get install python3.7 python3-pip -y
+
 # Source ROS setup
 RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 
