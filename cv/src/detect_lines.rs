@@ -117,12 +117,27 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
       .copied()
       .unwrap_or_else(|| Threshold::by_colour(colour));
 
-    // Extract the colours
-    let colour_low = Mat::from_slice::<u8>(&threshold.lower)?;
-    let colour_high = Mat::from_slice::<u8>(&threshold.upper)?;
-
     let mut colour_img = Mat::default();
-    in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img)?;
+    // Check if the hue wraps around the 0 degree border
+    if threshold.lower[0] > threshold.upper[0] {
+      let max_colour_lower = Mat::from_slice::<u8>(&threshold.lower)?;
+      let max_colour_upper = Mat::from_slice::<u8>(&[179, threshold.upper[1], threshold.upper[2]])?;
+      let min_colour_lower = Mat::from_slice::<u8>(&[0, threshold.lower[1], threshold.lower[2]])?;
+      let min_colour_upper = Mat::from_slice::<u8>(&threshold.upper)?;
+
+      let mut max_img = Mat::default();
+      let mut min_img = Mat::default();
+      in_range(&hsv_img, &max_colour_lower, &max_colour_upper, &mut max_img)?;
+      in_range(&hsv_img, &min_colour_lower, &min_colour_upper, &mut min_img)?;
+
+      opencv::core::bitwise_or(&max_img, &min_img, &mut colour_img, &Mat::default())?;
+    } else {
+      // Extract the colours
+      let colour_low = Mat::from_slice::<u8>(&threshold.lower)?;
+      let colour_high = Mat::from_slice::<u8>(&threshold.upper)?;
+
+      in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img)?;
+    }
 
     #[cfg(debug_assertions)]
     {
@@ -132,6 +147,9 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
         }
         Colour::White => {
           opencv::highgui::imshow("white", &colour_img)?;
+        }
+        Colour::Red => {
+          opencv::highgui::imshow("red", &colour_img)?;
         }
         _ => (),
       };

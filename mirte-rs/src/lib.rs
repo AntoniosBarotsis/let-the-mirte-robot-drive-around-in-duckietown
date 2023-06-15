@@ -1,4 +1,4 @@
-pub mod detect_lane;
+pub mod detection;
 pub mod mirte_error;
 
 use std::time::Instant;
@@ -8,12 +8,12 @@ use cv::{
   draw_lines::draw_lines,
   image::downscale,
   line::{
-    Colour::{self, Blue, Green, Red},
-    Threshold,
+    Colour::{self, Black, Green, Orange, Purple, Red, White, Yellow},
+    LineSegment, Threshold,
   },
   Mat,
 };
-use detect_lane::detect_lane;
+use detection::{detect_lane, detect_stop_line};
 use mirte_error::MirteError;
 use ros::{process_ros_image_one, publishers::RosBgPublisher, CvImage};
 use std::collections::HashMap;
@@ -41,7 +41,7 @@ pub fn process_mat<S: std::hash::BuildHasher>(
   let mut resized = downscale(&mat).unwrap_or(mat);
   println!("resizing: {:?}", time_1.elapsed());
 
-  let colours = vec![cv::line::Colour::Yellow, cv::line::Colour::White];
+  let colours = vec![Yellow, White, Red];
 
   let time_2 = Instant::now();
 
@@ -56,9 +56,21 @@ pub fn process_mat<S: std::hash::BuildHasher>(
 
     publisher.publish_lane(lane);
 
-    let all_lines = [lines, lane.get_coloured_segments(Green, Blue, Red)].concat();
     println!("detecting lane: {:?}", time_3.elapsed());
 
+    let time_4 = Instant::now();
+    let stop_line = detect_stop_line(&lines);
+
+    publisher.publish_stop_line(stop_line);
+
+    println!("detecting stop line: {:?}", time_4.elapsed());
+
+    let all_lines = [
+      lines,
+      lane.get_coloured_segments(Green, Orange, Black),
+      vec![LineSegment::from_line(stop_line, Purple)],
+    ]
+    .concat();
     draw_lines(&mut resized, &all_lines);
   } else {
     eprintln!("Could not detect lines");

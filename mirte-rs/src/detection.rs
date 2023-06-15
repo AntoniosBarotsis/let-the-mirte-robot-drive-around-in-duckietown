@@ -1,5 +1,5 @@
 use cv::line::{Colour, Lane, Line, LineSegment, Point, Vector};
-use Colour::{White, Yellow};
+use Colour::{Red, White, Yellow};
 
 // The minimum length of an average line for it to be significant
 const MINIMUM_LENGTH: f32 = 0.15;
@@ -89,7 +89,7 @@ fn get_midline(line1: &Line, line2: &Line) -> Line {
   })
 }
 
-/// Detects the lane based on given line segments. Returns a `Lane` if successful.
+/// Detects the lane based on given line segments.
 pub fn detect_lane(lines: &[LineSegment]) -> Lane {
   let yellow_line = get_average_line(lines, Yellow).unwrap_or(DEFAULT_YELLOW_LINE);
   let right_lines = lines_on_right(lines, &yellow_line);
@@ -99,9 +99,15 @@ pub fn detect_lane(lines: &[LineSegment]) -> Lane {
   Lane::new(lane, yellow_line, white_line)
 }
 
+/// Detects the stop line based on given line segments. Returns a line with direction 0, 0 if no
+/// stop line is found.
+pub fn detect_stop_line(lines: &[LineSegment]) -> Line {
+  get_average_line(lines, Red).unwrap_or(Line::new(Point::new(0.0, 0.0), Vector::new(0.0, 0.0)))
+}
+
 #[cfg(test)]
 mod tests {
-  use crate::detect_lane::lies_on_right;
+  use crate::detection::lies_on_right;
   use cv::line::Colour::Red;
   use cv::line::{Line, LineSegment, Point, Vector};
 
