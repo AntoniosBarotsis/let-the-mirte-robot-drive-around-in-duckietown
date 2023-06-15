@@ -2,10 +2,6 @@
 
 Source code of the Mirte Duckietown Software Project.
 
-## Why Are Some of the Dependencies from Forks?
-
-More details on the issue can be found [here](https://github.com/adnanademovic/rosrust/issues/200).
-
 ## Compiling
 
 We are targeting Ubuntu 20.04, most of us are running that through WSL.
