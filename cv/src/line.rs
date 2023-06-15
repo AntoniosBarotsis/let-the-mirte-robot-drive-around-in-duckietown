@@ -13,6 +13,10 @@ pub struct Threshold {
 }
 
 impl Threshold {
+  pub fn from(lower: ColourValue, upper: ColourValue) -> Self {
+    Self { lower, upper }
+  }
+
   /// given a colour type, it will return the default lower and upper bound of the range of that colour in HSV
   ///
   /// # Panics

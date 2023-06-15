@@ -1,4 +1,4 @@
-pub mod detect_lane;
+pub mod detection;
 pub mod mirte_error;
 
 use std::time::Instant;
@@ -7,13 +7,13 @@ use cv::{
   detect_lines::detect_line_type,
   image::{downscale, downscale_enhance_hsv},
   line::{
-    Colour::{self},
-    Threshold,
+    Colour::{self, Red, White, Yellow},
+    LineSegment, Threshold,
   },
   object::detect_obstacles,
   Mat,
 };
-use detect_lane::detect_lane;
+use detection::{detect_lane, detect_stop_line};
 use mirte_error::MirteError;
 use ros::{process_ros_image_one, publishers::RosBgPublisher, CvImage};
 use std::collections::HashMap;
@@ -21,7 +21,7 @@ use std::collections::HashMap;
 #[cfg(debug_assertions)]
 use ::cv::{
   draw_lines::draw_lines,
-  line::Colour::{Blue, Green, Red},
+  line::Colour::{Black, Green, Orange, Purple},
 };
 
 #[allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
@@ -52,7 +52,7 @@ pub fn process_mat<S: std::hash::BuildHasher>(
     let publisher = RosBgPublisher::get_or_create();
 
     // Detecting lines
-    let colours = vec![cv::line::Colour::Yellow, cv::line::Colour::White];
+    let colours = vec![Yellow, White, Red];
     let time_detecting_lines = Instant::now();
     if let Ok(lines) = detect_line_type(&hsv_img, thresholds, colours) {
       println!("detecting lines: {:?}", time_detecting_lines.elapsed());
@@ -64,10 +64,21 @@ pub fn process_mat<S: std::hash::BuildHasher>(
       println!("detecting lane: {:?}", time_detect_lane.elapsed());
       publisher.publish_lane(lane);
 
-      // Draw lines and lane in debug
+      // Detecting stop line
+      let time_detect_stop_line = Instant::now();
+      let stop_line = detect_stop_line(&lines);
+      println!("detecting stop line: {:?}", time_detect_stop_line.elapsed());
+      publisher.publish_stop_line(stop_line);
+
+      // Draw lines, lane and stop line in debug
       #[cfg(debug_assertions)]
       {
-        let all_lines = [lines, lane.get_coloured_segments(Green, Blue, Red)].concat();
+        let all_lines = [
+          lines,
+          lane.get_coloured_segments(Green, Orange, Black),
+          vec![LineSegment::from_line(stop_line, Purple)],
+        ]
+        .concat();
         if let Ok(resized) = downscale(mat) {
           draw_lines(&resized, &all_lines);
         } else {

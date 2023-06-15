@@ -104,21 +104,49 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
       .copied()
       .unwrap_or_else(|| Threshold::by_colour(colour));
 
-    // Extract the colours
-    let colour_low = Mat::from_slice::<u8>(&threshold.lower)?;
-    let colour_high = Mat::from_slice::<u8>(&threshold.upper)?;
+    let mut colour_img = Mat::default();
+    // Check if the hue wraps around the 0 degree border
+    if threshold.lower[0] > threshold.upper[0] {
+      let max_colour_lower = Mat::from_slice::<u8>(&threshold.lower)?;
+      let max_colour_upper = Mat::from_slice::<u8>(&[179, threshold.upper[1], threshold.upper[2]])?;
+      let min_colour_lower = Mat::from_slice::<u8>(&[0, threshold.lower[1], threshold.lower[2]])?;
+      let min_colour_upper = Mat::from_slice::<u8>(&threshold.upper)?;
 
-    let mut in_range_img = Mat::default();
-    in_range(&cropped_img, &colour_low, &colour_high, &mut in_range_img)?;
+      let mut max_img = Mat::default();
+      let mut min_img = Mat::default();
+      in_range(
+        &cropped_img,
+        &max_colour_lower,
+        &max_colour_upper,
+        &mut max_img,
+      )?;
+      in_range(
+        &cropped_img,
+        &min_colour_lower,
+        &min_colour_upper,
+        &mut min_img,
+      )?;
+
+      opencv::core::bitwise_or(&max_img, &min_img, &mut colour_img, &Mat::default())?;
+    } else {
+      // Extract the colours
+      let colour_low = Mat::from_slice::<u8>(&threshold.lower)?;
+      let colour_high = Mat::from_slice::<u8>(&threshold.upper)?;
+
+      in_range(&cropped_img, &colour_low, &colour_high, &mut colour_img)?;
+    }
 
     #[cfg(debug_assertions)]
     {
       match colour {
         Colour::Yellow => {
-          opencv::highgui::imshow("yellow", &in_range_img)?;
+          opencv::highgui::imshow("yellow", &colour_img)?;
         }
         Colour::White => {
-          opencv::highgui::imshow("white", &in_range_img)?;
+          opencv::highgui::imshow("white", &colour_img)?;
+        }
+        Colour::Red => {
+          opencv::highgui::imshow("red", &colour_img)?;
         }
         _ => (),
       };
@@ -136,7 +164,7 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
         Point_ { x: -1, y: -1 },
       )?;
       dilate(
-        &in_range_img,
+        &colour_img,
         &mut dilated_img,
         &element,
         Point_ { x: -1, y: -1 },
@@ -148,7 +176,7 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
       #[cfg(debug_assertions)]
       opencv::highgui::imshow("yellow dilated", &dilated_img)?;
 
-      in_range_img = dilated_img;
+      colour_img = dilated_img;
     }
 
     // Get the lines of this colour
@@ -156,7 +184,7 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
     // the maximum value of an f32.
     // This takes about 1/6 of the time for 2 colours
     #[allow(clippy::cast_precision_loss)]
-    let mut new_lines = get_lines(&in_range_img, colour, img.size()?, top_img_height as f32)?;
+    let mut new_lines = get_lines(&colour_img, colour, img.size()?, top_img_height as f32)?;
 
     lines.append(&mut new_lines);
   }
