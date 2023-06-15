@@ -11,11 +11,13 @@ use crate::{
 };
 
 #[cfg(debug_assertions)]
-use opencv::{core::Scalar, features2d::draw_keypoints};
+use opencv::{
+  core::Scalar,
+  features2d::draw_keypoints,
+  highgui::{imshow, wait_key},
+};
 
-// H: 0-179, S: 0-255, V: 0-255         lower bound     upper bound
-//pub static HSV_DUCK: &[[u8; 3]; 2] = &[[0, 100, 100], [45, 255, 255]]; //original lower was 0, 100, 180
-//pub static HSV_MIRTE: &[[u8; 3]; 2] = &[[70, 100, 70], [100, 255, 255]]; //original lower was 70, 80, 70
+// H: 0-179, S: 0-255, V: 0-255
 pub static HSV_DUCK: Threshold = Threshold {
   lower: [170, 110, 200],
   upper: [45, 255, 255],
@@ -224,6 +226,10 @@ fn detect_obstacles_with_params(
       Scalar::new(0.0, 0.0, 255.0, 0.0),
       opencv::features2d::DrawMatchesFlags::DEFAULT,
     )?;
+
+    imshow("obstacle", &output_img)?;
+    #[allow(clippy::expect_used)]
+    let _res = wait_key(0).expect("keep window open");
   }
 
   let obstacles: Vec<Obstacle> = keypoints
@@ -237,8 +243,11 @@ fn detect_obstacles_with_params(
     })
     .collect();
 
-  for ob in obstacles.clone().into_iter().rev() {
-    println!("{ob:?}");
+  #[cfg(debug_assertions)]
+  {
+    for ob in obstacles.clone().into_iter().rev() {
+      println!("{ob:?}");
+    }
   }
 
   Ok(obstacles)

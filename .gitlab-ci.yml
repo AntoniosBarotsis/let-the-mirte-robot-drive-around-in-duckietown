@@ -30,7 +30,7 @@ test:
   needs: 
   - build
   script:
-    cargo test --verbose
+    cargo test -r --verbose
 
 lint:
   stage: lint
