@@ -46,7 +46,7 @@ class Renderer:
             mesh_black_raw = trimesh.load('./testing/towns/duckievoort/black.obj')
             mesh_white_raw = trimesh.load('./testing/towns/duckievoort/white.obj')
             mesh_yellow_raw = trimesh.load('./testing/towns/duckievoort/yellow.obj')
-            self.translate(20.5, 0.4, -35)
+            self.translate(20, 0.4, -35)
             self.rotate(-18, 'y')
         else:
             raise Exception('Invalid scenario')
@@ -159,9 +159,9 @@ class ImagePublisher:
         if kinematics_vl == kinematics_vr:
             print("forward: ", dt * kinematics_vl)
             if kinematics_vl > 0:
-                self.renderer.translate(0, 0, -dt * kinematics_vl / 7.5)  # Move forward if both motors are going at the same speed
+                self.renderer.translate(0, 0, -dt * kinematics_vl / 6.5)  # Move forward if both motors are going at the same speed
             else:
-                self.renderer.translate(0, 0, dt * kinematics_vl / 7.5)  # Move dt backwards if both motors are going at the same speed
+                self.renderer.translate(0, 0, dt * kinematics_vl / 6.5)  # Move dt backwards if both motors are going at the same speed
             return
         else:
             kinematics_r = (kinematics_l/2)*((kinematics_vl+kinematics_vr)/(kinematics_vr-kinematics_vl))
@@ -189,9 +189,9 @@ class ImagePublisher:
         vec2 = np.array([kinematics_icc_x, kinematics_icc_y, kinematics_omega * dt])
 
         [x_prime, y_prime, theta_prime] = np.add(mat1.dot(vec1), vec2)
-        x_diff = (x_prime - kinematics_curr_x) / 7.5
-        y_diff = (y_prime - kinematics_curr_y) / 7.5
-        theta_diff = (theta_prime - kinematics_theta) * 2
+        x_diff = (x_prime - kinematics_curr_x) * dt * 5
+        y_diff = (y_prime - kinematics_curr_y) * dt * 25
+        theta_diff = (theta_prime - kinematics_theta) * dt * 200
 
         if swapped:
             theta_diff = -theta_diff
