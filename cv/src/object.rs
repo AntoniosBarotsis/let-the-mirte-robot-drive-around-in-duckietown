@@ -225,6 +225,7 @@ fn detect_obstacles_with_params(
     )?;
 
     imshow("blob", &output_img)?;
+    #[allow(clippy::expect_used)]
     let _res = wait_key(0).expect("keep window open");
   }
 
