@@ -41,6 +41,3 @@ RUN cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
 
 # Copy the project to the container
 COPY . .
-
-# Build the project
-# RUN cargo build
