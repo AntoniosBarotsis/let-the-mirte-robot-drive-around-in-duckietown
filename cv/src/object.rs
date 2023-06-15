@@ -1,15 +1,27 @@
 use opencv::{
-  core::{in_range, KeyPoint, Scalar, Size, Vector},
+  core::{KeyPoint, Scalar, Size, Vector},
   features2d::{draw_keypoints, SimpleBlobDetector, SimpleBlobDetector_Params},
   highgui::{imshow, wait_key},
   prelude::{Feature2DTrait, KeyPointTraitConst, Mat, MatTraitConstManual},
 };
 
-use crate::{cv_error::CvError, line::Point};
+use crate::{
+  cv_error::CvError,
+  detect_lines::wrap_in_range,
+  line::{Point, Threshold},
+};
 
 // H: 0-179, S: 0-255, V: 0-255         lower bound     upper bound
-pub static HSV_DUCK: &[[u8; 3]; 2] = &[[0, 100, 100], [45, 255, 255]]; //original lower was 0, 100, 180
-pub static HSV_MIRTE: &[[u8; 3]; 2] = &[[70, 100, 70], [100, 255, 255]]; //original lower was 70, 80, 70
+//pub static HSV_DUCK: &[[u8; 3]; 2] = &[[0, 100, 100], [45, 255, 255]]; //original lower was 0, 100, 180
+//pub static HSV_MIRTE: &[[u8; 3]; 2] = &[[70, 100, 70], [100, 255, 255]]; //original lower was 70, 80, 70
+pub static HSV_DUCK: Threshold = Threshold {
+  upper: [0, 100, 100],
+  lower: [45, 255, 255],
+};
+pub static HSV_MIRTE: Threshold = Threshold {
+  upper: [70, 100, 70],
+  lower: [100, 255, 255],
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 /// All object types the Mirte bot needs to detect.
@@ -106,11 +118,8 @@ pub fn detect_obstacles(img: &Mat) -> Result<Vec<Obstacle>, CvError> {
 /// ```
 pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   // Extract the colours
-  let colour_low = Mat::from_slice::<u8>(&HSV_DUCK[0])?;
-  let colour_high = Mat::from_slice::<u8>(&HSV_DUCK[1])?;
 
-  let mut colour_img = Mat::default();
-  in_range(&img, &colour_low, &colour_high, &mut colour_img)?;
+  let colour_img = wrap_in_range(img, HSV_DUCK)?;
 
   let mut params: SimpleBlobDetector_Params = SimpleBlobDetector_Params::default()?;
   // all parameters for detecting duckies
@@ -158,11 +167,7 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
 /// ```
 pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   // Extract the colours
-  let colour_low = Mat::from_slice::<u8>(&HSV_MIRTE[0])?;
-  let colour_high = Mat::from_slice::<u8>(&HSV_MIRTE[1])?;
-
-  let mut colour_img = Mat::default();
-  in_range(&img, &colour_low, &colour_high, &mut colour_img)?;
+  let colour_img = wrap_in_range(img, HSV_MIRTE)?;
 
   let mut params: SimpleBlobDetector_Params = SimpleBlobDetector_Params::default()?;
   // all paramters for detecting mirte bots
