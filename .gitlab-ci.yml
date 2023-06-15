@@ -10,8 +10,8 @@ cache:
     files:
       - Cargo.lock
   paths:
-    - ~/.cargo/registry/index
-    - ~/.cargo/registry/cache
+    - .cargo/registry/index
+    - .cargo/registry/cache
     - rust/target/debug/deps
     - rust/target/debug/build
 
