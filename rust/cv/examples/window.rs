@@ -1,8 +1,8 @@
 use common::mirte_msgs::Colour;
-use cv::cv_error::CvError;
 use cv::detect_lines::detect_line_type;
 use cv::draw_lines::draw_lines;
 use cv::image::{downscale, read_image};
+use cv::{cv_error::CvError, image::downscale_enhance_hsv};
 use std::collections::HashMap;
 use std::time::Instant;
 
@@ -11,7 +11,7 @@ use std::time::Instant;
 fn main() -> Result<(), CvError> {
   let img = read_image("./assets/input_1.jpg")?;
 
-  let mut resized = downscale(&img)?;
+  let usable_img = downscale_enhance_hsv(&img)?;
 
   let now = Instant::now();
 
@@ -23,11 +23,12 @@ fn main() -> Result<(), CvError> {
       type_: Colour::WHITE,
     },
   ];
-  let lines = detect_line_type(&resized, &HashMap::new(), colours)?;
+  let lines = detect_line_type(&usable_img, &HashMap::new(), colours)?;
 
   println!("{:?}", now.elapsed());
 
-  draw_lines(&mut resized, &lines);
+  let resized = downscale(&img)?;
+  draw_lines(&resized, &lines);
 
   Ok(())
 }

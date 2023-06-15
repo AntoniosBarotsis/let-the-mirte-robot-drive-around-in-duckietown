@@ -50,7 +50,7 @@ impl Threshold {
         upper: [45, 255, 255],
       },
       Colour { type_: Colour::RED } => Self {
-        lower: [165, 125, 125],
+        lower: [165, 90, 60],
         upper: [10, 255, 255],
       },
       _ => panic!("No colour threshold defined for {colour:?}!"),
@@ -117,6 +117,7 @@ mod tests {
   }
 
   #[test]
+  #[allow(clippy::expect_used)]
   fn intersect() {
     let line1 = Line::new(Point::new(4.0, 0.0), Vector::new(1.0, 1.0));
     let line2 = Line::new(Point::new(0.0, 0.0), Vector::new(1.0, -1.0));
@@ -125,6 +126,7 @@ mod tests {
   }
 
   #[test]
+  #[allow(clippy::expect_used)]
   fn intersect_with_vertical() {
     let line1 = Line::new(Point::new(4.0, 0.0), Vector::new(0.0, 1.0));
     let line2 = Line::new(Point::new(0.0, 0.0), Vector::new(1.0, 1.0));

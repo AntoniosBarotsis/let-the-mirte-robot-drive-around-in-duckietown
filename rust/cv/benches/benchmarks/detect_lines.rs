@@ -1,6 +1,6 @@
 use common::mirte_msgs::Colour;
 use criterion::{criterion_group, Criterion};
-use cv::detect_lines::detect_line_type;
+use cv::{detect_lines::detect_line_type, image::downscale_enhance_hsv};
 use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE};
 use std::collections::HashMap;
 
@@ -8,9 +8,11 @@ fn criterion_benchmark(c: &mut Criterion) {
   #[allow(clippy::expect_used)]
   {
     let img = imread("../assets/input_real.jpg", IMREAD_GRAYSCALE).expect("open image");
+    let usable_img =
+      downscale_enhance_hsv(&img).expect("could not downscale, enhance or convert to hsv");
 
     let _res = c.bench_function("detect lines (30 fps)", |b| {
-      let input = (0..30).map(|_| img.clone()).collect::<Vec<_>>();
+      let input = (0..30).map(|_| usable_img.clone()).collect::<Vec<_>>();
 
       b.iter(|| {
         for img in input.clone() {

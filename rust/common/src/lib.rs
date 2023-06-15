@@ -8,4 +8,7 @@ rosrust::rosmsg_include!(
   mirte_msgs / Lane,
   mirte_msgs / LineSegment,
   mirte_msgs / LineSegmentList,
+  mirte_msgs / Object,
+  mirte_msgs / Obstacle,
+  mirte_msgs / ObstacleList,
 );

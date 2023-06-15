@@ -26,7 +26,7 @@ mkdir -p ~/catkin_ws/src
 
 # Location does not really matter, we will delete this right after
 git clone https://github.com/AntoniosBarotsis/mirte-ros-packages
-cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
+sudo cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
 cp ./mirte-ros-packages/mirte_msgs ~/catkin_ws/src -r
 rm -rf ./mirte-ros-packages
 cd ~/catkin_ws/

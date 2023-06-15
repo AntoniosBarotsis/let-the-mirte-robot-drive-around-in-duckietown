@@ -1,28 +1,17 @@
 use common::mirte_msgs::{Colour, LineSegment, Point};
 use opencv::{
   core::{in_range, Point_, Size, Size_, Vec4f, Vector, BORDER_CONSTANT},
-  imgproc::{
-    cvt_color, dilate, get_structuring_element, morphology_default_border_value, COLOR_RGB2HSV,
-    MORPH_ELLIPSE,
-  },
+  imgproc::{dilate, get_structuring_element, morphology_default_border_value, MORPH_ELLIPSE},
   prelude::{Mat, MatTraitConst, MatTraitConstManual},
   ximgproc::{create_fast_line_detector, FastLineDetector},
 };
 use std::collections::HashMap;
 
-#[cfg(debug_assertions)]
-use crate::image::convert_to_rgb;
-
-use crate::{
-  cv_error::CvError,
-  image::{crop_image, enhance_contrast},
-  image_part::ImagePart,
-  line::Threshold,
-};
+use crate::{cv_error::CvError, image::crop_image, image_part::ImagePart, line::Threshold};
 
 /// Finds lines in the image with a specific colour using the `fast_line_detector` from `openCV`
 ///
-/// * `img` - The images of which the lines need to be detected
+/// * `img` - The HSV image in which the lines need to be detected
 /// * `colour` - The colour of which you want to detect the lanes
 /// * `line_offset` - The Y offset of where to draw the lines
 ///
@@ -76,9 +65,41 @@ pub fn get_lines(
   Ok(line_vec)
 }
 
-/// Given a image and a vector of colours this method will detect lines in the image for all given colours.
+/// Gets a binary image of only the corresponding colours that are within range. Also works for wrapping around the origin so from 360 degrees to 0 degrees.
 ///
-/// * `img` - The image in which the lines need to be detected
+/// `img` - The image which colour needs to be extracted
+/// `threshold` - The colour threshold
+///
+/// Returns a Result of a binary image where all the pixels that are within the colour range are set to 1
+pub fn wrap_in_range(img: &Mat, threshold: Threshold) -> Result<Mat, CvError> {
+  let mut colour_img = Mat::default();
+  // Check if the hue wraps around the 0 degree border
+  if threshold.lower[0] > threshold.upper[0] {
+    let max_colour_lower = Mat::from_slice::<u8>(&threshold.lower)?;
+    let max_colour_upper = Mat::from_slice::<u8>(&[179, threshold.upper[1], threshold.upper[2]])?;
+    let min_colour_lower = Mat::from_slice::<u8>(&[0, threshold.lower[1], threshold.lower[2]])?;
+    let min_colour_upper = Mat::from_slice::<u8>(&threshold.upper)?;
+
+    let mut max_img = Mat::default();
+    let mut min_img = Mat::default();
+    in_range(&img, &max_colour_lower, &max_colour_upper, &mut max_img)?;
+    in_range(&img, &min_colour_lower, &min_colour_upper, &mut min_img)?;
+
+    opencv::core::bitwise_or(&max_img, &min_img, &mut colour_img, &Mat::default())?;
+    Ok(colour_img)
+  } else {
+    // Extract the colours
+    let colour_low = Mat::from_slice::<u8>(&threshold.lower)?;
+    let colour_high = Mat::from_slice::<u8>(&threshold.upper)?;
+
+    in_range(&img, &colour_low, &colour_high, &mut colour_img)?;
+    Ok(colour_img)
+  }
+}
+
+/// Given an HSV image and a vector of colours this method will detect lines in the image for all given colours.
+///
+/// * `img` - The HSV image in which the lines need to be detected
 /// * `thresholds` - A hashmap which maps a `Colour` to a `Threshold`, which determines when a colour
 /// is detected.
 /// * `colours` - A vector of all the colours of which you want to detect the lines
@@ -95,22 +116,6 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
 
   let top_img_height = img.rows() - cropped_img.rows();
 
-  // Contrast stretching
-  let contrast_img = enhance_contrast(&cropped_img)?;
-
-  #[cfg(debug_assertions)]
-  {
-    let rgb_img = convert_to_rgb(&contrast_img)?;
-    opencv::highgui::imshow("contrast", &rgb_img)?;
-  }
-
-  let mut hsv_img = Mat::default();
-
-  // Converting colour takes about half of the time of this funciton
-  // Colour code should be `COLOR_BGR2HSV` when image file is used.
-  // Colour code should be `COLOR_RGB2HSV` when ROS image is used.
-  cvt_color(&contrast_img, &mut hsv_img, COLOR_RGB2HSV, 0)?;
-
   let mut lines: Vec<LineSegment> = Vec::new();
 
   for colour in colours {
@@ -119,27 +124,7 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
       .copied()
       .unwrap_or_else(|| Threshold::by_colour(colour));
 
-    let mut colour_img = Mat::default();
-    // Check if the hue wraps around the 0 degree border
-    if threshold.lower[0] > threshold.upper[0] {
-      let max_colour_lower = Mat::from_slice::<u8>(&threshold.lower)?;
-      let max_colour_upper = Mat::from_slice::<u8>(&[179, threshold.upper[1], threshold.upper[2]])?;
-      let min_colour_lower = Mat::from_slice::<u8>(&[0, threshold.lower[1], threshold.lower[2]])?;
-      let min_colour_upper = Mat::from_slice::<u8>(&threshold.upper)?;
-
-      let mut max_img = Mat::default();
-      let mut min_img = Mat::default();
-      in_range(&hsv_img, &max_colour_lower, &max_colour_upper, &mut max_img)?;
-      in_range(&hsv_img, &min_colour_lower, &min_colour_upper, &mut min_img)?;
-
-      opencv::core::bitwise_or(&max_img, &min_img, &mut colour_img, &Mat::default())?;
-    } else {
-      // Extract the colours
-      let colour_low = Mat::from_slice::<u8>(&threshold.lower)?;
-      let colour_high = Mat::from_slice::<u8>(&threshold.upper)?;
-
-      in_range(&hsv_img, &colour_low, &colour_high, &mut colour_img)?;
-    }
+    let mut colour_img = wrap_in_range(&cropped_img, threshold)?;
 
     #[cfg(debug_assertions)]
     {
