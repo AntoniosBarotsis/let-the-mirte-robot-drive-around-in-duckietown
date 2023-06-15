@@ -12,7 +12,7 @@ fn main() {
     println!("\nError: no input path given!\nExample usage: cargo r -r --example draw_lane ./assets/input_1.jpg\n");
     std::process::exit(1);
   });
-  let mut img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
+  let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
   let lines = detect_line_type(
     &img,
@@ -31,7 +31,7 @@ fn main() {
   let lane = detect_lane(&lines);
 
   draw_lines(
-    &mut img,
+    &img,
     &[
       lines,
       lane.get_coloured_segments(
