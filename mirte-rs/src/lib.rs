@@ -4,18 +4,16 @@ pub mod mirte_error;
 use std::time::Instant;
 
 use cv::{
-  detect_lines::detect_line_type,
-  draw_lines::draw_lines,
-  image::downscale,
-  line::{
-    Colour::{self, Black, Green, Orange, Purple, Red, White, Yellow},
-    LineSegment, Threshold,
-  },
-  Mat,
+  detect_lines::detect_line_type, draw_lines::draw_lines, image::downscale, line::Threshold, Mat,
 };
 use detection::{detect_lane, detect_stop_line};
 use mirte_error::MirteError;
-use ros::{process_ros_image_one, publishers::RosBgPublisher, CvImage};
+use ros::{
+  mirte_msgs::{Colour, LineSegment},
+  process_ros_image_one,
+  publishers::RosBgPublisher,
+  CvImage,
+};
 use std::collections::HashMap;
 
 #[allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
@@ -41,7 +39,15 @@ pub fn process_mat<S: std::hash::BuildHasher>(
   let mut resized = downscale(&mat).unwrap_or(mat);
   println!("resizing: {:?}", time_1.elapsed());
 
-  let colours = vec![Yellow, White, Red];
+  let colours = vec![
+    Colour {
+      type_: Colour::YELLOW,
+    },
+    Colour {
+      type_: Colour::WHITE,
+    },
+    Colour { type_: Colour::RED },
+  ];
 
   let time_2 = Instant::now();
 
@@ -67,8 +73,23 @@ pub fn process_mat<S: std::hash::BuildHasher>(
 
     let all_lines = [
       lines,
-      lane.get_coloured_segments(Green, Orange, Black),
-      vec![LineSegment::from_line(stop_line, Purple)],
+      lane.get_coloured_segments(
+        Colour {
+          type_: Colour::GREEN,
+        },
+        Colour {
+          type_: Colour::ORANGE,
+        },
+        Colour {
+          type_: Colour::BLACK,
+        },
+      ),
+      vec![LineSegment::from_line(
+        stop_line,
+        Colour {
+          type_: Colour::PURPLE,
+        },
+      )],
     ]
     .concat();
     draw_lines(&mut resized, &all_lines);

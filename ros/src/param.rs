@@ -1,5 +1,6 @@
 use crate::init;
-use cv::line::{Colour, Threshold};
+use common::mirte_msgs::Colour;
+use cv::line::Threshold;
 use std::collections::HashMap;
 
 /// Gets the threshold per colour from private parameters like `/thresholds/white` or
@@ -7,13 +8,21 @@ use std::collections::HashMap;
 /// colour.
 pub fn get_thresholds() -> HashMap<Colour, Threshold> {
   init();
-  [Colour::White, Colour::Yellow, Colour::Red]
-    .iter()
-    .map(|&colour| {
-      let threshold = get_threshold(colour).unwrap_or_else(|| Threshold::by_colour(colour));
-      (colour, threshold)
-    })
-    .collect()
+  [
+    Colour {
+      type_: Colour::WHITE,
+    },
+    Colour {
+      type_: Colour::YELLOW,
+    },
+    Colour { type_: Colour::RED },
+  ]
+  .iter()
+  .map(|&colour| {
+    let threshold = get_threshold(colour).unwrap_or_else(|| Threshold::by_colour(colour));
+    (colour, threshold)
+  })
+  .collect()
 }
 
 fn get_threshold(colour: Colour) -> Option<Threshold> {

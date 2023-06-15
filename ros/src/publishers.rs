@@ -13,7 +13,7 @@ use rosrust::Publisher;
 
 use crate::{init, RosError};
 
-use bridge::mirte_msgs::{Lane, Line, LineSegmentList};
+use common::mirte_msgs::{Lane, Line, LineSegmentList};
 
 static THREAD_COUNT: AtomicU8 = AtomicU8::new(0);
 static INSTANCE: OnceCell<RosBgPublisher> = OnceCell::new();

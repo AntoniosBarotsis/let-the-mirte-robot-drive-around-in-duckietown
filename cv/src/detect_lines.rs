@@ -1,3 +1,4 @@
+use common::mirte_msgs::{Colour, LineSegment, Point};
 use opencv::{
   core::{in_range, Point_, Size, Size_, Vec4f, Vector, BORDER_CONSTANT},
   imgproc::{
@@ -16,7 +17,7 @@ use crate::{
   cv_error::CvError,
   image::{crop_image, enhance_contrast},
   image_part::ImagePart,
-  line::{Colour, LineSegment, Point, Threshold},
+  line::Threshold,
 };
 
 /// Finds lines in the image with a specific colour using the `fast_line_detector` from `openCV`
@@ -32,13 +33,14 @@ use crate::{
 /// ```
 /// use opencv::{core::Size_, prelude::MatTraitConstManual};
 ///
-/// use cv::{detect_lines::get_lines, image::{convert_to_gray, dbg_mat, downscale}, line::Colour,};
+/// use cv::{detect_lines::get_lines, image::{convert_to_gray, dbg_mat, downscale}};
+/// use common::mirte_msgs::Colour;
 ///
 /// let mat = dbg_mat("../assets/test_images/test_image_2.png").expect("couldn't get image");
 /// let mat_gray = convert_to_gray(&mat).expect("couldn't get gray image");
-/// let line_vec = get_lines(&mat_gray, Colour::Yellow, Size_ {width: 320, height: 240,}, 0.0,).expect("couldn't detect a line");
+/// let line_vec = get_lines(&mat_gray, Colour { type_: Colour::YELLOW }, Size_ {width: 320, height: 240,}, 0.0,).expect("couldn't detect a line");
 /// assert_eq!(line_vec.len(), 2);
-/// assert!(line_vec[0].colour == Colour::Yellow);
+/// assert!(line_vec[0].colour == Colour { type_: Colour::YELLOW });
 /// assert!(line_vec[0].start.x <= 0.60 && line_vec[0].start.x >= 0.40);
 /// assert!(line_vec[0].end.x <= 0.60 && line_vec[0].end.x >= 0.40);
 /// ```
@@ -141,21 +143,21 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
 
     #[cfg(debug_assertions)]
     {
-      match colour {
-        Colour::Yellow => {
+      match colour.type_ {
+        Colour::YELLOW => {
           opencv::highgui::imshow("yellow", &colour_img)?;
         }
-        Colour::White => {
+        Colour::WHITE => {
           opencv::highgui::imshow("white", &colour_img)?;
         }
-        Colour::Red => {
+        Colour::RED => {
           opencv::highgui::imshow("red", &colour_img)?;
         }
         _ => (),
       };
     }
 
-    if colour == Colour::Yellow {
+    if colour.type_ == Colour::YELLOW {
       let mut dilated_img = Mat::default();
       let magic = morphology_default_border_value()?;
       let element = get_structuring_element(

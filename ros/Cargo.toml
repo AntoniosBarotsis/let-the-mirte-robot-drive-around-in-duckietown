@@ -13,5 +13,5 @@ cv = { path = "../cv"}
 env_logger = "0.10.0"
 once_cell = "1.17.1"
 thiserror = "1.0.40"
-bridge = { path = "../bridge"}
+common = { path = "../common" }
 rayon = "1.7.0"

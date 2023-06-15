@@ -1,5 +1,5 @@
-use cv::line::{Colour, Lane, Line, LineSegment, Point, Vector};
-use Colour::{Red, White, Yellow};
+use ros::mirte_msgs::{Colour, Lane};
+use ros::mirte_msgs::{Line, LineSegment, Point, Vector};
 
 // The minimum length of an average line for it to be significant
 const MINIMUM_LENGTH: f32 = 0.15;
@@ -9,11 +9,11 @@ const DIRECTION_SLOPE: f32 = 0.25;
 // Default lines for when no lines are found
 const DEFAULT_YELLOW_LINE: Line = Line {
   origin: Point { x: 0.0, y: 1.0 },
-  dir: Vector { x: 0.25, y: -1.0 },
+  direction: Vector { x: 0.25, y: -1.0 },
 };
 const DEFAULT_WHITE_LINE: Line = Line {
   origin: Point { x: 1.0, y: 1.0 },
-  dir: Vector { x: -0.25, y: -1.0 },
+  direction: Vector { x: -0.25, y: -1.0 },
 };
 
 /// Averages all lines with a given colour weighted by their length
@@ -29,7 +29,11 @@ fn get_average_line(lines: &[LineSegment], colour: Colour) -> Option<Line> {
   let weighted_dir: Vector = coloured_lines
     .iter()
     .map(|line| -> Vector {
-      let sign: f32 = if line.colour == White { -1.0 } else { 1.0 };
+      let sign: f32 = if line.colour.type_ == Colour::WHITE {
+        -1.0
+      } else {
+        1.0
+      };
       let threshold: Line = Line::from_dir(Vector::new(sign, DIRECTION_SLOPE));
       if lies_on_right(Point::from_vector(line.direction()), &threshold) {
         line.direction() * sign
@@ -53,7 +57,7 @@ fn get_average_line(lines: &[LineSegment], colour: Colour) -> Option<Line> {
 
   Some(Line {
     origin: avg_pos,
-    dir: weighted_dir,
+    direction: weighted_dir,
   })
 }
 
@@ -74,10 +78,10 @@ fn lines_on_right(lines: &[LineSegment], boundary: &Line) -> Vec<LineSegment> {
 /// Returns the bisection between `line1` and `line2`, if it exists
 fn bisect(line1: &Line, line2: &Line) -> Option<Line> {
   line2.intersect(line1).map(|intersection| {
-    let dir1 = line1.dir;
-    let dir2 = line2.dir;
-    let dir = dir1 * dir2.length() + dir2 * dir1.length();
-    Line::new(intersection - Point::from_vector(dir), dir)
+    let dir1 = line1.direction;
+    let dir2 = line2.direction;
+    let direction = dir1 * dir2.length() + dir2 * dir1.length();
+    Line::new(intersection - Point::from_vector(direction), direction)
   })
 }
 
@@ -85,15 +89,27 @@ fn bisect(line1: &Line, line2: &Line) -> Option<Line> {
 fn get_midline(line1: &Line, line2: &Line) -> Line {
   bisect(line1, line2).unwrap_or({
     let midpoint = (line1.origin + line2.origin) / 2.0;
-    Line::new(midpoint, line1.dir)
+    Line::new(midpoint, line1.direction)
   })
 }
 
 /// Detects the lane based on given line segments.
 pub fn detect_lane(lines: &[LineSegment]) -> Lane {
-  let yellow_line = get_average_line(lines, Yellow).unwrap_or(DEFAULT_YELLOW_LINE);
+  let yellow_line = get_average_line(
+    lines,
+    Colour {
+      type_: Colour::YELLOW,
+    },
+  )
+  .unwrap_or(DEFAULT_YELLOW_LINE);
   let right_lines = lines_on_right(lines, &yellow_line);
-  let white_line = get_average_line(&right_lines, White).unwrap_or(DEFAULT_WHITE_LINE);
+  let white_line = get_average_line(
+    &right_lines,
+    Colour {
+      type_: Colour::WHITE,
+    },
+  )
+  .unwrap_or(DEFAULT_WHITE_LINE);
   let lane = get_midline(&yellow_line, &white_line);
 
   Lane::new(lane, yellow_line, white_line)
@@ -102,14 +118,15 @@ pub fn detect_lane(lines: &[LineSegment]) -> Lane {
 /// Detects the stop line based on given line segments. Returns a line with direction 0, 0 if no
 /// stop line is found.
 pub fn detect_stop_line(lines: &[LineSegment]) -> Line {
-  get_average_line(lines, Red).unwrap_or(Line::new(Point::new(0.0, 0.0), Vector::new(0.0, 0.0)))
+  get_average_line(lines, Colour { type_: Colour::RED })
+    .unwrap_or(Line::new(Point::new(0.0, 0.0), Vector::new(0.0, 0.0)))
 }
 
 #[cfg(test)]
 mod tests {
+  use ros::mirte_msgs::{Colour, Line, LineSegment, Point, Vector};
+
   use crate::detection::lies_on_right;
-  use cv::line::Colour::Red;
-  use cv::line::{Line, LineSegment, Point, Vector};
 
   #[test]
   fn test_lies_on_right() {
@@ -122,9 +139,21 @@ mod tests {
   #[test]
   fn test_lines_on_right() {
     let lines: Vec<LineSegment> = vec![
-      LineSegment::new(Red, Point::new(0.0, 0.0), Point::new(3.0, 3.0)),
-      LineSegment::new(Red, Point::new(0.0, 0.0), Point::new(2.0, 2.0)),
-      LineSegment::new(Red, Point::new(0.0, 0.0), Point::new(1.0, 1.0)),
+      LineSegment::new(
+        Colour { type_: Colour::RED },
+        Point::new(0.0, 0.0),
+        Point::new(3.0, 3.0),
+      ),
+      LineSegment::new(
+        Colour { type_: Colour::RED },
+        Point::new(0.0, 0.0),
+        Point::new(2.0, 2.0),
+      ),
+      LineSegment::new(
+        Colour { type_: Colour::RED },
+        Point::new(0.0, 0.0),
+        Point::new(1.0, 1.0),
+      ),
     ];
     let boundary = Line::new(Point::new(1.0, 1.0), Vector::new(1.0, -1.0));
     let right_lines = super::lines_on_right(&lines, &boundary);

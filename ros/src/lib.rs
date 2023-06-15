@@ -10,6 +10,7 @@ pub mod ros_error;
 
 use cv_bridge::msgs::sensor_msgs::Image;
 
+pub use common::mirte_msgs;
 /// Intermediate stage between a `ROS` and an `OpenCV` image.
 pub use cv_bridge::CvImage;
 pub use ros_error::RosError;
@@ -37,10 +38,12 @@ pub(crate) fn init() {
 ///
 /// ```no_run
 /// use ros::process_ros_image;
+/// use cv_bridge::CvImage;
+///
 ///
 /// process_ros_image(|img| {
 ///   // Convert to opencv::mat
-///   let mat = cv_bridge::CvImage::from_imgmsg(img).unwrap().as_cvmat().unwrap();
+///   let mat = CvImage::from_imgmsg(img).unwrap().as_cvmat().unwrap();
 ///
 ///   // Do other stuff here...
 /// });

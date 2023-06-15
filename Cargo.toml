@@ -5,7 +5,7 @@ members = [
   "cv",
   "ros",
   "rostest",
-  "bridge",
+  "common",
 ]
 
 [profile.release.package.cv]

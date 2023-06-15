@@ -1,9 +1,7 @@
-use cv::{
-  detect_lines::detect_line_type,
-  line::Colour::{Black, Green, Orange, Red, White, Yellow},
-};
+use cv::detect_lines::detect_line_type;
 use cv::{draw_lines::draw_lines, image::read_image};
 use mirte_rs::detection::detect_lane;
+use ros::mirte_msgs::Colour;
 use std::collections::HashMap;
 use std::env;
 
@@ -16,12 +14,38 @@ fn main() {
   });
   let mut img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
 
-  let lines = detect_line_type(&img, &HashMap::new(), vec![Yellow, White, Red])
-    .expect("Unable to detect line with cv");
+  let lines = detect_line_type(
+    &img,
+    &HashMap::new(),
+    vec![
+      Colour {
+        type_: Colour::YELLOW,
+      },
+      Colour {
+        type_: Colour::WHITE,
+      },
+      Colour { type_: Colour::RED },
+    ],
+  )
+  .expect("Unable to detect line with cv");
   let lane = detect_lane(&lines);
 
   draw_lines(
     &mut img,
-    &[lines, lane.get_coloured_segments(Green, Orange, Black)].concat(),
+    &[
+      lines,
+      lane.get_coloured_segments(
+        Colour {
+          type_: Colour::GREEN,
+        },
+        Colour {
+          type_: Colour::ORANGE,
+        },
+        Colour {
+          type_: Colour::BLACK,
+        },
+      ),
+    ]
+    .concat(),
   );
 }
