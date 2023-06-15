@@ -12,8 +12,8 @@ cache:
   paths:
     - .cargo/registry/index
     - .cargo/registry/cache
-    - target/debug/deps
-    - target/debug/build
+    - rust/target/debug/deps
+    - rust/target/debug/build
 
 stages:
   - build
@@ -23,6 +23,7 @@ stages:
 build:
   stage: build
   script:
+    cd rust
     cargo build --all-features
 
 test:
@@ -30,6 +31,7 @@ test:
   needs: 
   - build
   script:
+    cd rust
     cargo test --verbose
 
 lint:
@@ -37,8 +39,11 @@ lint:
   needs: 
   - build
   script:
-    - rustup component add clippy rustfmt
-    - cargo clippy --all-features -- -D warnings
-    - cargo fmt --check
-    - pip3 install pylint
-    - pylint --ignore='.venv' --recursive=y ./python
+    cd rust
+    rustup component add clippy rustfmt
+    cargo clippy --all-features -- -D warnings
+    cargo fmt --check
+    
+    cd ..
+    pip3 install pylint
+    pylint --ignore='.venv' --recursive=y ./python
