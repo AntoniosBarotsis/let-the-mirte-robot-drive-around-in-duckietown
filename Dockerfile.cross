@@ -1,0 +1,46 @@
+# HOST NATIVE
+# FROM ros:noetic
+
+# ORANGE PI / RASPBERRY PI 3B
+FROM arm64v8/ros:noetic-ros-base-focal
+
+# Update container
+RUN set -xeu && \
+    apt-get update && \
+    apt-get dist-upgrade -y && \
+    apt-get autoremove -y --purge && \
+    apt-get -y autoclean
+
+# Get curl
+RUN set -xeu && \
+    apt-get install -y  curl
+
+# Get rust
+RUN set -xeu && \
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile=minimal && \
+    rm -rf /root/.rustup/tmp/* # warning: could not delete temp directory: /root/.rustup/tmp/szyc3h06vricp83o_dir
+
+# Get gcc
+RUN set -xeu && \
+    apt-get install -y gcc
+
+# Refresh the shell, https://stackoverflow.com/questions/54666604/how-to-refresh-your-shell-when-using-a-dockerfile
+SHELL ["/bin/bash", "--login", "-c"]
+
+# Install OpenCV and its dependencies
+RUN set -xeu && \
+    apt install -y libopencv-dev clang libclang-dev
+
+# Make fetching dependencies faster
+ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
+
+# Get mirte_msgs
+RUN apt-get install git -y
+RUN git clone https://github.com/AntoniosBarotsis/mirte-ros-packages
+RUN cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
+
+# Copy the project to the container
+COPY . .
+
+# Build the project
+# RUN cargo build
