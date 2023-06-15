@@ -195,6 +195,12 @@ pub fn downscale_enhance_hsv(img: &Mat) -> Result<Mat, CvError> {
   let enhanced = enhance_contrast(&downscaled)?;
   let hsv = convert_to_hsv(&enhanced)?;
 
+  #[cfg(debug_assertions)]
+  {
+    let rgb_img = convert_hsv_to_bgr(&hsv)?;
+    opencv::highgui::imshow("contrast", &rgb_img)?;
+  }
+
   Ok(hsv)
 }
 

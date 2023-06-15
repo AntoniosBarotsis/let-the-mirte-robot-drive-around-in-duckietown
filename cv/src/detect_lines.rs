@@ -6,9 +6,6 @@ use opencv::{
 };
 use std::collections::HashMap;
 
-#[cfg(debug_assertions)]
-use crate::image::convert_hsv_to_bgr;
-
 use crate::{
   cv_error::CvError,
   image::crop_image,
@@ -121,12 +118,6 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
   let cropped_img = crop_image(&mut copy_img, ImagePart::Bottom)?;
 
   let top_img_height = img.rows() - cropped_img.rows();
-
-  #[cfg(debug_assertions)]
-  {
-    let rgb_img = convert_hsv_to_bgr(&cropped_img)?;
-    opencv::highgui::imshow("contrast", &rgb_img)?;
-  }
 
   let mut lines: Vec<LineSegment> = Vec::new();
 
