@@ -1,6 +1,5 @@
 use opencv::{
   core::{convert_scale_abs, Size_, CV_32SC1},
-  highgui::imshow,
   imgcodecs::{imread, IMREAD_UNCHANGED},
   imgproc::{
     calc_hist, cvt_color, resize, COLOR_BGR2RGB, COLOR_HSV2BGR, COLOR_RGB2GRAY, COLOR_RGB2HSV,
@@ -194,10 +193,6 @@ pub fn convert_to_hsv(img: &Mat) -> Result<Mat, CvError> {
 pub fn downscale_enhance_hsv(img: &Mat) -> Result<Mat, CvError> {
   let downscaled = downscale(img)?;
   let enhanced = enhance_contrast(&downscaled)?;
-  let rgb = convert_to_rgb(&enhanced)?;
-
-  imshow("enhanced", &rgb)?;
-
   let hsv = convert_to_hsv(&enhanced)?;
 
   Ok(hsv)

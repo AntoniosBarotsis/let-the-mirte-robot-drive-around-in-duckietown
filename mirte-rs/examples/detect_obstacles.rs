@@ -14,10 +14,10 @@ fn main() {
     .unwrap_or_else(|_| panic!("Unable to downscale, enhance or convert to hsv"));
 
   #[allow(clippy::expect_used)]
-  let _obstacles = detect_obstacles(&usable_img).expect("get obstacles");
+  let obstacles = detect_obstacles(&usable_img).expect("get obstacles");
 
-  // let publisher = RosBgPublisher::get_or_create();
-  // loop {
-  //   publisher.publish_obstacle(obstacles.clone());
-  // }
+  let publisher = RosBgPublisher::get_or_create();
+  loop {
+    publisher.publish_obstacle(obstacles.clone());
+  }
 }

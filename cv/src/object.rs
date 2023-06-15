@@ -1,7 +1,6 @@
 use opencv::{
   core::{KeyPoint, Scalar, Size, Vector},
   features2d::{draw_keypoints, SimpleBlobDetector, SimpleBlobDetector_Params},
-  highgui::{imshow, wait_key},
   prelude::{Feature2DTrait, KeyPointTraitConst, Mat, MatTraitConstManual},
 };
 
@@ -15,12 +14,12 @@ use crate::{
 //pub static HSV_DUCK: &[[u8; 3]; 2] = &[[0, 100, 100], [45, 255, 255]]; //original lower was 0, 100, 180
 //pub static HSV_MIRTE: &[[u8; 3]; 2] = &[[70, 100, 70], [100, 255, 255]]; //original lower was 70, 80, 70
 pub static HSV_DUCK: Threshold = Threshold {
-  upper: [0, 100, 100],
-  lower: [45, 255, 255],
+  lower: [170, 110, 200],
+  upper: [45, 255, 255],
 };
 pub static HSV_MIRTE: Threshold = Threshold {
-  upper: [70, 100, 70],
-  lower: [100, 255, 255],
+  lower: [70, 100, 70],
+  upper: [100, 255, 255],
 };
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -129,7 +128,7 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
   params.min_area = 55.0; // 55 right now. Might change later if problem occur
   params.max_area = 12_800.0; // 1/6th of the image
   params.filter_by_inertia = true;
-  params.min_inertia_ratio = 0.1;
+  params.min_inertia_ratio = 0.25;
   params.filter_by_convexity = false;
   params.filter_by_circularity = false;
 
@@ -222,10 +221,6 @@ fn detect_obstacles_with_params(
       Scalar::new(0.0, 0.0, 255.0, 0.0),
       opencv::features2d::DrawMatchesFlags::DEFAULT,
     )?;
-
-    imshow("blob", &output_img)?;
-    #[allow(clippy::expect_used)]
-    let _res = wait_key(0).expect("keep window open");
   }
 
   let obstacles: Vec<Obstacle> = keypoints
