@@ -5,10 +5,10 @@ use std::time::Instant;
 
 use cv::{
   detect_lines::detect_line_type,
-  image::{downscale, downscale_enhance_hsv},
+  image::downscale_enhance_hsv,
   line::{
     Colour::{self, Red, White, Yellow},
-    LineSegment, Threshold,
+    Threshold,
   },
   object::detect_obstacles,
   Mat,
@@ -19,9 +19,13 @@ use ros::{process_ros_image_one, publishers::RosBgPublisher, CvImage};
 use std::collections::HashMap;
 
 #[cfg(debug_assertions)]
-use ::cv::{
+use cv::{
   draw_lines::draw_lines,
-  line::Colour::{Black, Green, Orange, Purple},
+  image::downscale,
+  line::{
+    Colour::{Black, Green, Orange, Purple},
+    LineSegment,
+  },
 };
 
 #[allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]

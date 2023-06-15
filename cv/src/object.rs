@@ -1,6 +1,6 @@
 use opencv::{
-  core::{KeyPoint, Scalar, Size, Vector},
-  features2d::{draw_keypoints, SimpleBlobDetector, SimpleBlobDetector_Params},
+  core::{KeyPoint, Size, Vector},
+  features2d::{SimpleBlobDetector, SimpleBlobDetector_Params},
   prelude::{Feature2DTrait, KeyPointTraitConst, Mat, MatTraitConstManual},
 };
 
@@ -9,6 +9,9 @@ use crate::{
   detect_lines::wrap_in_range,
   line::{Point, Threshold},
 };
+
+#[cfg(debug_assertions)]
+use opencv::{core::Scalar, features2d::draw_keypoints};
 
 // H: 0-179, S: 0-255, V: 0-255         lower bound     upper bound
 //pub static HSV_DUCK: &[[u8; 3]; 2] = &[[0, 100, 100], [45, 255, 255]]; //original lower was 0, 100, 180
