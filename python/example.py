@@ -1,3 +1,4 @@
+import time
 from cv import Camera
 
 # Initialise the camera
@@ -10,4 +11,4 @@ while True:
     print(f"Stop line: {stop_line}")
     print()
     # Sleep for 1/30th of a second
-    processor.sleep()
+    time.sleep(1 / 30)

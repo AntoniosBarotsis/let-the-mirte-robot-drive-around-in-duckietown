@@ -510,6 +510,7 @@ export default {
 
      params.get((res) => {
        this.params = res;
+       this.params["duckietown"] = "dt";
        setTimeout(this.load_blockly, 500);
      })
   }

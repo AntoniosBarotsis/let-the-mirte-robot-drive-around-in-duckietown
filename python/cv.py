@@ -33,19 +33,6 @@ class Camera:
         rospy.Subscriber("line_segments", LineSegmentMsg, line_segment_cb)
         rospy.Subscriber("stop_line", LineMsg, stop_line_cb)
 
-        # Listen at 30 Hz
-        self.rate = rospy.Rate(30)
-
-    def sleep(self):
-        """Sleep for one cycle of the camera
-
-        Note:
-            It is recommended to call this function at the end of your loop,
-            because it there is no point in running the loop faster than the
-            camera can update.
-        """
-        self.rate.sleep()
-
     def getLines(self):
         """Gets line segments from the camera
 

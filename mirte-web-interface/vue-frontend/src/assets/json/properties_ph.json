@@ -87,5 +87,10 @@
     "rel_path": "Sensors\\Encoder\\encoder\\encoder.py",
     "message_type": "mirte_msgs/Encoder",
     "message_value": "value"
+  },
+  "duckietown": {
+    "text": "duckietown",
+    "functions": ["dt_get_stop_line"],
+    "rel_path": "Sensors\\Duckietown\\dt\\dt.py"
   }
 }

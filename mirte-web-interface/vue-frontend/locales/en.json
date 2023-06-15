@@ -62,7 +62,8 @@
     "oled": "OLED Screen",
     "oled_text": "text",
     "oled_image": "image",
-    "oled_animation": "animation"
+    "oled_animation": "animation",
+    "duckietown": "Duckietown"
   },
   "blockly": {
     "TRUE": "true",
