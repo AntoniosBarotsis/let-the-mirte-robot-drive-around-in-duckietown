@@ -49,14 +49,12 @@ impl Obstacle {
 /// # Example
 ///
 /// ```
-/// use cv::image::{dbg_mat, convert_to_hsv, downscale, enhance_contrast};
+/// use cv::image::{dbg_mat, downscale_enhance_hsv};
 /// use cv::object::{detect_obstacles, Object, Obstacle};
 ///
 /// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get the image");
-/// let img = downscale(&mat).expect("couldn't downscale image");
-/// let contrast_img = enhance_contrast(&img).expect("enhance contrast");
-/// let img_hsv = convert_to_hsv(&img).expect("couldn't conver to HSV");
-/// let obstacles = detect_obstacles(&img_hsv).expect("was not able to get any obstacles");
+/// let pros_img = downscale_enhance_hsv(&mat).expect("couldn't apply pipeline");
+/// let obstacles = detect_obstacles(&pros_img).expect("was not able to get any obstacles");
 /// let duckstacles: Vec<Obstacle> = obstacles.clone().into_iter().filter(|x| {x.object == Object::Duck}).collect();
 /// let mirtstacles: Vec<Obstacle> = obstacles.clone().into_iter().filter(|x| {x.object == Object::Mirte}).collect();
 ///
@@ -88,7 +86,7 @@ pub fn detect_obstacles(img: &Mat) -> Result<Vec<Obstacle>, CvError> {
 /// # Example
 ///
 /// ```
-/// use cv::image::{convert_to_hsv, dbg_mat, downscale, enhance_contrast};
+/// use cv::image::{dbg_mat, downscale_enhance_hsv};
 /// use cv::object::{get_duckies, Object, Obstacle};
 ///
 /// use opencv::{
@@ -97,11 +95,9 @@ pub fn detect_obstacles(img: &Mat) -> Result<Vec<Obstacle>, CvError> {
 /// };
 ///
 /// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get image");
-/// let img = downscale(&mat).expect("couldn't downscale image");
-/// let contrast_img = enhance_contrast(&img).expect("enhance contrast");
-/// let img_hsv = convert_to_hsv(&img).expect("couldn't conver to HSV");
-/// let img_size = img.size().expect("couldn't get size of image");
-/// let obstacles = get_duckies(&img, img_size).expect("couldn't get dukies :(");
+/// let pros_img = downscale_enhance_hsv(&mat).expect("couldn't apply pipeline");
+/// let img_size = pros_img.size().expect("couldn't get size of image");
+/// let obstacles = get_duckies(&pros_img, img_size).expect("couldn't get dukies :(");
 ///
 /// assert_eq!(obstacles.len(), 1);
 /// assert_eq!(obstacles[0].object, Object::Duck);
@@ -142,7 +138,7 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
 /// # Example
 ///
 /// ```
-/// use cv::image::{convert_to_hsv, dbg_mat, downscale, enhance_contrast};
+/// use cv::image::{dbg_mat, downscale_enhance_hsv};
 /// use cv::object::{get_mirtes, Object, Obstacle};
 ///
 /// use opencv::{
@@ -151,11 +147,9 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
 /// };
 ///
 /// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get image");
-/// let img = downscale(&mat).expect("couldn't downscale image");
-/// let contrast_img = enhance_contrast(&img).expect("enhance contrast");
-/// let img_hsv = convert_to_hsv(&img).expect("couldn't conver to HSV");
-/// let img_size = img.size().expect("couldn't get size of image");
-/// let obstacles = get_mirtes(&img, img_size).expect("couldn't find mirte bots");
+/// let pros_img = downscale_enhance_hsv(&mat).expect("couldn't apply pipeline");
+/// let img_size = pros_img.size().expect("couldn't get size of image");
+/// let obstacles = get_mirtes(&pros_img, img_size).expect("couldn't find mirte bots");
 ///
 /// assert!(obstacles.len() >= 1);
 /// assert_eq!(obstacles[0].object, Object::Mirte);
