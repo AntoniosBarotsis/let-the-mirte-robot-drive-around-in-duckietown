@@ -48,3 +48,22 @@ class Camera:
             Line: Stop line
         """
         return self.__stop_line
+
+    def stopLineDist(self):
+        """Gets the distance from the bottom of the screen to the stop line
+
+        Returns:
+            int: Distance between 0 and 1
+        """
+        if self.__stop_line is None or self.__stop_line.direction.x_coord == 0:
+            return None  # The line is parallel to the vertical line x=0.5
+
+        x_intercept = 0.5
+        y_intercept = self.__stop_line.origin.y_coord + (
+            x_intercept - self.__stop_line.origin.x_coord
+        ) * (
+            self.__stop_line.direction.y_coord
+            / self.__stop_line.direction.x_coord
+        )
+
+        return 1.0 - y_intercept
