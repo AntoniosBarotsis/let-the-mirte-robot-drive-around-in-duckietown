@@ -1,10 +1,12 @@
 use crate::{cv_error::CvError, image::convert_to_rgb, line::Colour, line::LineSegment};
 use opencv::{
   core::{Mat, Point, Scalar},
-  highgui::{imshow, wait_key},
   imgproc::{line, LINE_AA},
   prelude::MatTraitConst,
 };
+
+#[cfg(debug_assertions)]
+use opencv::highgui::{imshow, wait_key};
 
 pub fn draw_lines(img: &mut Mat, lines: &Vec<LineSegment>) {
   if let Ok(img) = &mut convert_to_rgb(img) {
@@ -41,6 +43,7 @@ pub fn draw_lines(img: &mut Mat, lines: &Vec<LineSegment>) {
         .expect("draw");
     }
     #[allow(clippy::expect_used)]
+    #[cfg(debug_assertions)]
     {
       imshow("test", img).expect("open window");
       let _res = wait_key(0).expect("keep window open");
