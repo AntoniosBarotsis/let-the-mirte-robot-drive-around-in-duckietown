@@ -61,10 +61,10 @@ mod tests {
     mirte_msgs::{Line, LineSegment},
     structs::colour::ColourEnum,
   };
-  use float_cmp::assert_approx_eq;
 
+  #[allow(clippy::cast_possible_truncation)]
   fn assert_float_eq(f1: f64, f2: f64) {
-    assert_approx_eq!(f64, f1, f2, ulps = 0);
+    assert!(((f1 - f2).abs() as f32) < f32::EPSILON || f1 == f2);
   }
 
   fn assert_point_eq(point1: Point, point2: Point) {

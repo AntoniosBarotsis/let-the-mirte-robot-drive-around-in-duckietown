@@ -38,7 +38,8 @@ pub static HSV_MIRTE: Threshold = Threshold {
 /// ```
 /// use cv::image::{dbg_mat, downscale_enhance_hsv};
 /// use cv::object::detect_obstacles;
-/// use common::mirte_msgs::{Object, Obstacle, Point};
+/// use common::mirte_msgs::{Object, Obstacle};
+/// use common::geometry_msgs::Point;
 ///
 /// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get the image");
 /// let pros_img = downscale_enhance_hsv(&mat).expect("couldn't apply pipeline");
@@ -76,7 +77,8 @@ pub fn detect_obstacles(img: &Mat) -> Result<Vec<Obstacle>, CvError> {
 /// ```
 /// use cv::image::{dbg_mat, downscale_enhance_hsv};
 /// use cv::object::get_duckies;
-/// use common::mirte_msgs::{Object, Obstacle, Point};
+/// use common::mirte_msgs::{Object, Obstacle};
+/// use common::geometry_msgs::Point;
 ///
 /// use opencv::{
 ///   core::Size,
@@ -134,7 +136,8 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
 /// ```
 /// use cv::image::{dbg_mat, downscale_enhance_hsv};
 /// use cv::object::get_mirtes;
-/// use common::mirte_msgs::{Object, Obstacle, Point};
+/// use common::mirte_msgs::{Object, Obstacle};
+/// use common::geometry_msgs::Point;
 ///
 /// use opencv::{
 ///   core::Size,

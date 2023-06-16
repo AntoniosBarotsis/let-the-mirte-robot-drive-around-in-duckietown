@@ -1,5 +1,3 @@
-use float_cmp::approx_eq;
-
 use crate::geometry_msgs::{Point, Vector3};
 use crate::mirte_msgs::{Line, LineSegment};
 
@@ -45,7 +43,7 @@ impl Line {
     let slope1 = self.clamped_slope();
     let slope2 = other.clamped_slope();
     // If slopes are the same, x will be invalid because the lines never intersect.
-    if approx_eq!(f64, slope1, slope2, ulps = 2) {
+    if (slope1 - slope2).abs() < f64::EPSILON {
       return None;
     }
 

@@ -4,7 +4,6 @@ rosrust::rosmsg_include!(
   geometry_msgs / Point,
   geometry_msgs / Vector3,
   mirte_msgs / Colour,
-  mirte_msgs / Vector,
   mirte_msgs / Line,
   mirte_msgs / Lane,
   mirte_msgs / LineSegment,
