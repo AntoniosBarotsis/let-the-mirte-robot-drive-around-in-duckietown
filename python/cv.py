@@ -50,13 +50,14 @@ class Camera:
         return self.__stop_line
 
     def stopLineDist(self):
-        """Gets the distance from the bottom of the screen to the stop line
+        """Gets the high of the stop line in the camera image. The closer the
+        robot is to the stop line, the lower the value.
 
         Returns:
-            int: Distance between 0 and 1
+            float: The height [0,1] of the stop line in the camera image
         """
         if self.__stop_line is None or self.__stop_line.direction.x_coord == 0:
-            return None  # The line is parallel to the vertical line x=0.5
+            return None
 
         x_intercept = 0.5
         y_intercept = self.__stop_line.origin.y_coord + (
@@ -67,3 +68,16 @@ class Camera:
         )
 
         return 1.0 - y_intercept
+
+    def stopLine(self):
+        """Checks if the robot is in front of the stop line
+
+        Returns:
+            bool: True if the robot is in front of the stop line
+        """
+        distance = self.stopLineDist()
+        if distance is None:
+            return False
+        return distance < 0.4
+
+    # TODO: Add tests

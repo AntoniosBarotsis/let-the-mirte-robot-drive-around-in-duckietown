@@ -1,24 +1,20 @@
 import time
-from test import Follower
+from robot import Robot
 from cv import Camera
 
-
-# Initialise the camera
+# Initialise the camera and the robot
 cam = Camera()
-mirte = Follower()
+mirte = Robot()
 
-mirte.set_motor_speed("right", 60)
-mirte.set_motor_speed("left", 60)
-
+mirte.setMotorSpeed("right", 60)
+mirte.setMotorSpeed("left", 60)
 
 while True:
-    # Get the stop line
-    stop_line = cam.stopLineDist()
-    # Print the stop line
-    print(f"Stop line: {stop_line}")
-    print()
-    if stop_line is not None and stop_line < 0.4:
-        mirte.set_motor_speed("right", 0)
-        mirte.set_motor_speed("left", 0)
+    # Tells whether the stop line is in front of the robot
+    stop_line = cam.stopLine()
+    # If the stop line is in front of the robot, stop
+    if stop_line:
+        mirte.setMotorSpeed("right", 0)
+        mirte.setMotorSpeed("left", 0)
     # Sleep for 1/30th of a second
     time.sleep(1 / 30)
