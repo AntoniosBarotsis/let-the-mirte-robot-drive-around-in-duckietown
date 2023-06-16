@@ -1,4 +1,8 @@
-use common::{geometry_msgs::Point, mirte_msgs::LineSegment, structs::colour::ColourEnum};
+use common::{
+  geometry_msgs::Point,
+  mirte_msgs::LineSegment,
+  structs::{colour::ColourEnum, threshold::Threshold},
+};
 use opencv::{
   core::{in_range, Point_, Size, Size_, Vec4f, Vector, BORDER_CONSTANT},
   imgproc::{dilate, get_structuring_element, morphology_default_border_value, MORPH_ELLIPSE},
@@ -7,7 +11,7 @@ use opencv::{
 };
 use std::collections::HashMap;
 
-use crate::{cv_error::CvError, image::crop_image, image_part::ImagePart, line::Threshold};
+use crate::{cv_error::CvError, image::crop_image, image_part::ImagePart};
 
 /// Finds lines in the image with a specific colour using the `fast_line_detector` from `openCV`
 ///

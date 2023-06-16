@@ -3,10 +3,9 @@ pub mod mirte_error;
 
 use std::time::Instant;
 
-use common::structs::colour::ColourEnum;
+use common::structs::{colour::ColourEnum, threshold::Threshold};
 use cv::{
-  detect_lines::detect_line_type, image::downscale_enhance_hsv, line::Threshold,
-  object::detect_obstacles, Mat,
+  detect_lines::detect_line_type, image::downscale_enhance_hsv, object::detect_obstacles, Mat,
 };
 use detection::{detect_lane, detect_stop_line};
 use mirte_error::MirteError;

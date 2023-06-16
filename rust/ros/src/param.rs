@@ -1,6 +1,5 @@
 use crate::init;
-use common::structs::colour::ColourEnum;
-use cv::line::Threshold;
+use common::structs::{colour::ColourEnum, threshold::Threshold};
 use std::collections::HashMap;
 
 /// Gets the threshold per colour from private parameters like `/thresholds/white` or

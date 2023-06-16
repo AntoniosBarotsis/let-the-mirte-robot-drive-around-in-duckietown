@@ -1,6 +1,7 @@
 use common::{
   geometry_msgs::Point,
   mirte_msgs::{Object, Obstacle},
+  structs::threshold::Threshold,
 };
 use opencv::{
   core::{KeyPoint, Size, Vector},
@@ -8,7 +9,7 @@ use opencv::{
   prelude::{Feature2DTrait, KeyPointTraitConst, Mat, MatTraitConstManual},
 };
 
-use crate::{cv_error::CvError, detect_lines::wrap_in_range, line::Threshold};
+use crate::{cv_error::CvError, detect_lines::wrap_in_range};
 
 #[cfg(debug_assertions)]
 use opencv::{

@@ -8,8 +8,6 @@ edition = "2021"
 [dependencies]
 opencv = { version = "0.76.4", default-features = false, features = ["imgproc", "ximgproc", "imgcodecs", "highgui"] }
 thiserror = "1.0.40"
-derive_more = { version = "0.99.17", features = ["add", "mul", "sum", "not"] }
-serde = { version = "1.0", features = ["derive"] }
 common = { path = "../common" }
 
 [dev-dependencies]
