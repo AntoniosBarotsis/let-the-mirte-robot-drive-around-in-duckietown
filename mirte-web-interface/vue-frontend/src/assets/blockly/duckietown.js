@@ -1,32 +1,22 @@
 export function load(Blockly) {
-  Blockly.Blocks["dt_get_stop_line_duckietown"] = {
+  Blockly.Blocks["dt_stop_line"] = {
     init: function () {
       this.jsonInit({
         type: "block_type",
-        message0: "%{BKY_SET_ANALOG_PIN}",
-        args0: [
-          {
-            type: "field_input",
-            name: "PIN",
-            text: "A0",
-          },
-          {
-            type: "input_value",
-            name: "VALUE",
-            check: "Number",
-          },
-        ],
+        message0: "%{BKY_STOP_LINE}",
+        args0: [],
+        output: "Boolean",
+        colour: "%{BKY_DUCKIE_RGB}",
         inputsInline: true,
-        previousStatement: null,
-        nextStatement: null,
-        colour: "%{BKY_ACTIONS_RGB}",
+        tooltip: "%{BKY_STOP_LINE_TIP}",
       });
     },
   };
 
-  Blockly.Python["dt_get_stop_line_duckietown"] = function (block) {
-    Blockly.Python.definitions_["import_dtcv"] =
-      "from cv import Camera\nprocecoort= Camera()";
-    return `processor.getStopLine()\n`;
+  Blockly.Python["dt_stop_line"] = function (block) {
+    Blockly.Python.definitions_["import_duckietown"] =
+      "from duckietown import Camera\ncamera = Camera()";
+    let code = `camera.stopLine()`;
+    return [code, Blockly.Python.ORDER_NONE]
   };
 }

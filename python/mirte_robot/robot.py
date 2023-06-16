@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 import rospy
 from mirte_msgs.srv import SetMotorSpeed
 
@@ -32,3 +34,12 @@ class Robot:
         """
         motor = self.__motor_services[motor](value)
         return motor.status
+
+
+def createRobot():
+    """Creates a Robot object
+
+    Returns:
+        Robot: A Robot object
+    """
+    return Robot()

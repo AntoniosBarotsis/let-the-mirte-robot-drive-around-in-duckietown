@@ -406,6 +406,7 @@ export default {
       Blockly.Msg.MODULES_RGB = "#cfd186"
       Blockly.Msg.SENSORS_RGB = "#5b8c5a"
       Blockly.Msg.ACTIONS_RGB = "#57467b"
+      Blockly.Msg.DUCKIE_RGB = "#fec20b"
   
       // workspace initialization
       const blocklyArea = this.$refs.blocklyArea
