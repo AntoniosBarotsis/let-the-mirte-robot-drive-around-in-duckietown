@@ -1,4 +1,6 @@
-use crate::mirte_msgs::{Colour, Lane, Line, LineSegment};
+use crate::mirte_msgs::{Lane, Line, LineSegment};
+
+use super::colour::ColourEnum;
 
 impl Lane {
   pub fn new(lane: Line, left_line: Line, right_line: Line) -> Self {
@@ -11,9 +13,9 @@ impl Lane {
 
   pub fn get_coloured_segments(
     &self,
-    lane_colour: Colour,
-    left_colour: Colour,
-    right_colour: Colour,
+    lane_colour: ColourEnum,
+    left_colour: ColourEnum,
+    right_colour: ColourEnum,
   ) -> Vec<LineSegment> {
     [
       (self.centre, lane_colour),

@@ -1,4 +1,4 @@
-use common::mirte_msgs::Colour;
+use common::structs::colour::ColourEnum;
 use criterion::{criterion_group, Criterion};
 use cv::{detect_lines::detect_line_type, image::downscale_enhance_hsv};
 use opencv::imgcodecs::{imread, IMREAD_GRAYSCALE};
@@ -16,14 +16,7 @@ fn criterion_benchmark(c: &mut Criterion) {
 
       b.iter(|| {
         for img in input.clone() {
-          let colours = vec![
-            Colour {
-              type_: Colour::YELLOW,
-            },
-            Colour {
-              type_: Colour::WHITE,
-            },
-          ];
+          let colours = vec![ColourEnum::Yellow, ColourEnum::White];
           let _lines = detect_line_type(&img, &HashMap::new(), colours)
             .expect("Line detection does not crash.");
         }
@@ -32,14 +25,7 @@ fn criterion_benchmark(c: &mut Criterion) {
 
     let _res = c.bench_function("detect lines (single)", |b| {
       b.iter(|| {
-        let colours = vec![
-          Colour {
-            type_: Colour::YELLOW,
-          },
-          Colour {
-            type_: Colour::WHITE,
-          },
-        ];
+        let colours = vec![ColourEnum::Yellow, ColourEnum::White];
         let _lines = detect_line_type(&img.clone(), &HashMap::new(), colours)
           .expect("Line detection does not crash.");
       });

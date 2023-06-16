@@ -1,5 +1,5 @@
 use crate::{cv_error::CvError, image::convert_to_rgb};
-use common::mirte_msgs::{Colour, LineSegment};
+use common::{mirte_msgs::LineSegment, structs::colour::ColourEnum};
 use opencv::{
   core::{Mat, Point, Scalar},
   highgui::{imshow, wait_key},
@@ -25,16 +25,15 @@ pub fn draw_lines(img: &Mat, lines: &Vec<LineSegment>) {
       let end_point = Point::new((l.end.x * img_width) as i32, (l.end.y * img_height) as i32);
 
       // OpenCV uses BGR (not RBG).
-      let colour = match l.colour.type_ {
-        Colour::RED => Scalar::new(0.0, 0.0, 255.0, 0.0),
-        Colour::ORANGE => Scalar::new(0.0, 128.0, 255.0, 0.0),
-        Colour::YELLOW => Scalar::new(0.0, 255.0, 255.0, 0.0),
-        Colour::GREEN => Scalar::new(0.0, 255.0, 0.0, 0.0),
-        Colour::BLUE => Scalar::new(255.0, 0.0, 0.0, 0.0),
-        Colour::PURPLE => Scalar::new(255.0, 0.0, 255.0, 0.0),
-        Colour::BLACK => Scalar::new(0.0, 0.0, 0.0, 0.0),
-        Colour::WHITE => Scalar::new(255.0, 255.0, 255.0, 0.0),
-        _ => unreachable!("Invalid colour type {}", l.colour.type_),
+      let colour = match l.colour.into() {
+        ColourEnum::Red => Scalar::new(0.0, 0.0, 255.0, 0.0),
+        ColourEnum::Orange => Scalar::new(0.0, 128.0, 255.0, 0.0),
+        ColourEnum::Yellow => Scalar::new(0.0, 255.0, 255.0, 0.0),
+        ColourEnum::Green => Scalar::new(0.0, 255.0, 0.0, 0.0),
+        ColourEnum::Blue => Scalar::new(255.0, 0.0, 0.0, 0.0),
+        ColourEnum::Purple => Scalar::new(255.0, 0.0, 255.0, 0.0),
+        ColourEnum::Black => Scalar::new(0.0, 0.0, 0.0, 0.0),
+        ColourEnum::White => Scalar::new(255.0, 255.0, 255.0, 0.0),
       };
 
       #[allow(clippy::expect_used)]

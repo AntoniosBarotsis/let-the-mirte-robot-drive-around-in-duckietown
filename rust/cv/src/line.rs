@@ -1,4 +1,4 @@
-use common::{mirte_msgs::Colour, structs::colour::ColourEnum};
+use common::structs::colour::ColourEnum;
 use serde::{Deserialize, Serialize};
 
 // H: 0-179, S: 0-255, V: 0-255
@@ -29,14 +29,14 @@ impl Threshold {
   ///
   /// ```
   /// use cv::line::Threshold;
-  /// use common::{mirte_msgs::Colour, structs::colour::ColourEnum};
+  /// use common::structs::colour::ColourEnum;
   ///
-  /// let yellow = Threshold::by_colour(ColourEnum::Yellow.into());
-  /// let white = Threshold::by_colour(ColourEnum::White.into());
+  /// let yellow = Threshold::by_colour(ColourEnum::Yellow);
+  /// let white = Threshold::by_colour(ColourEnum::White);
   /// assert_ne!(white, yellow);
   /// ```
-  pub fn by_colour(colour: Colour) -> Self {
-    match colour.into() {
+  pub fn by_colour(colour: ColourEnum) -> Self {
+    match colour {
       ColourEnum::White => Self {
         lower: [0, 0, 190],
         upper: [179, 40, 255],
@@ -184,14 +184,14 @@ mod tests {
   #[test]
   fn create_line_segment() {
     let segment = LineSegment::new(
-      ColourEnum::Red.into(),
+      ColourEnum::Red,
       Point::new(10.0, -5.0),
       Point::new(20.0, -10.0),
     );
     assert_line_segment_eq(
       segment,
       LineSegment::new(
-        ColourEnum::Red.into(),
+        ColourEnum::Red,
         Point::new(10.0, -5.0),
         Point::new(20.0, -10.0),
       ),
@@ -201,14 +201,14 @@ mod tests {
   #[test]
   fn create_line_segment_from_line() {
     let line = Line::new(Point::new(0.5, 1.0), Vector::new(0.0, -1.0));
-    let segment = LineSegment::from_line(line, ColourEnum::Red.into());
+    let segment = LineSegment::from_line(line, ColourEnum::Red);
     assert_point_eq(segment.start, Point::new(0.5, 1.0));
   }
 
   #[test]
   fn create_line_segment_from_horizontal_line() {
     let line = Line::new(Point::new(0.5, 0.75), Vector::new(1.0, 0.0));
-    let segment = LineSegment::from_line(line, ColourEnum::Red.into());
+    let segment = LineSegment::from_line(line, ColourEnum::Red);
     assert_point_eq(segment.start, Point::new(0.0, 0.75));
     assert_point_eq(segment.end, Point::new(1.0, 0.75));
   }
@@ -216,7 +216,7 @@ mod tests {
   #[test]
   fn get_direction() {
     let segment = LineSegment::new(
-      ColourEnum::Red.into(),
+      ColourEnum::Red,
       Point::new(10.0, -5.0),
       Point::new(20.0, -10.0),
     );
@@ -227,7 +227,7 @@ mod tests {
   #[test]
   fn get_direction_from_inverted_coords() {
     let segment = LineSegment::new(
-      ColourEnum::Red.into(),
+      ColourEnum::Red,
       Point::new(10.0, 5.0),
       Point::new(20.0, 10.0),
     );
@@ -238,7 +238,7 @@ mod tests {
   #[test]
   fn get_midpoint() {
     let segment = LineSegment::new(
-      ColourEnum::Red.into(),
+      ColourEnum::Red,
       Point::new(10.0, -5.0),
       Point::new(20.0, -10.0),
     );

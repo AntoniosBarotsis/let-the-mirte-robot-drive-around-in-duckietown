@@ -18,11 +18,11 @@ const DEFAULT_WHITE_LINE: Line = Line {
 };
 
 /// Averages all lines with a given colour weighted by their length
-fn get_average_line(lines: &[LineSegment], colour: Colour) -> Option<Line> {
+fn get_average_line(lines: &[LineSegment], colour: ColourEnum) -> Option<Line> {
   // Get lines with given colour
   let coloured_lines: Vec<LineSegment> = lines
     .iter()
-    .filter(|line| line.colour == colour)
+    .filter(|line| line.colour == colour.into())
     .copied()
     .collect();
 
@@ -96,21 +96,9 @@ fn get_midline(line1: &Line, line2: &Line) -> Line {
 
 /// Detects the lane based on given line segments.
 pub fn detect_lane(lines: &[LineSegment]) -> Lane {
-  let yellow_line = get_average_line(
-    lines,
-    Colour {
-      type_: Colour::YELLOW,
-    },
-  )
-  .unwrap_or(DEFAULT_YELLOW_LINE);
+  let yellow_line = get_average_line(lines, ColourEnum::Yellow).unwrap_or(DEFAULT_YELLOW_LINE);
   let right_lines = lines_on_right(lines, &yellow_line);
-  let white_line = get_average_line(
-    &right_lines,
-    Colour {
-      type_: Colour::WHITE,
-    },
-  )
-  .unwrap_or(DEFAULT_WHITE_LINE);
+  let white_line = get_average_line(&right_lines, ColourEnum::White).unwrap_or(DEFAULT_WHITE_LINE);
   let lane = get_midline(&yellow_line, &white_line);
 
   Lane::new(lane, yellow_line, white_line)
@@ -119,7 +107,7 @@ pub fn detect_lane(lines: &[LineSegment]) -> Lane {
 /// Detects the stop line based on given line segments. Returns a line with direction 0, 0 if no
 /// stop line is found.
 pub fn detect_stop_line(lines: &[LineSegment]) -> Line {
-  get_average_line(lines, ColourEnum::Red.into())
+  get_average_line(lines, ColourEnum::Red)
     .unwrap_or(Line::new(Point::new(0.0, 0.0), Vector::new(0.0, 0.0)))
 }
 
@@ -141,21 +129,9 @@ mod tests {
   #[test]
   fn test_lines_on_right() {
     let lines: Vec<LineSegment> = vec![
-      LineSegment::new(
-        ColourEnum::Red.into(),
-        Point::new(0.0, 0.0),
-        Point::new(3.0, 3.0),
-      ),
-      LineSegment::new(
-        ColourEnum::Red.into(),
-        Point::new(0.0, 0.0),
-        Point::new(2.0, 2.0),
-      ),
-      LineSegment::new(
-        ColourEnum::Red.into(),
-        Point::new(0.0, 0.0),
-        Point::new(1.0, 1.0),
-      ),
+      LineSegment::new(ColourEnum::Red, Point::new(0.0, 0.0), Point::new(3.0, 3.0)),
+      LineSegment::new(ColourEnum::Red, Point::new(0.0, 0.0), Point::new(2.0, 2.0)),
+      LineSegment::new(ColourEnum::Red, Point::new(0.0, 0.0), Point::new(1.0, 1.0)),
     ];
     let boundary = Line::new(Point::new(1.0, 1.0), Vector::new(1.0, -1.0));
     let right_lines = super::lines_on_right(&lines, &boundary);

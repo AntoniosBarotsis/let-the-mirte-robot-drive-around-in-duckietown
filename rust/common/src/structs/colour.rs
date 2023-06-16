@@ -15,7 +15,7 @@ use std::hash::{Hash, Hasher};
 ///
 /// assert_eq!(c_1, c_2);
 /// ```
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum ColourEnum {
   Red,
   Orange,
@@ -25,6 +25,21 @@ pub enum ColourEnum {
   Purple,
   Black,
   White,
+}
+
+impl ColourEnum {
+  pub fn parameter_name(&self) -> &'static str {
+    match self {
+      ColourEnum::Red => "red",
+      ColourEnum::Orange => "orange",
+      ColourEnum::Yellow => "yellow",
+      ColourEnum::Green => "green",
+      ColourEnum::Blue => "blue",
+      ColourEnum::Purple => "purple",
+      ColourEnum::Black => "black",
+      ColourEnum::White => "white",
+    }
+  }
 }
 
 impl From<ColourEnum> for Colour {
@@ -68,25 +83,6 @@ impl From<Colour> for ColourEnum {
       6 => ColourEnum::Black,
       7 => ColourEnum::White,
       _ => unreachable!("Invalid colour type {}", value.type_),
-    }
-  }
-}
-
-impl Colour {
-  /// # Panics
-  ///
-  /// Will panic on an invalid color id (valid values are in \[0,7\]).
-  pub fn parameter_name(&self) -> &'static str {
-    match self.type_ {
-      0 => "red",
-      1 => "orange",
-      2 => "yellow",
-      3 => "green",
-      4 => "blue",
-      5 => "purple",
-      6 => "black",
-      7 => "white",
-      _ => unreachable!("Invalid colour type {}", self.type_),
     }
   }
 }

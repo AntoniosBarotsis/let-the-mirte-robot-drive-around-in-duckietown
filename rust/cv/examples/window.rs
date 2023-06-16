@@ -1,4 +1,4 @@
-use common::mirte_msgs::Colour;
+use common::structs::colour::ColourEnum;
 use cv::detect_lines::detect_line_type;
 use cv::draw_lines::draw_lines;
 use cv::image::{downscale, read_image};
@@ -15,14 +15,7 @@ fn main() -> Result<(), CvError> {
 
   let now = Instant::now();
 
-  let colours = vec![
-    Colour {
-      type_: Colour::YELLOW,
-    },
-    Colour {
-      type_: Colour::WHITE,
-    },
-  ];
+  let colours = vec![ColourEnum::Yellow, ColourEnum::White];
   let lines = detect_line_type(&usable_img, &HashMap::new(), colours)?;
 
   println!("{:?}", now.elapsed());

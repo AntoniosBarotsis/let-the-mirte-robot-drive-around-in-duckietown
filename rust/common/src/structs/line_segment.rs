@@ -1,13 +1,16 @@
-use crate::mirte_msgs::{Colour, Line, LineSegment, LineSegmentList, Point, Vector};
+use crate::mirte_msgs::{Line, LineSegment, LineSegmentList, Point, Vector};
+
+use super::colour::ColourEnum;
 
 pub const CROP_HEIGHT: f32 = 0.58;
 
 impl LineSegment {
-  pub fn new(colour: Colour, start: Point, end: Point) -> Self {
+  pub fn new(colour: ColourEnum, start: Point, end: Point) -> Self {
+    let colour = colour.into();
     Self { colour, start, end }
   }
 
-  pub fn from_line(line: Line, colour: Colour) -> Self {
+  pub fn from_line(line: Line, colour: ColourEnum) -> Self {
     let upper_y = Line::new(Point::new(0.0, CROP_HEIGHT), Vector::new(1.0, 0.0));
     let lower_y = Line::new(Point::new(0.0, 1.0), Vector::new(1.0, 0.0));
 

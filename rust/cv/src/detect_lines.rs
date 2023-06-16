@@ -1,4 +1,7 @@
-use common::mirte_msgs::{Colour, LineSegment, Point};
+use common::{
+  mirte_msgs::{LineSegment, Point},
+  structs::colour::ColourEnum,
+};
 use opencv::{
   core::{in_range, Point_, Size, Size_, Vec4f, Vector, BORDER_CONSTANT},
   imgproc::{dilate, get_structuring_element, morphology_default_border_value, MORPH_ELLIPSE},
@@ -23,7 +26,7 @@ use crate::{cv_error::CvError, image::crop_image, image_part::ImagePart, line::T
 /// use opencv::{core::Size_, prelude::MatTraitConstManual};
 ///
 /// use cv::{detect_lines::get_lines, image::{convert_to_gray, dbg_mat, downscale}};
-/// use common::{mirte_msgs::Colour, structs::colour::ColourEnum};
+/// use common::structs::colour::ColourEnum;
 ///
 /// let mat = dbg_mat("../assets/test_images/test_image_2.png").expect("couldn't get image");
 /// let mat_gray = convert_to_gray(&mat).expect("couldn't get gray image");
@@ -35,7 +38,7 @@ use crate::{cv_error::CvError, image::crop_image, image_part::ImagePart, line::T
 /// ```
 pub fn get_lines(
   img: &Mat,
-  colour: Colour,
+  colour: ColourEnum,
   orig_size: Size,
   line_offset: f32,
 ) -> Result<Vec<LineSegment>, CvError> {
@@ -100,15 +103,15 @@ pub fn wrap_in_range(img: &Mat, threshold: Threshold) -> Result<Mat, CvError> {
 /// Given an HSV image and a vector of colours this method will detect lines in the image for all given colours.
 ///
 /// * `img` - The HSV image in which the lines need to be detected
-/// * `thresholds` - A hashmap which maps a `Colour` to a `Threshold`, which determines when a colour
+/// * `thresholds` - A hashmap which maps a [`ColourEnum`] to a [`Threshold`], which determines when a colour
 /// is detected.
 /// * `colours` - A vector of all the colours of which you want to detect the lines
 ///
 /// Returns a result with a vector of all the lines found in the image
 pub fn detect_line_type<S: std::hash::BuildHasher>(
   img: &Mat,
-  thresholds: &HashMap<Colour, Threshold, S>,
-  colours: Vec<Colour>,
+  thresholds: &HashMap<ColourEnum, Threshold, S>,
+  colours: Vec<ColourEnum>,
 ) -> Result<Vec<LineSegment>, CvError> {
   let mut copy_img = Mat::copy(img)?;
 
@@ -128,21 +131,21 @@ pub fn detect_line_type<S: std::hash::BuildHasher>(
 
     #[cfg(debug_assertions)]
     {
-      match colour.type_ {
-        Colour::YELLOW => {
+      match colour {
+        ColourEnum::Yellow => {
           opencv::highgui::imshow("yellow", &colour_img)?;
         }
-        Colour::WHITE => {
+        ColourEnum::White => {
           opencv::highgui::imshow("white", &colour_img)?;
         }
-        Colour::RED => {
+        ColourEnum::Red => {
           opencv::highgui::imshow("red", &colour_img)?;
         }
         _ => (),
       };
     }
 
-    if colour.type_ == Colour::YELLOW {
+    if colour == ColourEnum::Yellow {
       let mut dilated_img = Mat::default();
       let magic = morphology_default_border_value()?;
       let element = get_structuring_element(

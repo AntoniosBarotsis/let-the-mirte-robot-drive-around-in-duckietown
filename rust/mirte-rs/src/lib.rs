@@ -10,7 +10,7 @@ use cv::{
 };
 use detection::{detect_lane, detect_stop_line};
 use mirte_error::MirteError;
-use ros::{mirte_msgs::Colour, process_ros_image_one, publishers::RosBgPublisher, CvImage};
+use ros::{process_ros_image_one, publishers::RosBgPublisher, CvImage};
 use std::collections::HashMap;
 
 #[cfg(debug_assertions)]
@@ -34,7 +34,7 @@ pub fn get_image() -> Result<Mat, MirteError> {
 
 pub fn process_mat<S: std::hash::BuildHasher>(
   mat: &Mat,
-  thresholds: &HashMap<Colour, Threshold, S>,
+  thresholds: &HashMap<ColourEnum, Threshold, S>,
 ) {
   let time_total = Instant::now();
 
@@ -47,15 +47,7 @@ pub fn process_mat<S: std::hash::BuildHasher>(
     let publisher = RosBgPublisher::get_or_create();
 
     // Detecting lines
-    let colours = vec![
-      Colour {
-        type_: Colour::YELLOW,
-      },
-      Colour {
-        type_: Colour::WHITE,
-      },
-      ColourEnum::Red.into(),
-    ];
+    let colours = vec![ColourEnum::Yellow, ColourEnum::White, ColourEnum::Red];
     let time_detecting_lines = Instant::now();
     if let Ok(lines) = detect_line_type(&hsv_img, thresholds, colours) {
       println!("detecting lines: {:?}", time_detecting_lines.elapsed());
@@ -78,23 +70,8 @@ pub fn process_mat<S: std::hash::BuildHasher>(
       {
         let all_lines = [
           lines,
-          lane.get_coloured_segments(
-            Colour {
-              type_: Colour::GREEN,
-            },
-            Colour {
-              type_: Colour::ORANGE,
-            },
-            Colour {
-              type_: Colour::BLACK,
-            },
-          ),
-          vec![LineSegment::from_line(
-            stop_line,
-            Colour {
-              type_: Colour::PURPLE,
-            },
-          )],
+          lane.get_coloured_segments(ColourEnum::Green, ColourEnum::Orange, ColourEnum::Black),
+          vec![LineSegment::from_line(stop_line, ColourEnum::Purple)],
         ]
         .concat();
         if let Ok(resized) = downscale(mat) {
