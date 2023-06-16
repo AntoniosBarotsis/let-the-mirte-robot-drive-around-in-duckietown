@@ -1,5 +1,5 @@
 use crate::init;
-use common::mirte_msgs::Colour;
+use common::{mirte_msgs::Colour, structs::colour::ColourEnum};
 use cv::line::Threshold;
 use std::collections::HashMap;
 
@@ -15,7 +15,7 @@ pub fn get_thresholds() -> HashMap<Colour, Threshold> {
     Colour {
       type_: Colour::YELLOW,
     },
-    Colour { type_: Colour::RED },
+    ColourEnum::Red.into(),
   ]
   .iter()
   .map(|&colour| {

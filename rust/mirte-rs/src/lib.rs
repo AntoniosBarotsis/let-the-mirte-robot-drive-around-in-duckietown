@@ -3,6 +3,7 @@ pub mod mirte_error;
 
 use std::time::Instant;
 
+use common::structs::colour::ColourEnum;
 use cv::{
   detect_lines::detect_line_type, image::downscale_enhance_hsv, line::Threshold,
   object::detect_obstacles, Mat,
@@ -53,7 +54,7 @@ pub fn process_mat<S: std::hash::BuildHasher>(
       Colour {
         type_: Colour::WHITE,
       },
-      Colour { type_: Colour::RED },
+      ColourEnum::Red.into(),
     ];
     let time_detecting_lines = Instant::now();
     if let Ok(lines) = detect_line_type(&hsv_img, thresholds, colours) {

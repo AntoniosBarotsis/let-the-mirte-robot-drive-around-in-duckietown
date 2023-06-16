@@ -1,3 +1,4 @@
+use common::structs::colour::ColourEnum;
 use cv::{
   detect_lines::detect_line_type,
   image::{downscale, downscale_enhance_hsv},
@@ -30,7 +31,7 @@ fn main() {
       Colour {
         type_: Colour::WHITE,
       },
-      Colour { type_: Colour::RED },
+      ColourEnum::Red.into(),
     ],
   )
   .expect("Unable to detect line with cv");

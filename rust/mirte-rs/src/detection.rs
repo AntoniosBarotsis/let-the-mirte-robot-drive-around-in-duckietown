@@ -1,3 +1,4 @@
+use common::structs::colour::ColourEnum;
 use ros::mirte_msgs::{Colour, Lane};
 use ros::mirte_msgs::{Line, LineSegment, Point, Vector};
 
@@ -118,13 +119,14 @@ pub fn detect_lane(lines: &[LineSegment]) -> Lane {
 /// Detects the stop line based on given line segments. Returns a line with direction 0, 0 if no
 /// stop line is found.
 pub fn detect_stop_line(lines: &[LineSegment]) -> Line {
-  get_average_line(lines, Colour { type_: Colour::RED })
+  get_average_line(lines, ColourEnum::Red.into())
     .unwrap_or(Line::new(Point::new(0.0, 0.0), Vector::new(0.0, 0.0)))
 }
 
 #[cfg(test)]
 mod tests {
-  use ros::mirte_msgs::{Colour, Line, LineSegment, Point, Vector};
+  use common::structs::colour::ColourEnum;
+  use ros::mirte_msgs::{Line, LineSegment, Point, Vector};
 
   use crate::detection::lies_on_right;
 
@@ -140,17 +142,17 @@ mod tests {
   fn test_lines_on_right() {
     let lines: Vec<LineSegment> = vec![
       LineSegment::new(
-        Colour { type_: Colour::RED },
+        ColourEnum::Red.into(),
         Point::new(0.0, 0.0),
         Point::new(3.0, 3.0),
       ),
       LineSegment::new(
-        Colour { type_: Colour::RED },
+        ColourEnum::Red.into(),
         Point::new(0.0, 0.0),
         Point::new(2.0, 2.0),
       ),
       LineSegment::new(
-        Colour { type_: Colour::RED },
+        ColourEnum::Red.into(),
         Point::new(0.0, 0.0),
         Point::new(1.0, 1.0),
       ),
