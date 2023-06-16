@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 from cv import Camera
 import cv2
 import numpy as np
