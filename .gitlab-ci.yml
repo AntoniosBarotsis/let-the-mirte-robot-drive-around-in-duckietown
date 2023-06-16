@@ -1,5 +1,5 @@
 # TODO: Determine a MSRV and use that here instead
-image: antoniosbarotsis/mirte-rs:final
+image: antoniosbarotsis/mirte-rs:very-final
 
 variables:
   CARGO_HOME: $CI_PROJECT_DIR/.cargo
