@@ -1,5 +1,5 @@
 # TODO: Determine a MSRV and use that here instead
-image: antoniosbarotsis/mirte-rs:opencv-ros-py-v5
+image: antoniosbarotsis/mirte-rs:base
 
 variables:
   CARGO_HOME: $CI_PROJECT_DIR/.cargo
@@ -30,7 +30,7 @@ test:
   needs: 
   - build
   script:
-    cargo test --verbose
+    cargo test -r --verbose
 
 lint:
   stage: lint
@@ -40,3 +40,5 @@ lint:
     - rustup component add clippy rustfmt
     - cargo clippy --all-features -- -D warnings
     - cargo fmt --check
+    - pip3 install pylint
+    - pylint --ignore='.venv' --recursive=y ./python

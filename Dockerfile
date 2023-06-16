@@ -1,4 +1,4 @@
-# antoniosbarotsis/mirte-rs:opencv-ros-py-v5
+# antoniosbarotsis/mirte-rs:base
 
 FROM ros:noetic-ros-base-focal
 
@@ -26,6 +26,9 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
+
+# Get Python
+RUN apt-get install python3.7 python3-pip -y
 
 # Source ROS setup
 RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
