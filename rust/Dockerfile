@@ -1,4 +1,4 @@
-# antoniosbarotsis/mirte-rs:latest
+# antoniosbarotsis/mirte-rs:final
 
 FROM ros:noetic-ros-base-focal
 
