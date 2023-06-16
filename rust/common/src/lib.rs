@@ -1,7 +1,8 @@
 pub mod structs;
 
 rosrust::rosmsg_include!(
-  mirte_msgs / Point,
+  geometry_msgs / Point,
+  geometry_msgs / Vector3,
   mirte_msgs / Colour,
   mirte_msgs / Vector,
   mirte_msgs / Line,

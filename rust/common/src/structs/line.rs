@@ -1,9 +1,10 @@
 use float_cmp::approx_eq;
 
-use crate::mirte_msgs::{Line, LineSegment, Point, Vector};
+use crate::geometry_msgs::{Point, Vector3};
+use crate::mirte_msgs::{Line, LineSegment};
 
 impl Line {
-  pub fn new(origin: Point, direction: Vector) -> Self {
+  pub fn new(origin: Point, direction: Vector3) -> Self {
     Self { origin, direction }
   }
 
@@ -14,18 +15,18 @@ impl Line {
     }
   }
 
-  pub fn from_dir(direction: Vector) -> Self {
+  pub fn from_dir(direction: Vector3) -> Self {
     Self {
       origin: Point::ORIGIN,
       direction,
     }
   }
 
-  pub fn slope(&self) -> f32 {
+  pub fn slope(&self) -> f64 {
     self.direction.y / self.direction.x
   }
 
-  pub fn clamped_slope(&self) -> f32 {
+  pub fn clamped_slope(&self) -> f64 {
     let slope = self.slope();
     if slope.is_nan() || slope.is_infinite() || slope > 100_000_000_000.0 {
       100_000_000_000.0
@@ -35,7 +36,7 @@ impl Line {
   }
 
   /// Returns the y value at the given x value on the vector
-  fn y(&self, x: f32) -> f32 {
+  fn y(&self, x: f64) -> f64 {
     self.slope() * (x - self.origin.x) + self.origin.y
   }
 
@@ -44,7 +45,7 @@ impl Line {
     let slope1 = self.clamped_slope();
     let slope2 = other.clamped_slope();
     // If slopes are the same, x will be invalid because the lines never intersect.
-    if approx_eq!(f32, slope1, slope2, ulps = 2) {
+    if approx_eq!(f64, slope1, slope2, ulps = 2) {
       return None;
     }
 
@@ -56,7 +57,7 @@ impl Line {
       self.y(x)
     };
 
-    Some(Point { x, y })
+    Some(Point { x, y, z: 0.0 })
   }
 }
 

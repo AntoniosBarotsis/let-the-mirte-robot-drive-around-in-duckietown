@@ -10,9 +10,9 @@ use opencv::{
 pub fn draw_lines(img: &Mat, lines: &Vec<LineSegment>) {
   if let Ok(img) = &mut convert_to_rgb(img) {
     #[allow(clippy::cast_precision_loss)]
-    let img_width = img.cols() as f32;
+    let img_width = f64::from(img.cols());
     #[allow(clippy::cast_precision_loss)]
-    let img_height = img.rows() as f32;
+    let img_height = f64::from(img.rows());
 
     for l in lines {
       // Truncation here is fine (and needed) as we are just drawing pixels on the screen.

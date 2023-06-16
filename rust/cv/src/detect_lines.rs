@@ -1,7 +1,4 @@
-use common::{
-  mirte_msgs::{LineSegment, Point},
-  structs::colour::ColourEnum,
-};
+use common::{geometry_msgs::Point, mirte_msgs::LineSegment, structs::colour::ColourEnum};
 use opencv::{
   core::{in_range, Point_, Size, Size_, Vec4f, Vector, BORDER_CONSTANT},
   imgproc::{dilate, get_structuring_element, morphology_default_border_value, MORPH_ELLIPSE},
@@ -61,8 +58,14 @@ pub fn get_lines(
   for line in lines {
     line_vec.push(LineSegment::new(
       colour,
-      Point::new(line[0] / width, (line[1] + line_offset) / height),
-      Point::new(line[2] / width, (line[3] + line_offset) / height),
+      Point::new(
+        (line[0] / width).into(),
+        ((line[1] + line_offset) / height).into(),
+      ),
+      Point::new(
+        (line[2] / width).into(),
+        ((line[3] + line_offset) / height).into(),
+      ),
     ));
   }
   Ok(line_vec)

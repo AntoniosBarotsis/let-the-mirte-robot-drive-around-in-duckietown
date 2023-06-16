@@ -1,4 +1,7 @@
-use common::mirte_msgs::{Object, Obstacle, Point};
+use common::{
+  geometry_msgs::Point,
+  mirte_msgs::{Object, Obstacle},
+};
 use opencv::{
   core::{KeyPoint, Size, Vector},
   features2d::{SimpleBlobDetector, SimpleBlobDetector_Params},
@@ -198,9 +201,9 @@ fn detect_obstacles_with_params(
   blob_detector_ptr.detect(&img, &mut keypoints, &Mat::default())?;
 
   #[allow(clippy::cast_precision_loss)]
-  let width = img_size.width as f32;
+  let width = f64::from(img_size.width);
   #[allow(clippy::cast_precision_loss)]
-  let height = img_size.height as f32;
+  let height = f64::from(img_size.height);
 
   #[cfg(debug_assertions)]
   {
@@ -222,7 +225,7 @@ fn detect_obstacles_with_params(
     .into_iter()
     .map(|x| {
       Obstacle::new(
-        Point::new(x.pt().x / width, x.pt().y / height),
+        Point::new(f64::from(x.pt().x) / width, f64::from(x.pt().y) / height),
         x.size(),
         object,
       )

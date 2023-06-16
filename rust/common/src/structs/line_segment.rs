@@ -1,8 +1,9 @@
-use crate::mirte_msgs::{Line, LineSegment, LineSegmentList, Point, Vector};
+use crate::geometry_msgs::{Point, Vector3};
+use crate::mirte_msgs::{Line, LineSegment, LineSegmentList};
 
 use super::colour::ColourEnum;
 
-pub const CROP_HEIGHT: f32 = 0.58;
+pub const CROP_HEIGHT: f64 = 0.58;
 
 impl LineSegment {
   pub fn new(colour: ColourEnum, start: Point, end: Point) -> Self {
@@ -11,8 +12,8 @@ impl LineSegment {
   }
 
   pub fn from_line(line: Line, colour: ColourEnum) -> Self {
-    let upper_y = Line::new(Point::new(0.0, CROP_HEIGHT), Vector::new(1.0, 0.0));
-    let lower_y = Line::new(Point::new(0.0, 1.0), Vector::new(1.0, 0.0));
+    let upper_y = Line::new(Point::new(0.0, CROP_HEIGHT), Vector3::new(1.0, 0.0));
+    let lower_y = Line::new(Point::new(0.0, 1.0), Vector3::new(1.0, 0.0));
 
     let upper_y_intersection = line
       .intersect(&upper_y)
@@ -24,11 +25,11 @@ impl LineSegment {
     Self::new(colour, lower_y_intersection, upper_y_intersection)
   }
 
-  pub fn direction(&self) -> Vector {
+  pub fn direction(&self) -> Vector3 {
     if self.start.y < self.end.y {
-      Vector::from_point(self.start - self.end)
+      Vector3::from_point(self.start - self.end)
     } else {
-      Vector::from_point(self.end - self.start)
+      Vector3::from_point(self.end - self.start)
     }
   }
 
