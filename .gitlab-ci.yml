@@ -22,20 +22,20 @@ stages:
 
 build:
   stage: build
-  script:
-    cargo build --all-features
+  script: cargo build --all-features
 
 test:
   stage: test
-  needs: 
-  - build
+  needs:
+    - build
   script:
-    cargo test --verbose
+    - cargo test --verbose
+    - python3 -m unittest discover ./python
 
 lint:
   stage: lint
-  needs: 
-  - build
+  needs:
+    - build
   script:
     - rustup component add clippy rustfmt
     - cargo clippy --all-features -- -D warnings
