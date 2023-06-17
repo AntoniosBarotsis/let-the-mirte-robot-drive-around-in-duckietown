@@ -1,5 +1,3 @@
-# pylint: skip-file
-
 import rospy
 from mirte_msgs.srv import SetMotorSpeed
 
@@ -15,7 +13,6 @@ class Robot:
     __motor_services = {}
 
     def __init__(self):
-        print()
         if rospy.has_param("/mirte/motor"):
             self.__motors = rospy.get_param("/mirte/motor")
             for motor in self.__motors:
