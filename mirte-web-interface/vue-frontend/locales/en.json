@@ -98,7 +98,7 @@
     "SET_OLED": "show the %2 %3 on screen %1",
     "GET_ANALOG_PIN_VALUE": "analog value of pin %1",
     "GET_DIGITAL_PIN_VALUE": "digital value of pin %1",
-    "STOP_LINE": "stop line",
-    "STOP_LINE_TIP": "Tells whether Mirte is in front of a stop line"
+    "STOP_LINE": "sees stop line",
+    "STOP_LINE_TIP": "Tells whether Mirte sees a stop line"
   }
 }

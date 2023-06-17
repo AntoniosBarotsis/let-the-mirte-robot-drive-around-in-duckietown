@@ -98,7 +98,7 @@
     "SET_OLED": "laat de %2 %3 op scherm %1 zien",
     "GET_ANALOG_PIN_VALUE": "analoge waarde van pin %1",
     "GET_DIGITAL_PIN_VALUE": "digitale waarde van pin %1",
-    "STOP_LINE": "stop streep",
-    "STOP_LINE_TIP": "Vertelt of je voor een rode stop streep staat"
+    "STOP_LINE": "ziet stop streep",
+    "STOP_LINE_TIP": "Vertelt of Mirte en stopstreep ziet"
   }
 }

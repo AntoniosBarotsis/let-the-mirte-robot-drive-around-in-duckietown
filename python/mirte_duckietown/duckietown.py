@@ -49,7 +49,7 @@ class Camera:
         """
         return self.__stop_line
 
-    def stopLineDist(self):
+    def getStopLineDistance(self):
         """Gets the high of the stop line in the camera image. The closer the
         robot is to the stop line, the lower the value.
 
@@ -69,13 +69,13 @@ class Camera:
 
         return 1.0 - y_intercept
 
-    def stopLine(self):
+    def seesStopLine(self):
         """Checks if the robot is in front of the stop line
 
         Returns:
             bool: True if the robot is in front of the stop line
         """
-        distance = self.stopLineDist()
+        distance = self.getStopLineDistance()
         if distance is None:
             return False
         return distance < 0.4

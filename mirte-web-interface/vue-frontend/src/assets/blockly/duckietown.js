@@ -15,8 +15,8 @@ export function load(Blockly) {
 
   Blockly.Python["dt_stop_line"] = function (block) {
     Blockly.Python.definitions_["import_duckietown"] =
-      "from duckietown import Camera\ncamera = Camera()";
-    let code = `camera.stopLine()`;
-    return [code, Blockly.Python.ORDER_NONE]
+      "from mirte_duckietown import duckietown\ncamera = duckietown.createCamera()";
+    let code = `camera.seesStopLine()`;
+    return [code, Blockly.Python.ORDER_NONE];
   };
 }
