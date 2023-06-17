@@ -33,6 +33,9 @@ class Point:
     def __str__(self):
         return f"({self.x_coord}, {self.y_coord})"
 
+    def __eq__(self, other):
+        return self.x_coord == other.x_coord and self.y_coord == other.y_coord
+
 
 class Vector:
     """Vector in 2D space
@@ -46,6 +49,9 @@ class Vector:
 
     def __str__(self):
         return f"({self.x_coord}, {self.y_coord})"
+
+    def __eq__(self, other):
+        return self.x_coord == other.x_coord and self.y_coord == other.y_coord
 
 
 class LineSegment:
@@ -61,6 +67,13 @@ class LineSegment:
 
     def __str__(self):
         return f"LineSegment(colour={self.colour}, start={self.start}, end={self.end})"
+
+    def __eq__(self, other):
+        return (
+            self.colour == other.colour
+            and self.start == other.start
+            and self.end == other.end
+        )
 
     @staticmethod
     def fromMessage(message):
@@ -91,6 +104,9 @@ class Line:
 
     def __str__(self):
         return f"Line(origin={self.origin}, direction={self.direction})"
+
+    def __eq__(self, other):
+        return self.origin == other.origin and self.direction == other.direction
 
     @staticmethod
     def fromMessage(message):
