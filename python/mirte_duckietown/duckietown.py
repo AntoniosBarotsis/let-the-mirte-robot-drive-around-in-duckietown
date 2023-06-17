@@ -1,37 +1,26 @@
-import rospy
-from mirte_msgs.msg import (
-    LineSegmentList as LineSegmentMsg,
-    Line as LineMsg,
-)
-from .common import LineSegment, Line
+from ._topic import Subscriber
+
+# The height of the stop line in the camera image.
+STOP_LINE_THRESHOLD_HEIGHT = 0.4
 
 
 class Camera:
     """Camera API
 
-    This class allows you to access the camera data from the robot. The getters
-    are just wrapper calling ROS topics.
+    This class allows you to get access to useful camera data.
     """
 
-    def __init__(self):
-        # Initialise line segments
-        self.__line_segments = []
-        self.__stop_line = None
+    def __init__(self, subscriber=None):
+        """Initialises a new camera
 
-        # Callback for line segments
-        def lineSegmentCb(data: LineSegmentMsg):
-            self.__line_segments = []
-            for segment in data.segments:
-                self.__line_segments.append(LineSegment.fromMessage(segment))
-
-        # Callback for stop line
-        def stopLineCb(data: LineMsg):
-            self.__stop_line = Line.fromMessage(data)
-
-        # Initialise node and subscribers
-        rospy.init_node("camera", anonymous=True)
-        rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
-        rospy.Subscriber("stop_line", LineMsg, stopLineCb)
+        Parameters:
+            subscriber (Subscriber): The subscriber to use for fetching ROS topics. If
+                None, a new subscriber will be created.
+        """
+        if subscriber is None:
+            self.__subscriber = Subscriber()
+        else:
+            self.__subscriber = subscriber
 
     def getLines(self):
         """Gets line segments from the camera
@@ -39,7 +28,7 @@ class Camera:
         Returns:
             list: List of LineSegment objects
         """
-        return self.__line_segments
+        return self.__subscriber.getLines()
 
     def getStopLine(self):
         """Gets the stop line from the camera
@@ -47,38 +36,35 @@ class Camera:
         Returns:
             Line: Stop line
         """
-        return self.__stop_line
+        return self.__subscriber.getStopLine()
 
-    def getStopLineDistance(self):
-        """Gets the high of the stop line in the camera image. The closer the
-        robot is to the stop line, the lower the value.
+    def getStopLineHeight(self):
+        """Gets the height of the stop line in the camera image.
 
         Returns:
-            float: The height [0,1] of the stop line in the camera image
+            float: The height (between 0.0 and 1.0) of the stop line in the
+            camera image or None if the stop line is not visible.
         """
-        if self.__stop_line is None or self.__stop_line.direction.x_coord == 0:
+        stop_line = self.__subscriber.getStopLine()
+        if stop_line is None or stop_line.direction.x_coord == 0:
             return None
 
-        x_intercept = 0.5
-        y_intercept = self.__stop_line.origin.y_coord + (
-            x_intercept - self.__stop_line.origin.x_coord
-        ) * (
-            self.__stop_line.direction.y_coord
-            / self.__stop_line.direction.x_coord
-        )
+        y_intercept = stop_line.origin.y_coord + (
+            0.5 - stop_line.origin.x_coord
+        ) * (stop_line.direction.y_coord / stop_line.direction.x_coord)
 
         return 1.0 - y_intercept
 
     def seesStopLine(self):
-        """Checks if the robot is in front of the stop line
+        """Checks if the robot sees the stop line close enough
 
         Returns:
-            bool: True if the robot is in front of the stop line
+            bool: True if the robot sees the stop line close enough, False otherwise
         """
-        distance = self.getStopLineDistance()
-        if distance is None:
+        stop_line_height = self.getStopLineHeight()
+        if stop_line_height is None:
             return False
-        return distance < 0.4
+        return stop_line_height < STOP_LINE_THRESHOLD_HEIGHT
 
 
 def createCamera():
