@@ -29,6 +29,7 @@ mirte-web-interface/nodejs-backend/node_modules/
 mirte-web-interface/vue-frontend/node_modules/
 mirte-web-interface/vue-frontend/dist/
 
-python/.venv
-
+python/.venv/
 python/__pycache__/
+python/mirte_robot/__pycache__/
+python/mirte_duckietown/__pycache__/

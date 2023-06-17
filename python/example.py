@@ -1,16 +1,14 @@
-# pylint: skip-file
-from mirte_robot import robot
-mirte=robot.createRobot()
-from duckietown import Camera
-camera = Camera()
 import time
+from mirte_robot import robot
+from mirte_duckietown import duckietown
 
+mirte = robot.createRobot()
+camera = duckietown.createCamera()
 
-mirte.setMotorSpeed('left', 60)
-mirte.setMotorSpeed('right', 60)
+mirte.setMotorSpeed("left", 60)
+mirte.setMotorSpeed("right", 60)
 while True:
-  if camera.stopLine():
-    mirte.setMotorSpeed('left', 0)
-    mirte.setMotorSpeed('right', 0)
-  time.sleep(0.03)
-
+    if camera.stopLine():
+        mirte.setMotorSpeed("left", 0)
+        mirte.setMotorSpeed("right", 0)
+    time.sleep(0.03)
