@@ -55,7 +55,7 @@ impl Line {
       self.y(x)
     };
 
-    Some(Point { x, y, z: 0.0 })
+    Some(Point::new(x, y))
   }
 }
 

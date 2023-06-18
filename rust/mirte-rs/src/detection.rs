@@ -12,28 +12,12 @@ const DIRECTION_SLOPE: f64 = 0.25;
 
 // Default lines for when no lines are found
 const DEFAULT_YELLOW_LINE: Line = Line {
-  origin: Point {
-    x: 0.0,
-    y: 1.0,
-    z: 0.0,
-  },
-  direction: Vector3 {
-    x: 0.25,
-    y: -1.0,
-    z: 0.0,
-  },
+  origin: Point::new(0.0, 1.0),
+  direction: Vector3::new(0.25, -1.0),
 };
 const DEFAULT_WHITE_LINE: Line = Line {
-  origin: Point {
-    x: 1.0,
-    y: 1.0,
-    z: 0.0,
-  },
-  direction: Vector3 {
-    x: -0.25,
-    y: -1.0,
-    z: 0.0,
-  },
+  origin: Point::new(1.0, 1.0),
+  direction: Vector3::new(-0.25, -1.0),
 };
 
 /// Averages all lines with a given colour weighted by their length
