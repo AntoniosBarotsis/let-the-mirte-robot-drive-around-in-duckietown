@@ -29,7 +29,7 @@ test:
   needs:
     - build
   script:
-    - cargo test --verbose
+    - cargo test -r --verbose
     # - python3 -m unittest discover ./python `TODO: install `mirte_msgs` on the pipeline`
 
 lint:
