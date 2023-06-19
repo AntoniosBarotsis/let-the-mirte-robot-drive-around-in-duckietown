@@ -20,7 +20,12 @@ For the software part of the traffic light, you need the Arduino IDE to upload t
 
 After the Arduino IDE is installed, open the file [./traffic-light.ino](./traffic-light.ino) in the Arduino IDE. Then download the NeoPixel library by following the instruction in the first few lines of the comments in that code file. After the NeoPixel library is installed, you can upload the code to the microcontroller by following [this guide](https://support.arduino.cc/hc/en-us/articles/4733418441116-Upload-a-sketch-in-Arduino-IDE).
 
-For the wired connections, you can either use the default pins or set the pins you want to use in lines 19-23 in the code file.
+The default pin mappings are:
+| MCU | NeoPixel |
+|:---:|:--------:|
+|  5  |   VIN    |
+|  6  |  DATA    |
+|  7  |   GND    |
 
 There are a few things you can configure, for example:
 - The pins how to connect the NeoPixels to the MCU.
@@ -29,4 +34,4 @@ There are a few things you can configure, for example:
 - The total brightness of the traffic light.
 - The RGB colours of the traffic light.
 
-After changing these configurations, you need to re-upload the code to the MCU.
+After changing these configurations, you need to (re-)upload the code to the MCU.
