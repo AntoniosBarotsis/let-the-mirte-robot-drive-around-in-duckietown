@@ -6,3 +6,5 @@ Before starting this guide is important that you have at least the following:
 
 * A Mirte bot that is setup
 * The duckietown in which the Mirte bot will drive
+
+For teachers it is important that the Mirte bot is setup correctly.
