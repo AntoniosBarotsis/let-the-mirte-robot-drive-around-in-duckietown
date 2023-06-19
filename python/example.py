@@ -1,13 +1,46 @@
+# pylint: skip-file
+
 from cv import Camera
+import cv2
+import numpy as np
 
 # Initialise the camera
 processor = Camera()
 
+# Example from https://stackoverflow.com/questions/45322630/how-to-detect-lines-in-opencv
 while True:
-    # Get the stop line
-    stop_line = processor.getStopLine()
-    # Print the stop line
-    print(f"Stop line: {stop_line}")
-    print()
-    # Sleep for 1/30th of a second
-    processor.sleep()
+    img = processor.getImage()
+    if img is None:
+        print("No image")
+        continue
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    kernel_size = 5
+    blur_gray = cv2.GaussianBlur(gray, (kernel_size, kernel_size), 0)
+
+    low_threshold = 50
+    high_threshold = 150
+    edges = cv2.Canny(blur_gray, low_threshold, high_threshold)
+
+    rho = 1  # distance resolution in pixels of the Hough grid
+    theta = np.pi / 180  # angular resolution in radians of the Hough grid
+    threshold = 15  # minimum number of votes (intersections in Hough grid cell)
+    min_line_length = 50  # minimum number of pixels making up a line
+    max_line_gap = 20  # maximum gap in pixels between connectable line segments
+    line_image = np.copy(img) * 0  # creating a blank to draw lines on
+
+    # Run Hough on edge detected image
+    # Output "lines" is an array containing endpoints of detected line segments
+    lines = cv2.HoughLinesP(edges, rho, theta, threshold, np.array([]),
+                            min_line_length, max_line_gap)
+
+    for line in lines:
+        for x1, y1, x2, y2 in line:
+            cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 5)
+            
+    # Draw the lines on the  image
+    lines_edges = cv2.addWeighted(img, 0.8, line_image, 1, 0)
+
+    cv2.imshow("edges", edges)
+    cv2.imshow("lines", lines_edges)
+    cv2.waitKey(1)
