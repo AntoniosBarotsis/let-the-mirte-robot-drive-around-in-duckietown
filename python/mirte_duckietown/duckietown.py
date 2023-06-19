@@ -52,7 +52,7 @@ class Camera:
             where 0.0 is the top of the image and 1.0 is the bottom of the
             image.
         """
-        stop_line = self.__subscriber.getStopLine()
+        stop_line = self.getStopLine()
         if stop_line is None or stop_line.direction.x_coord == 0:
             return None
 
