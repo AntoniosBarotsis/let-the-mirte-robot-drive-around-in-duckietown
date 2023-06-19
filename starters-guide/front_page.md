@@ -1,1 +1,1 @@
-# Funny document
+# Introduction
