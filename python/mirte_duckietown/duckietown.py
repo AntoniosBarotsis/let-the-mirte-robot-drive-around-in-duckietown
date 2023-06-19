@@ -76,6 +76,14 @@ class Camera:
         # Check if stop line is close enough
         return stop_line_height >= self.__stop_line_threshold_height
 
+    def getImage(self):
+        """Gets the current camera image
+
+        Returns:
+            Image: Current image in OpenCV format, or None if no image is available
+        """
+        return self.__subscriber.getImage()
+
 
 def createCamera():
     """Creates a Camera object

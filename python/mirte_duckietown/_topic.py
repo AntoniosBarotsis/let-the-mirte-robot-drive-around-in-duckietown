@@ -1,4 +1,6 @@
 import rospy
+from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
 from mirte_msgs.msg import (
     LineSegmentList as LineSegmentMsg,
     Line as LineMsg,
@@ -14,9 +16,11 @@ class Subscriber:
     """
 
     def __init__(self):
-        # Initialise line segments
+        # Initialise private fields
         self.__line_segments = []
         self.__stop_line = None
+        self.__current_image = None
+        self.__bridge = CvBridge()
 
         # Callback for line segments
         def lineSegmentCb(data: LineSegmentMsg):
@@ -28,10 +32,17 @@ class Subscriber:
         def stopLineCb(data: LineMsg):
             self.__stop_line = Line.fromMessage(data)
 
+        # Callback for image
+        def imageCb(data: Image):
+            self.__current_image = self.__bridge.imgmsg_to_cv2(
+                data, desired_encoding="passthrough"
+            )
+
         # Initialise node and subscriptions
         rospy.init_node("camera", anonymous=True)
         rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
         rospy.Subscriber("stop_line", LineMsg, stopLineCb)
+        rospy.Subscriber("webcam/image_raw", Image, imageCb)
 
     def getLines(self):
         """Gets line segments from ROS
@@ -48,3 +59,11 @@ class Subscriber:
             Line: Stop line
         """
         return self.__stop_line
+
+    def getImage(self):
+        """Gets the current image from ROS
+
+        Returns:
+            Image: Current image
+        """
+        return self.__current_image
