@@ -1,5 +1,5 @@
 # TODO: Determine a MSRV and use that here instead
-image: antoniosbarotsis/mirte-rs:base
+image: antoniosbarotsis/mirte-rs:very-final
 
 variables:
   CARGO_HOME: $CI_PROJECT_DIR/.cargo
@@ -8,12 +8,12 @@ variables:
 cache:
   key:
     files:
-      - Cargo.lock
+      - rust/Cargo.lock
   paths:
     - .cargo/registry/index
     - .cargo/registry/cache
-    - target/debug/deps
-    - target/debug/build
+    - rust/target/debug/deps
+    - rust/target/debug/build
 
 stages:
   - build
@@ -23,22 +23,26 @@ stages:
 build:
   stage: build
   script:
-    cargo build --all-features
+    - cd rust
+    - cargo build --all-features
 
 test:
   stage: test
   needs: 
   - build
   script:
-    cargo test -r --verbose
+    - cd rust
+    - cargo test -r --verbose
 
 lint:
   stage: lint
   needs: 
   - build
   script:
+    - cd rust
     - rustup component add clippy rustfmt
     - cargo clippy --all-features -- -D warnings
     - cargo fmt --check
+    - cd ..
     - pip3 install pylint
     - pylint --ignore='.venv' --recursive=y ./python
