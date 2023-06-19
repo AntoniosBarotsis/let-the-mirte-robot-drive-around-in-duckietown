@@ -90,7 +90,7 @@
   },
   "duckietown": {
     "text": "duckietown",
-    "functions": ["dt_get_stop_line"],
+    "functions": ["sees_stop_line"],
     "rel_path": "Sensors\\Duckietown\\dt\\dt.py"
   }
 }

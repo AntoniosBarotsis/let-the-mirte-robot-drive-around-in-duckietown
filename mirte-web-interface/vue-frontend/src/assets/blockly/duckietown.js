@@ -1,5 +1,5 @@
 export function load(Blockly) {
-  Blockly.Blocks["dt_stop_line"] = {
+  Blockly.Blocks["sees_stop_line_duckietown"] = {
     init: function () {
       this.jsonInit({
         type: "block_type",
@@ -13,7 +13,7 @@ export function load(Blockly) {
     },
   };
 
-  Blockly.Python["dt_stop_line"] = function (block) {
+  Blockly.Python["sees_stop_line_duckietown"] = function (block) {
     Blockly.Python.definitions_["import_duckietown"] =
       "from mirte_duckietown import duckietown\ncamera = duckietown.createCamera()";
     let code = `camera.seesStopLine()`;
