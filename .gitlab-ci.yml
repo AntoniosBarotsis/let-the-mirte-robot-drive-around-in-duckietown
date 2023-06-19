@@ -33,8 +33,7 @@ test:
   script:
     - cd rust
     - cargo test -r --verbose
-    - cargo test -r --verbose
-    # - python3 -m unittest discover ./python `TODO: install `mirte_msgs` on the pipeline`
+    - python3 -m unittest discover ./python
 
 lint:
   stage: lint
