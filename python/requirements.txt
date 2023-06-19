@@ -3,3 +3,4 @@ numpy
 rospy
 pyyaml
 rospkg
+cvbridge3
