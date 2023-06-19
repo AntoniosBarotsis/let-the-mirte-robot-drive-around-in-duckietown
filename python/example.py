@@ -11,4 +11,5 @@ while True:
     if camera.seesStopLine():
         mirte.setMotorSpeed("left", 0)
         mirte.setMotorSpeed("right", 0)
+        break
     time.sleep(0.03)
