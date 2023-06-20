@@ -1,3 +1,4 @@
+use common::debug;
 use common::structs::colour::ColourEnum;
 use cv::detect_lines::detect_line_type;
 use cv::draw_lines::draw_lines;
@@ -18,7 +19,7 @@ fn main() -> Result<(), CvError> {
   let colours = vec![ColourEnum::Yellow, ColourEnum::White];
   let lines = detect_line_type(&usable_img, &HashMap::new(), colours)?;
 
-  println!("{:?}", now.elapsed());
+  debug!("{:?}", now.elapsed());
 
   let resized = downscale(&img)?;
   draw_lines(&resized, &lines);
