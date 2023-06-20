@@ -1,7 +1,6 @@
+opencv-python
+numpy
 rospy
 pyyaml
 rospkg
-pyrender
-transformations
-quaternionic
-simple-pid
+cvbridge3
