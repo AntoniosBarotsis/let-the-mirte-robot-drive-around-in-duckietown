@@ -10,4 +10,4 @@ The first and the last one should already be present if you followed earlier ste
 
 ## How is this Guide structured?
 
-The guide has several chapters each each exploring a different topic.
+The guide has several chapters each exploring a different topic.
