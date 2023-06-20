@@ -100,9 +100,9 @@ class Subscriber:
 
         self.__april_tags = new_tags
 
-def getAprilTag(self) -> List[AprilTag]:
-    """Gets a list of April Tags detected in the last `remember_ms` time frame.
-    
-    Returns:
-        List[AprilTag]"""
-    return self.__april_tags
+    def getAprilTags(self) -> List[AprilTag]:
+        """Gets a list of April Tags detected in the last `remember_ms` time frame.
+        
+        Returns:
+            List[AprilTag]"""
+        return self.__april_tags
