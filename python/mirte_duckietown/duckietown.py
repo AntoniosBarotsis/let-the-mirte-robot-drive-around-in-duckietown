@@ -1,5 +1,4 @@
 from ._topic import Subscriber
-from ._common import Obstacle, Object
 
 
 class Camera:
