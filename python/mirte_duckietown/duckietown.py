@@ -1,4 +1,7 @@
+import threading
+
 from ._topic import Subscriber
+import rospy
 
 
 class Camera:
@@ -11,12 +14,15 @@ class Camera:
         self,
         subscriber=None,
         stop_line_threshold_height=0.75,
+        robot=None,
     ):
         """Initialises a new camera
 
         Parameters:
-            subscriber (Subscriber): The subscriber to use for fetching ROS topics. If
-                None, a new subscriber will be created.
+            subscriber (Subscriber): The subscriber to use for fetching ROS topics.
+                If None, a new subscriber will be created.
+            robot (Robot): The robot to use for controlling the robot.
+                If None, you will not be able to control the robot automatically.
         """
         # Initialise subscriber
         if subscriber is None:
@@ -24,8 +30,18 @@ class Camera:
         else:
             self.__subscriber = subscriber
 
+        # Initialise robot
+        self.__robot = robot
+
         # Stop line threshold height
         self.__stop_line_threshold_height = stop_line_threshold_height
+
+        # Don't follow the lane using the camera
+        self.__following = False
+
+        # Run the follower in a separate thread
+        if self.__robot is not None:
+            threading.Thread(target=self.__follower).start()
 
     def getLines(self):
         """Gets line segments from the camera
@@ -83,6 +99,54 @@ class Camera:
             Image: Current image in OpenCV format, or None if no image is available
         """
         return self.__subscriber.getImage()
+
+    def __follower(self):
+        """Follows the lane using the camera
+
+        Returns:
+            None
+        """
+        while not rospy.is_shutdown():
+            lane = self.__subscriber.getLane()
+            if self.__following and lane is not None:
+                speed = 65
+                turn_speed = 10
+                turn_speed_corr = 5
+
+                angle = lane.centre_line.angle
+                speed_left = speed
+                speed_right = speed
+                if angle > 10:
+                    speed_left += turn_speed
+                    speed_right -= (turn_speed + turn_speed_corr)
+                elif angle < -10:
+                    speed_left -= (turn_speed + turn_speed_corr)
+                    speed_right += turn_speed
+                self.__robot.SetMotorSpeed('left', int(speed_left * 0.985))
+                self.__robot.SetMotorSpeed('right', speed_right)
+            else:
+                self.__robot.SetMotorSpeed('left', 0)
+                self.__robot.SetMotorSpeed('right', 0)
+            rospy.sleep(0.01)  # Prevent overloading ROS with messages
+
+    def startFollowing(self):
+        """ Start following the lane using the camera
+        Will not do anything if no robot is available
+
+        Returns:
+            None
+        """
+        if self.__robot is None:
+            return
+        self.__following = True
+
+    def stopFollowing(self):
+        """ Stop following the lane using the camera
+
+        Returns:
+            None
+        """
+        self.__following = False
 
 
 def createCamera():
