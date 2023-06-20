@@ -126,17 +126,9 @@ class Sign(Enum):
     TRAFFIC_LIGHT = 8
     PEDESTRIAN_CROSSING = 9
     PARKING = 10
-    BARFOOT_ST = 11
-    DUDEK_ST = 12
-    FORBES_AVE = 13
-    PINEAU_AVE = 14
-    KELLY_ST = 15
-    URTASUN_RD = 16
-    WASLANDER_ST = 17
-    SHARF_ST = 18
-    SHOELLIG_ST = 19
-    STOP = 20
-    UNDEFINED = 21
+    STOP = 11
+    STREET = 12
+    UNDEFINED = 13
 
     def __str__(self):
         return self.name
@@ -155,24 +147,30 @@ class AprilTag:
     _SIGN_MAPPING = {
         range(13, 17): Sign.CROSS_INTERSECTION,
         range(20, 29): Sign.STOP,
-        39: Sign.YIELD,
-        40: Sign.NO_TURNING_RIGHT,
-        41: Sign.NO_TURNING_LEFT,
+        range(39, 40): Sign.YIELD,
+        range(40, 41): Sign.NO_TURNING_RIGHT,
+        range(41, 42): Sign.NO_TURNING_LEFT,
         range(57, 59): Sign.INTERSECTION_RIGHT,
         range(61, 63): Sign.INTERSECTION_LEFT,
         range(65, 68): Sign.T_INTERSECTION,
         range(74, 78): Sign.TRAFFIC_LIGHT,
         range(95, 103): Sign.PEDESTRIAN_CROSSING,
-        125: Sign.PARKING,
-        530: Sign.BARFOOT_ST,
-        531: Sign.DUDEK_ST,
-        532: Sign.FORBES_AVE,
-        533: Sign.PINEAU_AVE,
-        534: Sign.KELLY_ST,
-        535: Sign.URTASUN_RD,
-        537: Sign.WASLANDER_ST,
-        541: Sign.SHARF_ST,
-        542: Sign.SHOELLIG_ST,
+        range(125, 126): Sign.PARKING,
+        range(530, 536): Sign.STREET,
+        range(537, 538): Sign.STREET,
+        range(541, 543): Sign.STREET,
+    }
+
+    _STREET_MAPPING = {
+        530: "BARFOOT_ST",
+        531: "DUDEK_ST",
+        532: "FORBES_AVE",
+        533: "PINEAU_AVE",
+        534: "KELLY_ST",
+        535: "URTASUN_RD",
+        537: "WASLANDER_ST",
+        541: "SHARF_ST",
+        542: "SHOELLIG_ST",
     }
 
     def __str__(self):
@@ -201,8 +199,16 @@ class AprilTag:
             Sign: The converted Sign
         """
         for value_range, sign in self._SIGN_MAPPING.items():
-            if isinstance(value_range, int) and self.value == value_range:
-                return sign
-            elif isinstance(value_range, range) and self.value in value_range:
+            if self.value in value_range:
                 return sign
         return Sign.UNDEFINED
+
+    def getStreetName(self):
+        """Gets the street name of the AprilTag
+
+        Returns:
+            str: The street name if the AprilTag is a street sign, None otherwise
+        """
+        if self.toSign() == Sign.STREET:
+            return self._STREET_MAPPING[self.value]
+        return None

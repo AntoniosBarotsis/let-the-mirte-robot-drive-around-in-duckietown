@@ -111,6 +111,20 @@ class Camera:
                 return True
         return False
 
+    def seesStreet(self, street_name):
+        """Checks if the robot sees the given street
+
+        Parameters:
+            street_name (str): The street to check for
+
+        Returns:
+            bool: True if the robot sees the street, False otherwise
+        """
+        for tag in self.getAprilTags():
+            if tag.getStreetName() == street_name:
+                return True
+        return False
+
 
 def createCamera():
     """Creates a Camera object
