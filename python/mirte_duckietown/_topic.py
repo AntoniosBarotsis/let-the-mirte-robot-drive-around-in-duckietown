@@ -82,7 +82,11 @@ class Subscriber:
         """
         return self.__current_image
     
-    def getAprilTag(self) -> List[AprilTag]:
+    def getAprilTag(self, remember_ms=500) -> List[AprilTag]:
+        """Gets a list of April Tags detected in the last `remember_ms` time frame.
+        
+        Returns:
+            List[AprilTag]"""
         tags = self.__april_tags
         new_tags = []
 
@@ -93,7 +97,7 @@ class Subscriber:
             delta_ms = delta.total_seconds() * 1000
 
             # If tag was detected in last 10ms
-            if delta_ms < 500 and tag not in new_tags:
+            if delta_ms < remember_ms and tag not in new_tags:
                 new_tags.append(tag)
 
         self.__april_tags = new_tags
