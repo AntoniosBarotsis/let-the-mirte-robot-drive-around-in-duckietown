@@ -1,4 +1,5 @@
 from ._topic import Subscriber
+from ._common import Obstacle, Object
 
 
 class Camera:
@@ -91,6 +92,31 @@ class Camera:
             list: List of Obstacle objects
         """
         return self.__subscriber.getObstacles()
+
+    def seesObstacleOnLane(self):
+        """Checks if the robot sees an obstacle on the lane
+
+        Returns:
+            bool: True if the robot sees an obstacle on the lane, False otherwise
+        """
+        obstacles = self.getObstacles()
+        if obstacles is None:
+            return False
+        # Check if obstacle is on lane
+        for obstacle in obstacles:
+            if self.isOnLane(obstacle):
+                return True
+        return False
+
+    def isOnLane(self, obstacle):
+        """Checks if the obstacle is on the lane
+
+        Returns:
+            bool: True if the obstacle is on the lane, False otherwise
+        """
+        if obstacle.diameter > 30:
+            return True
+        return False
 
 
 def createCamera():
