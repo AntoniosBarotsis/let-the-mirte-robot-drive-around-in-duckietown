@@ -96,7 +96,7 @@ class Subscriber:
             delta = now - then  
             delta_ms = delta.total_seconds() * 1000
 
-            # If tag was detected in last 10ms
+            # If tag was detected in last remember_ms
             if delta_ms < remember_ms and tag not in new_tags:
                 new_tags.append(tag)
 
