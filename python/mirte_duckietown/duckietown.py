@@ -85,7 +85,7 @@ class Camera:
         return self.__subscriber.getImage()
 
     def getAprilTag(self):
-        return self.__subscriber.getAprilTag()
+        return self.__subscriber.filterAprilTags()
 
 
 def createCamera():

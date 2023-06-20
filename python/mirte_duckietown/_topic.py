@@ -18,13 +18,14 @@ class Subscriber:
     are just wrapper calling ROS topics.
     """
 
-    def __init__(self):
+    def __init__(self, remember_ms=500):
         # Initialise private fields
         self.__line_segments = []
         self.__stop_line = None
         self.__current_image = None
         self.__bridge = CvBridge()
         self.__april_tags: list[AprilTag] = []
+        self.remember_ms = remember_ms
 
         # Callback for line segments
         def lineSegmentCb(data: LineSegmentMsg):
@@ -50,6 +51,7 @@ class Subscriber:
                 april_tag = AprilTag(elem.id[0], now)
 
                 self.__april_tags.append(april_tag)
+                self._filterAprilTags()
 
         # Initialise node and subscriptions
         rospy.init_node("camera", anonymous=True)
@@ -82,11 +84,7 @@ class Subscriber:
         """
         return self.__current_image
     
-    def getAprilTag(self, remember_ms=500) -> List[AprilTag]:
-        """Gets a list of April Tags detected in the last `remember_ms` time frame.
-        
-        Returns:
-            List[AprilTag]"""
+    def _filterAprilTags(self):
         tags = self.__april_tags
         new_tags = []
 
@@ -97,9 +95,14 @@ class Subscriber:
             delta_ms = delta.total_seconds() * 1000
 
             # If tag was detected in last remember_ms
-            if delta_ms < remember_ms and tag not in new_tags:
+            if delta_ms < self.remember_ms and tag not in new_tags:
                 new_tags.append(tag)
 
         self.__april_tags = new_tags
 
-        return new_tags
+def getAprilTag(self) -> List[AprilTag]:
+    """Gets a list of April Tags detected in the last `remember_ms` time frame.
+    
+    Returns:
+        List[AprilTag]"""
+    return self.__april_tags
