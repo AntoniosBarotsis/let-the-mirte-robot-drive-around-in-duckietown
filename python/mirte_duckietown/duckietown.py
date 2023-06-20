@@ -107,7 +107,7 @@ class Camera:
             bool: True if the robot sees the sign, False otherwise
         """
         for tag in self.getAprilTags():
-            if tag.value == sign:
+            if tag.toSign() == sign:
                 return True
         return False
 
