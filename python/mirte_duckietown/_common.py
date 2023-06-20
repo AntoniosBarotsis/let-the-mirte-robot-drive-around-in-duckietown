@@ -21,6 +21,19 @@ class Colour(Enum):
         return self.name
 
 
+class Object(Enum):
+    """Enum for objects
+
+    Represents the available objects for an obstacle.
+    """
+
+    MIRTE = 0
+    DUCK = 1
+
+    def __str__(self):
+        return self.name
+
+
 @dataclass
 class Point:
     """Point in 2D space
@@ -106,4 +119,35 @@ class Line:
         return Line(
             Point(message.origin.x, message.origin.y),
             Vector(message.direction.x, message.direction.y),
+        )
+
+
+@dataclass
+class Obstacle:
+    """Obstacle in the image
+
+    An obstacle with a diameter, location and object type.
+    """
+
+    diameter: float
+    location: Point
+    object: Object
+
+    def __str__(self):
+        return f"Obstacle(diameter={self.diameter}, location={self.location}, object={self.object})"
+
+    @staticmethod
+    def fromMessage(message):
+        """Converts a Obstacle message to a Obstacle object
+
+        Parameters:
+            message (mirte_msgs.msg.Obstacle): The message to convert
+
+        Returns:
+            Obstacle: The converted object
+        """
+        return Obstacle(
+            message.diameter,
+            Point(message.location.x, message.location.y),
+            Object(message.object.type),
         )

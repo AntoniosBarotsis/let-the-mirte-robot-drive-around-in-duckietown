@@ -84,6 +84,14 @@ class Camera:
         """
         return self.__subscriber.getImage()
 
+    def getObstacles(self):
+        """Gets the obstacles from the camera
+
+        Returns:
+            list: List of Obstacle objects
+        """
+        return self.__subscriber.getObstacles()
+
 
 def createCamera():
     """Creates a Camera object

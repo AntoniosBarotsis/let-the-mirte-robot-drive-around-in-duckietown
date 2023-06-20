@@ -4,8 +4,9 @@ from sensor_msgs.msg import Image
 from mirte_msgs.msg import (
     LineSegmentList as LineSegmentMsg,
     Line as LineMsg,
+    ObstacleList as ObstacleMsg,
 )
-from ._common import LineSegment, Line
+from ._common import LineSegment, Line, Obstacle
 
 
 class Subscriber:
@@ -21,6 +22,7 @@ class Subscriber:
         self.__stop_line = None
         self.__current_image = None
         self.__bridge = CvBridge()
+        self.__obstacles = []
 
         # Callback for line segments
         def lineSegmentCb(data: LineSegmentMsg):
@@ -38,11 +40,18 @@ class Subscriber:
                 data, desired_encoding="passthrough"
             )
 
+        # Callback for obstacles
+        def obstacleCb(data: ObstacleMsg):
+            self.__obstacles = []
+            for obstacle in data.obstacles:
+                self.__obstacles.append(Obstacle.fromMessage(obstacle))
+
         # Initialise node and subscriptions
         rospy.init_node("camera", anonymous=True)
         rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
         rospy.Subscriber("stop_line", LineMsg, stopLineCb)
         rospy.Subscriber("webcam/image_raw", Image, imageCb)
+        rospy.Subscriber("/obstacles", ObstacleMsg, obstacleCb)
 
     def getLines(self):
         """Gets line segments from ROS
@@ -67,3 +76,11 @@ class Subscriber:
             Image: Current image
         """
         return self.__current_image
+
+    def getObstacles(self):
+        """Gets the current obstacles from ROS
+
+        Returns:
+            list: List of Obstacle objects
+        """
+        return self.__obstacles
