@@ -36,7 +36,7 @@ class Camera:
         """Gets line segments from the camera
 
         Returns:
-            list: List of LineSegment objects
+            list[LineSegment]: List of LineSegment objects
         """
         return self.__subscriber.getLines()
 
@@ -93,7 +93,7 @@ class Camera:
         """Gets the april tags from the camera
 
         Returns:
-            list: List of AprilTag objects
+            list[AprilTag]: List of AprilTag objects
         """
         return self.__subscriber.getAprilTags()
 

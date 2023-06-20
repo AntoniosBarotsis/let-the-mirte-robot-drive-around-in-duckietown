@@ -73,7 +73,7 @@ class Subscriber:
         """Gets line segments from ROS
 
         Returns:
-            list: List of LineSegment objects
+            list[LineSegment]: List of LineSegment objects
         """
         return self.__line_segments
 
@@ -97,6 +97,6 @@ class Subscriber:
         """Gets the april tags from ROS
 
         Returns:
-            list: List of AprilTag objects
+            list[AprilTag]: List of AprilTag objects
         """
         return self.__april_tags
