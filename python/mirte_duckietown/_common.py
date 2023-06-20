@@ -152,6 +152,29 @@ class AprilTag:
     value: int
     timestamp: datetime
 
+    _SIGN_MAPPING = {
+        range(13, 17): Sign.CROSS_INTERSECTION,
+        range(20, 29): Sign.STOP,
+        39: Sign.YIELD,
+        40: Sign.NO_TURNING_RIGHT,
+        41: Sign.NO_TURNING_LEFT,
+        range(57, 59): Sign.INTERSECTION_RIGHT,
+        range(61, 63): Sign.INTERSECTION_LEFT,
+        range(65, 68): Sign.T_INTERSECTION,
+        range(74, 78): Sign.TRAFFIC_LIGHT,
+        range(95, 103): Sign.PEDESTRIAN_CROSSING,
+        125: Sign.PARKING,
+        530: Sign.BARFOOT_ST,
+        531: Sign.DUDEK_ST,
+        532: Sign.FORBES_AVE,
+        533: Sign.PINEAU_AVE,
+        534: Sign.KELLY_ST,
+        535: Sign.URTASUN_RD,
+        537: Sign.WASLANDER_ST,
+        541: Sign.SHARF_ST,
+        542: Sign.SHOELLIG_ST,
+    }
+
     def __str__(self):
         return f"AprilTag(value={self.value}, timestamp={self.timestamp})"
 
@@ -177,45 +200,8 @@ class AprilTag:
         Returns:
             Sign: The converted Sign
         """
-        if 13 <= self.value <= 16:
-            return Sign.CROSS_INTERSECTION
-        elif 20 <= self.value <= 28:
-            return Sign.STOP
-        elif self.value == 39:
-            return Sign.YIELD
-        elif self.value == 40:
-            return Sign.NO_TURNING_RIGHT
-        elif self.value == 41:
-            return Sign.NO_TURNING_LEFT
-        elif 57 <= self.value <= 58:
-            return Sign.INTERSECTION_RIGHT
-        elif 61 <= self.value <= 62:
-            return Sign.INTERSECTION_LEFT
-        elif 65 <= self.value <= 67:
-            return Sign.T_INTERSECTION
-        elif 74 <= self.value <= 77:
-            return Sign.TRAFFIC_LIGHT
-        elif 95 <= self.value <= 102:
-            return Sign.PEDESTRIAN_CROSSING
-        elif self.value == 125:
-            return Sign.PARKING
-        elif self.value == 530:
-            return Sign.BARFOOT_ST
-        elif self.value == 531:
-            return Sign.DUDEK_ST
-        elif self.value == 532:
-            return Sign.FORBES_AVE
-        elif self.value == 533:
-            return Sign.PINEAU_AVE
-        elif self.value == 534:
-            return Sign.KELLY_ST
-        elif self.value == 535:
-            return Sign.URTASUN_RD
-        elif self.value == 537:
-            return Sign.WASLANDER_ST
-        elif self.value == 541:
-            return Sign.SHARF_ST
-        elif self.value == 542:
-            return Sign.SHOELLIG_ST
-        else:
-            return Sign.UNDEFINED
+        for value_range, sign in self._SIGN_MAPPING.items():
+            if isinstance(value_range, int) and self.value == value_range:
+                return sign
+            elif isinstance(value_range, range) and self.value in value_range:
+                return sign
