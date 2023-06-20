@@ -4,8 +4,9 @@ from sensor_msgs.msg import Image
 from mirte_msgs.msg import (
     LineSegmentList as LineSegmentMsg,
     Line as LineMsg,
+    Lane as LaneMsg,
 )
-from ._common import LineSegment, Line
+from ._common import LineSegment, Line, Lane
 
 
 class Subscriber:
@@ -21,6 +22,7 @@ class Subscriber:
         self.__stop_line = None
         self.__current_image = None
         self.__bridge = CvBridge()
+        self.__lane = None
 
         # Callback for line segments
         def lineSegmentCb(data: LineSegmentMsg):
@@ -38,11 +40,16 @@ class Subscriber:
                 data, desired_encoding="passthrough"
             )
 
+        def laneCb(data: LaneMsg):
+            self.__lane = Lane.fromMessage(data)
+
+
         # Initialise node and subscriptions
         rospy.init_node("camera", anonymous=True)
         rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
         rospy.Subscriber("stop_line", LineMsg, stopLineCb)
         rospy.Subscriber("webcam/image_raw", Image, imageCb)
+        rospy.Subscriber("lanes", LaneMsg, laneCb)
 
     def getLines(self):
         """Gets line segments from ROS
@@ -67,3 +74,11 @@ class Subscriber:
             Image: Current image
         """
         return self.__current_image
+
+    def getLane(self):
+        """Gets the current lane from ROS
+
+        Returns:
+            Lane: Current lane
+        """
+        return self.__lane
