@@ -11,16 +11,21 @@ class Camera:
         self,
         subscriber=None,
         stop_line_threshold_height=0.75,
+        tag_life=500,
     ):
         """Initialises a new camera
 
         Parameters:
             subscriber (Subscriber): The subscriber to use for fetching ROS topics. If
-                None, a new subscriber will be created.
+                None, a new subscriber will be created
+            stop_line_threshold_height (float): The theshold where the stop
+                line is considered to be visible
+            tag_life (int): The number of milliseconds a tag will be remembered
+                until it is considered expired
         """
         # Initialise subscriber
         if subscriber is None:
-            self.__subscriber = Subscriber()
+            self.__subscriber = Subscriber(tag_life=tag_life)
         else:
             self.__subscriber = subscriber
 
@@ -85,6 +90,11 @@ class Camera:
         return self.__subscriber.getImage()
 
     def getAprilTags(self):
+        """Gets the april tags from the camera
+
+        Returns:
+            list: List of AprilTag objects
+        """
         return self.__subscriber.getAprilTags()
 
 

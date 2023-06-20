@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
 
@@ -109,15 +109,13 @@ class Line:
             Vector(message.direction.x, message.direction.y),
         )
 
-class AprilTag:
-    def __init__(self, id: int, timestamp: datetime.datetime) -> None:
-        self.id = id
-        self.timestamp = timestamp
-    
-    def __eq__(self, __value: object) -> bool:
-        return self.id == __value.id
 
 class Sign(Enum):
+    """Enum for signs
+
+    Represents the available signs for an AprilTag.
+    """
+
     CROSS_INTERSECTION = 1
     YIELD = 2
     NO_TURNING_RIGHT = 3
@@ -140,46 +138,84 @@ class Sign(Enum):
     STOP = 20
     UNDEFINED = 21
 
-def id_to_sign(tag_id: int) -> Sign:
-    if 13 <= tag_id <= 16:
-        return Sign.CROSS_INTERSECTION
-    elif 20 <= tag_id <= 28:
-        return Sign.STOP
-    elif tag_id == 39:
-        return Sign.YIELD
-    elif tag_id == 40:
-        return Sign.NO_TURNING_RIGHT
-    elif tag_id == 41:
-        return Sign.NO_TURNING_LEFT
-    elif 57 <= tag_id <= 58:
-        return Sign.INTERSECTION_RIGHT
-    elif 61 <= tag_id <= 62:
-        return Sign.INTERSECTION_LEFT
-    elif 65 <= tag_id <= 67:
-        return Sign.T_INTERSECTION
-    elif 74 <= tag_id <= 77:
-        return Sign.TRAFFIC_LIGHT
-    elif 95 <= tag_id <= 102:
-        return Sign.PEDESTRIAN_CROSSING
-    elif tag_id == 125:
-        return Sign.PARKING
-    elif tag_id == 530:
-        return Sign.BARFOOT_ST
-    elif tag_id == 531:
-        return Sign.DUDEK_ST
-    elif tag_id == 532:
-        return Sign.FORBES_AVE
-    elif tag_id == 533:
-        return Sign.PINEAU_AVE
-    elif tag_id == 534:
-        return Sign.KELLY_ST
-    elif tag_id == 535:
-        return Sign.URTASUN_RD
-    elif tag_id == 537:
-        return Sign.WASLANDER_ST
-    elif tag_id == 541:
-        return Sign.SHARF_ST
-    elif tag_id == 542:
-        return Sign.SHOELLIG_ST
-    else:
-        return Sign.UNDEFINED
+    def __str__(self):
+        return self.name
+
+
+@dataclass
+class AprilTag:
+    """AprilTag
+
+    Represents an AprilTag with an ID and timestamp.
+    """
+
+    value: int
+    timestamp: datetime
+
+    def __str__(self):
+        return f"AprilTag(value={self.value}, timestamp={self.timestamp})"
+
+    def __eq__(self, other):
+        return self.value == other.value
+
+    def hasExpired(self, tag_life):
+        """Checks if the AprilTag has expired
+
+        Parameters:
+            tag_life (int): The shelf life of the AprilTag in milliseconds
+
+        Returns:
+            bool: True if the AprilTag has expired, False otherwise
+        """
+        return (
+            datetime.now() - self.timestamp
+        ).total_seconds() * 1000 > tag_life
+
+    def toSign(self):
+        """Converts the AprilTag to a Sign
+
+        Returns:
+            Sign: The converted Sign
+        """
+        if 13 <= self.value <= 16:
+            return Sign.CROSS_INTERSECTION
+        elif 20 <= self.value <= 28:
+            return Sign.STOP
+        elif self.value == 39:
+            return Sign.YIELD
+        elif self.value == 40:
+            return Sign.NO_TURNING_RIGHT
+        elif self.value == 41:
+            return Sign.NO_TURNING_LEFT
+        elif 57 <= self.value <= 58:
+            return Sign.INTERSECTION_RIGHT
+        elif 61 <= self.value <= 62:
+            return Sign.INTERSECTION_LEFT
+        elif 65 <= self.value <= 67:
+            return Sign.T_INTERSECTION
+        elif 74 <= self.value <= 77:
+            return Sign.TRAFFIC_LIGHT
+        elif 95 <= self.value <= 102:
+            return Sign.PEDESTRIAN_CROSSING
+        elif self.value == 125:
+            return Sign.PARKING
+        elif self.value == 530:
+            return Sign.BARFOOT_ST
+        elif self.value == 531:
+            return Sign.DUDEK_ST
+        elif self.value == 532:
+            return Sign.FORBES_AVE
+        elif self.value == 533:
+            return Sign.PINEAU_AVE
+        elif self.value == 534:
+            return Sign.KELLY_ST
+        elif self.value == 535:
+            return Sign.URTASUN_RD
+        elif self.value == 537:
+            return Sign.WASLANDER_ST
+        elif self.value == 541:
+            return Sign.SHARF_ST
+        elif self.value == 542:
+            return Sign.SHOELLIG_ST
+        else:
+            return Sign.UNDEFINED
