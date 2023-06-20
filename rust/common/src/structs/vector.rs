@@ -29,7 +29,7 @@ impl Add for Vector3 {
   type Output = Vector3;
 
   fn add(self, rhs: Self) -> Self::Output {
-    Self::new(self.x * rhs.x, self.y * rhs.y)
+    Self::new(self.x + rhs.x, self.y + rhs.y)
   }
 }
 

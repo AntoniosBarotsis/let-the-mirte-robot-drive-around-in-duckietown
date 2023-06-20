@@ -1,4 +1,5 @@
 from enum import Enum
+from dataclasses import dataclass
 
 
 class Colour(Enum):
@@ -20,44 +21,44 @@ class Colour(Enum):
         return self.name
 
 
+@dataclass
 class Point:
     """Point in 2D space
 
     A point with x and y coordinates.
     """
 
-    def __init__(self, x_coord: float, y_coord: float):
-        self.x_coord = x_coord
-        self.y_coord = y_coord
+    x_coord: float
+    y_coord: float
 
     def __str__(self):
         return f"({self.x_coord}, {self.y_coord})"
 
 
+@dataclass
 class Vector:
     """Vector in 2D space
 
     A vector with x and y components.
     """
 
-    def __init__(self, x_coord: float, y_coord: float):
-        self.x_coord = x_coord
-        self.y_coord = y_coord
+    x_coord: float
+    y_coord: float
 
     def __str__(self):
         return f"({self.x_coord}, {self.y_coord})"
 
 
+@dataclass
 class LineSegment:
     """Line segment in 2D space
 
     A line segment with a colour, start and end point.
     """
 
-    def __init__(self, colour: Colour, start: Point, end: Point):
-        self.colour = colour
-        self.start = start
-        self.end = end
+    colour: Colour
+    start: Point
+    end: Point
 
     def __str__(self):
         return f"LineSegment(colour={self.colour}, start={self.start}, end={self.end})"
@@ -79,15 +80,15 @@ class LineSegment:
         )
 
 
+@dataclass
 class Line:
     """Line in 2D space
 
     A line with an origin and direction.
     """
 
-    def __init__(self, origin: Point, direction: Vector):
-        self.origin = origin
-        self.direction = direction
+    origin: Point
+    direction: Vector
 
     def __str__(self):
         return f"Line(origin={self.origin}, direction={self.direction})"

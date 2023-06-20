@@ -1,11 +1,11 @@
 # pylint: skip-file
 
-from cv import Camera
+from mirte_duckietown import duckietown
 import cv2
 import numpy as np
 
 # Initialise the camera
-processor = Camera()
+processor = duckietown.createCamera()
 
 # Example from https://stackoverflow.com/questions/45322630/how-to-detect-lines-in-opencv
 while True:
@@ -31,13 +31,20 @@ while True:
 
     # Run Hough on edge detected image
     # Output "lines" is an array containing endpoints of detected line segments
-    lines = cv2.HoughLinesP(edges, rho, theta, threshold, np.array([]),
-                            min_line_length, max_line_gap)
+    lines = cv2.HoughLinesP(
+        edges,
+        rho,
+        theta,
+        threshold,
+        np.array([]),
+        min_line_length,
+        max_line_gap,
+    )
 
     for line in lines:
         for x1, y1, x2, y2 in line:
             cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 5)
-            
+
     # Draw the lines on the  image
     lines_edges = cv2.addWeighted(img, 0.8, line_image, 1, 0)
 
