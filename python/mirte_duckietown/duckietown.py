@@ -97,6 +97,20 @@ class Camera:
         """
         return self.__subscriber.getAprilTags()
 
+    def seesSign(self, sign):
+        """Checks if the robot sees the given sign
+
+        Parameters:
+            sign (Sign): The sign to check for
+
+        Returns:
+            bool: True if the robot sees the sign, False otherwise
+        """
+        for tag in self.getAprilTags():
+            if tag.value == sign:
+                return True
+        return False
+
 
 def createCamera():
     """Creates a Camera object

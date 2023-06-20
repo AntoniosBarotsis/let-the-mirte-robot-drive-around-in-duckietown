@@ -205,3 +205,4 @@ class AprilTag:
                 return sign
             elif isinstance(value_range, range) and self.value in value_range:
                 return sign
+        return Sign.UNDEFINED
