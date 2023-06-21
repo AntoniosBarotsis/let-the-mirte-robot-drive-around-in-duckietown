@@ -110,30 +110,6 @@ class Line:
         )
 
 
-class Sign(Enum):
-    """Enum for signs
-
-    Represents the available signs for an AprilTag.
-    """
-
-    CROSS_INTERSECTION = 1
-    YIELD = 2
-    NO_TURNING_RIGHT = 3
-    NO_TURNING_LEFT = 4
-    INTERSECTION_RIGHT = 5
-    INTERSECTION_LEFT = 6
-    T_INTERSECTION = 7
-    TRAFFIC_LIGHT = 8
-    PEDESTRIAN_CROSSING = 9
-    PARKING = 10
-    STOP = 11
-    STREET = 12
-    UNDEFINED = 13
-
-    def __str__(self):
-        return self.name
-
-
 @dataclass
 class AprilTag:
     """AprilTag
@@ -141,43 +117,14 @@ class AprilTag:
     Represents an AprilTag with an ID and timestamp.
     """
 
-    value: int
+    tag_id: int
     timestamp: datetime
 
-    _SIGN_MAPPING = {
-        range(13, 17): Sign.CROSS_INTERSECTION,
-        range(20, 29): Sign.STOP,
-        range(39, 40): Sign.YIELD,
-        range(40, 41): Sign.NO_TURNING_RIGHT,
-        range(41, 42): Sign.NO_TURNING_LEFT,
-        range(57, 59): Sign.INTERSECTION_RIGHT,
-        range(61, 63): Sign.INTERSECTION_LEFT,
-        range(65, 68): Sign.T_INTERSECTION,
-        range(74, 78): Sign.TRAFFIC_LIGHT,
-        range(95, 103): Sign.PEDESTRIAN_CROSSING,
-        range(125, 126): Sign.PARKING,
-        range(530, 536): Sign.STREET,
-        range(537, 538): Sign.STREET,
-        range(541, 543): Sign.STREET,
-    }
-
-    _STREET_MAPPING = {
-        530: "BARFOOT_ST",
-        531: "DUDEK_ST",
-        532: "FORBES_AVE",
-        533: "PINEAU_AVE",
-        534: "KELLY_ST",
-        535: "URTASUN_RD",
-        537: "WASLANDER_ST",
-        541: "SHARF_ST",
-        542: "SHOELLIG_ST",
-    }
-
     def __str__(self):
-        return f"AprilTag(value={self.value}, timestamp={self.timestamp})"
+        return f"AprilTag(tag_id={self.tag_id}, timestamp={self.timestamp})"
 
     def __eq__(self, other):
-        return self.value == other.value
+        return self.tag_id == other.tag_id
 
     def hasExpired(self, tag_life):
         """Checks if the AprilTag has expired
@@ -196,12 +143,9 @@ class AprilTag:
         """Converts the AprilTag to a Sign
 
         Returns:
-            Sign: The converted Sign
+            str: The converted Sign
         """
-        for value_range, sign in self._SIGN_MAPPING.items():
-            if self.value in value_range:
-                return sign
-        return Sign.UNDEFINED
+        return None
 
     def getStreetName(self):
         """Gets the street name of the AprilTag
@@ -209,6 +153,4 @@ class AprilTag:
         Returns:
             str: The street name if the AprilTag is a street sign, None otherwise
         """
-        if self.toSign() == Sign.STREET:
-            return self._STREET_MAPPING[self.value]
         return None
