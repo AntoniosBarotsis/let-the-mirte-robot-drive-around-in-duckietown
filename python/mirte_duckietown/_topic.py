@@ -65,12 +65,13 @@ class Subscriber:
         # Initialise node and subscriptions
         try:
             rospy.init_node("camera", anonymous=True)
-            rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
-            rospy.Subscriber("stop_line", LineMsg, stopLineCb)
-            rospy.Subscriber("webcam/image_raw", Image, imageCb)
-            rospy.Subscriber("tag_detections", AprilTagMsg, aprilTagCb)
         except rospy.exceptions.ROSException:
             print("Node has already been initialized!")
+
+        rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
+        rospy.Subscriber("stop_line", LineMsg, stopLineCb)
+        rospy.Subscriber("webcam/image_raw", Image, imageCb)
+        rospy.Subscriber("tag_detections", AprilTagMsg, aprilTagCb)
 
     def getLines(self):
         """Gets line segments from ROS
