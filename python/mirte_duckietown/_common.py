@@ -144,9 +144,9 @@ class Lane:
             Lane: The converted object
         """
         return Lane(
-            Line.fromMessage(message.left_line),
-            Line.fromMessage(message.centre_line),
-            Line.fromMessage(message.right_line)
+            Line.fromMessage(message.left),
+            Line.fromMessage(message.centre),
+            Line.fromMessage(message.right)
         )
 
     def __str__(self):
