@@ -1,4 +1,5 @@
 use crate::{cv_error::CvError, image::convert_to_rgb};
+use common::edebug;
 use common::{mirte_msgs::LineSegment, structs::colour::ColourEnum};
 use opencv::{
   core::{Mat, Point, Scalar},
@@ -47,6 +48,6 @@ pub fn draw_lines(img: &Mat, lines: &Vec<LineSegment>) {
       let _res = wait_key(0).expect("keep window open");
     }
   } else {
-    eprintln!("Could not convert colour of image");
+    edebug!("Could not convert colour of image");
   }
 }

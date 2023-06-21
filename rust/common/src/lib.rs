@@ -1,3 +1,4 @@
+pub mod logger;
 pub mod structs;
 
 rosrust::rosmsg_include!(

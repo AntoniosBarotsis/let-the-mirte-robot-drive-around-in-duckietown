@@ -237,10 +237,8 @@ fn detect_obstacles_with_params(
     .collect();
 
   #[cfg(debug_assertions)]
-  {
-    for ob in obstacles.clone().into_iter().rev() {
-      println!("{ob:?}");
-    }
+  for ob in obstacles.clone().into_iter().rev() {
+    common::debug!("{ob:?}");
   }
 
   Ok(obstacles)
