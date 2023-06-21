@@ -101,8 +101,8 @@
     "STOP_LINE": "ziet stop streep",
     "STOP_LINE_TIP": "Vertelt of Mirte en stopstreep ziet",
     "START_FOLLOWING": "Volg de weg",
-    "START_FOLLOWIng_TIP": "Start met het volgen van de Duckietown weg",
+    "START_FOLLOWING_TIP": "Start met het volgen van de Duckietown weg",
     "STOP_FOLLOWING": "Stop met volgen",
-    "STOP_FOLLOWIng_TIP": "Stopt met het volgen van de Duckietown weg"
+    "STOP_FOLLOWING_TIP": "Stopt met het volgen van de Duckietown weg"
   }
 }

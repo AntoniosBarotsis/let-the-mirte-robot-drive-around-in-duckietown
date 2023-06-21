@@ -101,8 +101,8 @@
     "STOP_LINE": "sees stop line",
     "STOP_LINE_TIP": "Tells whether Mirte sees a stop line",
     "START_FOLLOWING": "Follow the road",
-    "START_FOLLOWIng_TIP": "Starts following the Duckietown road",
+    "START_FOLLOWING_TIP": "Starts following the Duckietown road",
     "STOP_FOLLOWING": "Stop following",
-    "STOP_FOLLOWIng_TIP": "Stops following the Duckietown road"
+    "STOP_FOLLOWING_TIP": "Stops following the Duckietown road"
   }
 }
