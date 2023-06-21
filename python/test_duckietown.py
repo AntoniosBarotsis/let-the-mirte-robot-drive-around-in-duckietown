@@ -11,8 +11,8 @@ from mirte_duckietown._common import (
     Line,
     Vector,
     AprilTag,
-    Sign,
 )
+from mirte_duckietown.sign import Sign
 
 
 class TestCamera(unittest.TestCase):
@@ -148,13 +148,13 @@ class TestCamera(unittest.TestCase):
 
         # No AprilTags are visible
         subscriber.getAprilTags = MagicMock(return_value=[])
-        self.assertFalse(camera.seesSign(Sign.CROSS_INTERSECTION))
+        self.assertFalse(camera.seesSign(Sign.FOUR_WAY_INTERSECT))
 
         # AprilTag is visible, but not the one we are looking for
         subscriber.getAprilTags = MagicMock(
             return_value=[AprilTag(531, datetime.now())]
         )
-        self.assertFalse(camera.seesSign(Sign.CROSS_INTERSECTION))
+        self.assertFalse(camera.seesSign(Sign.FOUR_WAY_INTERSECT))
 
         # AprilTag is visible and the one we are looking for
         subscriber.getAprilTags = MagicMock(
@@ -163,7 +163,7 @@ class TestCamera(unittest.TestCase):
                 AprilTag(531, datetime.now()),
             ]
         )
-        self.assertTrue(camera.seesSign(Sign.CROSS_INTERSECTION))
+        self.assertTrue(camera.seesSign(Sign.FOUR_WAY_INTERSECT))
 
     def testSeesStreet(self):
         """Test the seesStreet method"""
@@ -172,7 +172,7 @@ class TestCamera(unittest.TestCase):
 
         # No AprilTags are visible
         subscriber.getAprilTags = MagicMock(return_value=[])
-        self.assertFalse(camera.seesStreet("DUDEK_ST"))
+        self.assertFalse(camera.seesStreet("DUDEK ST"))
 
         # AprilTag is visible, but not the one we are looking for
         subscriber.getAprilTags = MagicMock(
@@ -181,7 +181,7 @@ class TestCamera(unittest.TestCase):
                 AprilTag(532, datetime.now()),
             ]
         )
-        self.assertFalse(camera.seesStreet("DUDEK_ST"))
+        self.assertFalse(camera.seesStreet("DUDEK ST"))
 
         # AprilTag is visible and the one we are looking for
         subscriber.getAprilTags = MagicMock(
@@ -190,7 +190,9 @@ class TestCamera(unittest.TestCase):
                 AprilTag(531, datetime.now()),
             ]
         )
-        self.assertTrue(camera.seesStreet("DUDEK_ST"))
+        self.assertTrue(camera.seesStreet("DUDEK ST"))
+        self.assertTrue(camera.seesStreet("dudek st."))
+        self.assertTrue(camera.seesStreet("dUdEk St"))
 
 
 if __name__ == "__main__":

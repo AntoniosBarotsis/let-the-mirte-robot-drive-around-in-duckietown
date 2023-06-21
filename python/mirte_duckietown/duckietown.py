@@ -111,7 +111,7 @@ class Camera:
                 return True
         return False
 
-    def seesStreet(self, street_name):
+    def seesStreet(self, street_name: str):
         """Checks if the robot sees the given street
 
         Parameters:
@@ -120,6 +120,9 @@ class Camera:
         Returns:
             bool: True if the robot sees the street, False otherwise
         """
+        # Convert street name to uppercase and remove trailing dot
+        street_name = street_name.upper().rstrip(".")
+        # Check if street name is in the list of street names
         for tag in self.getAprilTags():
             if tag.getStreetName() == street_name:
                 return True

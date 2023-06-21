@@ -172,7 +172,12 @@ class AprilTag:
         tag: dict = tag_db.lookup(self.tag_id)
         if tag is None:
             return None
-        return tag.get("street_name")
+        # If tag is a street sign, return the street name
+        street_name: str = tag.get("street_name")
+        if street_name is None:
+            return None
+        # Remove trailing dots
+        return street_name.rstrip(".")
 
 
 class TagDatabase:
