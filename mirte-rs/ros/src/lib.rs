@@ -25,7 +25,6 @@ pub(crate) fn init() {
     env_logger::init();
 
     // Initialize node
-    // TODO: Rename this, name should represent the entire project and webcam is annoying me 😭
     rosrust::init("duckietown_navigator");
   });
 }
