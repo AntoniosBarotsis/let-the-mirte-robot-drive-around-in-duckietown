@@ -147,11 +147,15 @@ class Camera:
 
     def stopFollowing(self):
         """ Stop following the lane using the camera
+        Will turn off the motors when called
 
         Returns:
             None
         """
         self.__following = False
+        if self.__robot is not None:
+            self.__robot.setMotorSpeed('left', 0)
+            self.__robot.setMotorSpeed('right', 0)
 
 
 def createCamera(robot=None):
