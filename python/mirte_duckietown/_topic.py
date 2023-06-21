@@ -63,11 +63,14 @@ class Subscriber:
             self.__april_tags = new_tags
 
         # Initialise node and subscriptions
-        rospy.init_node("camera", anonymous=True)
-        rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
-        rospy.Subscriber("stop_line", LineMsg, stopLineCb)
-        rospy.Subscriber("webcam/image_raw", Image, imageCb)
-        rospy.Subscriber("tag_detections", AprilTagMsg, aprilTagCb)
+        try:
+            rospy.init_node("camera", anonymous=True)
+            rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
+            rospy.Subscriber("stop_line", LineMsg, stopLineCb)
+            rospy.Subscriber("webcam/image_raw", Image, imageCb)
+            rospy.Subscriber("tag_detections", AprilTagMsg, aprilTagCb)
+        except rospy.exceptions.ROSException:
+            print("Node has already been initialized!")
 
     def getLines(self):
         """Gets line segments from ROS
