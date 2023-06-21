@@ -51,6 +51,14 @@ class Camera:
         """
         return self.__subscriber.getLines()
 
+    def getLane(self):
+        """Gets the lane from the camera
+
+        Returns:
+            Lane: Lane
+        """
+        return self.__subscriber.getLane()
+
     def getStopLine(self):
         """Gets the stop line from the camera
 
