@@ -117,6 +117,8 @@
     "T_LIGHT_AHEAD": "traffic light",
     "DUCK_CROSSING": "duck crossing",
     "PARKING": "parking",
-    "STREET": "street"
+    "STREET": "street",
+    "STREET_SIGN": "sees %1 street sign",
+    "STREET_SIGN_TIP": "Tells whether Mirte sees the given street sign"
   }
 }

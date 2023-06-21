@@ -64,4 +64,31 @@ export function load(Blockly) {
     let code = `camera.seesSign(${block.getFieldValue("SIGN")})`;
     return [code, Blockly.Python.ORDER_NONE];
   };
+
+  Blockly.Blocks["sees_street_duckietown"] = {
+    init: function() {
+      this.jsonInit({
+        type: "block_type",
+        message0: "%{BKY_STREET_SIGN}",
+        args0: [
+          {
+            type: "field_input",
+            name: "STREET",
+            text: "DUDEK ST",
+          },
+        ],
+        output: "Boolean",
+        colour: "%{BKY_DUCKIE_RGB}",
+        inputsInline: true,
+        tooltip: "%{BKY_STREET_SIGN_TIP}",
+      });
+    },
+  };
+
+  Blockly.Python["sees_street_duckietown"] = function(block) {
+    Blockly.Python.definitions_["import_duckietown"] =
+      "from mirte_duckietown import duckietown\ncamera = duckietown.createCamera()";
+    let code = `camera.seesStreet("${block.getFieldValue("STREET")}")`;
+    return [code, Blockly.Python.ORDER_NONE];
+  };
 }

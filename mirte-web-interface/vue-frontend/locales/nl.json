@@ -117,6 +117,8 @@
     "T_LIGHT_AHEAD": "verkeerslicht",
     "DUCK_CROSSING": "eenden oversteekplaats",
     "PARKING": "parkeer",
-    "STREET": "straatnaam"
+    "STREET": "straatnaam",
+    "STREET_SIGN": "ziet %1 straatnaambord",
+    "STREET_SIGN_TIP": "Vertelt of Mirte het gegeven straatnaambord ziet"
   }
 }
