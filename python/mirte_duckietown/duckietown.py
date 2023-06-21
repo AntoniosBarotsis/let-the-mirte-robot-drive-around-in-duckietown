@@ -12,9 +12,9 @@ class Camera:
 
     def __init__(
         self,
+        robot=None,
         subscriber=None,
         stop_line_threshold_height=0.75,
-        robot=None,
     ):
         """Initialises a new camera
 
@@ -122,12 +122,9 @@ class Camera:
                 elif angle < -10:
                     speed_left -= (turn_speed + turn_speed_corr)
                     speed_right += turn_speed
-                self.__robot.SetMotorSpeed('left', int(speed_left * 0.985))
-                self.__robot.SetMotorSpeed('right', speed_right)
-            else:
-                self.__robot.SetMotorSpeed('left', 0)
-                self.__robot.SetMotorSpeed('right', 0)
-            rospy.sleep(0.01)  # Prevent overloading ROS with messages
+                self.__robot.setMotorSpeed('left', int(speed_left * 0.985))
+                self.__robot.setMotorSpeed('right', speed_right)
+            rospy.sleep(0.01)  # Prevent thread from taking too much CPU, 100 Hz is enough for this anyway
 
     def startFollowing(self):
         """ Start following the lane using the camera
@@ -158,4 +155,4 @@ def createCamera(robot=None):
     Returns:
         Camera: The created Camera object
     """
-    return Camera()
+    return Camera(robot)

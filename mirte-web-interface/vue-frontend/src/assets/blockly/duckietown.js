@@ -45,7 +45,7 @@ export function load(Blockly) {
   Blockly.Python["sees_stop_line_duckietown"] = function (block) {
     Blockly.Python.definitions_['import_mirte'] = 'from mirte_robot import robot\nmirte=robot.createRobot()';
     Blockly.Python.definitions_["import_duckietown"] =
-      "from mirte_duckietown import duckietown\ncamera = duckietown.createCamera(robot)";
+      "from mirte_duckietown import duckietown\ncamera = duckietown.createCamera(mirte)";
     let code = `camera.seesStopLine()`;
     return [code, Blockly.Python.ORDER_NONE];
   };
@@ -53,7 +53,7 @@ export function load(Blockly) {
   Blockly.Python["start_following_duckietown"] = function (block) {
     Blockly.Python.definitions_['import_mirte'] = 'from mirte_robot import robot\nmirte=robot.createRobot()';
     Blockly.Python.definitions_["import_duckietown"] =
-      "from mirte_duckietown import duckietown\ncamera = duckietown.createCamera(robot)";
+      "from mirte_duckietown import duckietown\ncamera = duckietown.createCamera(mirte)";
     let code = `camera.startFollowing()`;
     return [code, Blockly.Python.ORDER_NONE];
   };
@@ -61,7 +61,7 @@ export function load(Blockly) {
   Blockly.Python["stop_following_duckietown"] = function (block) {
     Blockly.Python.definitions_['import_mirte'] = 'from mirte_robot import robot\nmirte=robot.createRobot()';
     Blockly.Python.definitions_["import_duckietown"] =
-      "from mirte_duckietown import duckietown\ncamera = duckietown.createCamera(robot)";
+      "from mirte_duckietown import duckietown\ncamera = duckietown.createCamera(mirte)";
     let code = `camera.stopFollowing()`;
     return [code, Blockly.Python.ORDER_NONE];
   };
