@@ -149,8 +149,11 @@ class Camera:
         self.__following = False
 
 
-def createCamera():
+def createCamera(robot=None):
     """Creates a Camera object
+
+    Parameters:
+        robot (Robot): The robot object to use for controlling the robot.
 
     Returns:
         Camera: The created Camera object
