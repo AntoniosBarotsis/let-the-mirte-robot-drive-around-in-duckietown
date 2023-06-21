@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-    <node pkg="mirte-rs" type="image_processor" name="image_processor" output="screen">
-    </node>
-</launch>
