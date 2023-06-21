@@ -1,3 +1,6 @@
+# This file is taken from the Duckietown's official GitHub:
+#   https://github.com/duckietown/signs-and-tags/blob/9e1c631f31440494d29cb56a013a80d6ee118705/apriltagsDB.yaml
+
 - tag_id: 0
   tag_type:
   street_name:

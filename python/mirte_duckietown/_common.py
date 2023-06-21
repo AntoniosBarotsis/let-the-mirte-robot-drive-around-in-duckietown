@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
 import yaml
+from .sign import Sign
 
 
 class Colour(Enum):
@@ -145,8 +146,20 @@ class AprilTag:
         """Converts the AprilTag to a Sign
 
         Returns:
-            str: The converted Sign
+            Sign: The converted Sign
         """
+        tag_db = TagDatabase()
+        tag: dict = tag_db.lookup(self.tag_id)
+        # Check if tag exists
+        if tag is None:
+            return None
+        # If tag is a traffic sign, return the corresponding type
+        if tag.get("tag_type") == "TrafficSign":
+            return Sign(tag.get("traffic_sign_type"))
+        # If tag is a street sign, return the street sign type
+        if tag.get("tag_type") == "StreetName":
+            return Sign("street")
+
         return None
 
     def getStreetName(self):
@@ -155,7 +168,11 @@ class AprilTag:
         Returns:
             str: The street name if the AprilTag is a street sign, None otherwise
         """
-        return None
+        tag_db = TagDatabase()
+        tag: dict = tag_db.lookup(self.tag_id)
+        if tag is None:
+            return None
+        return tag.get("street_name")
 
 
 class TagDatabase:
