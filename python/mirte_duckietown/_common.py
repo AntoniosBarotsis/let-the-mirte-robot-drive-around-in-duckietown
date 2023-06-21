@@ -113,13 +113,13 @@ class Line:
         return Line(
             Point(message.origin.x, message.origin.y),
             Vector(message.direction.x, message.direction.y),
-            convert_angle_to_degrees(calculate_radians(message.direction.x, message.direction.y)),
             calculate_y1_intercept(
                 message.origin.x,
                 message.origin.y,
                 message.origin.x + message.direction.x,
                 message.origin.y + message.direction.y
-            )
+            ),
+            convert_angle_to_degrees(calculate_radians(message.direction.x, message.direction.y))
         )
 
 
@@ -170,5 +170,7 @@ def calculate_y1_intercept(x1, y1, x2, y2):
     if x1 == x2:
         return x1  # vertical line, so intercept will be the x coordinate
     a = (y2 - y1)/(x2 - x1)
+    if a == 0:
+        return math.inf  # horizontal line, so intercept will be infinity
     b = y1-a*x1
     return (1 - b)/a
