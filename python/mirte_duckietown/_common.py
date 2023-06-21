@@ -1,6 +1,8 @@
+import os
 from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
+import yaml
 
 
 class Colour(Enum):
@@ -153,4 +155,44 @@ class AprilTag:
         Returns:
             str: The street name if the AprilTag is a street sign, None otherwise
         """
+        return None
+
+
+class TagDatabase:
+    """Database for AprilTags
+
+    Reads the AprilTag database from a YAML file and provides a lookup function.
+    """
+
+    _instance = None
+    _initialized = False
+
+    def __new__(cls):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        # Don't initialize twice
+        if self._initialized:
+            return
+        # Load the database
+        file_path = os.path.join(os.path.dirname(__file__), "apriltagsDB.yaml")
+        with open(file_path, encoding="utf8") as file:
+            self.data = yaml.load(file, Loader=yaml.FullLoader)
+        # Mark as initialized
+        self._initialized = True
+
+    def lookup(self, tag_id):
+        """Looks up the AprilTag in the database
+
+        Parameters:
+            tag_id (int): The ID of the AprilTag
+
+        Returns:
+            dict: The AprilTag if found, None otherwise
+        """
+        for item in self.data:
+            if item.get("tag_id") == tag_id:
+                return item
         return None
