@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
+import signal
 import rospy
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
@@ -72,6 +73,14 @@ class Subscriber:
         rospy.Subscriber("stop_line", LineMsg, stopLineCb)
         rospy.Subscriber("webcam/image_raw", Image, imageCb)
         rospy.Subscriber("tag_detections", AprilTagMsg, aprilTagCb)
+
+        # Shutdown handler
+        def shutdownHandler():
+            rospy.signal_shutdown("SIGINT received")
+            exit()
+
+        # Register shutdown handler
+        signal.signal(signal.SIGINT, shutdownHandler)
 
     def getLines(self):
         """Gets line segments from ROS
