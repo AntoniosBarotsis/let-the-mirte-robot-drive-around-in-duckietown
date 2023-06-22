@@ -10,6 +10,8 @@ from PIL import Image as PILImage
 import rospy
 from sensor_msgs.msg import Image
 
+# pylint: skip-file
+
 class Renderer:
     __camera_node = None
     __camera_pose = None

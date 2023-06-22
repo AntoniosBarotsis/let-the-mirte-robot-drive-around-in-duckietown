@@ -1,7 +1,7 @@
 import threading
 
-from ._topic import Subscriber
 import rospy
+from ._topic import Subscriber
 
 
 class Camera:
@@ -108,6 +108,7 @@ class Camera:
         """
         return self.__subscriber.getImage()
 
+    # pylint: disable=invalid-name
     def __follower(self):
         """Follows the lane using the camera
 
@@ -132,7 +133,7 @@ class Camera:
                     speed_right += turn_speed
                 self.__robot.setMotorSpeed('left', int(speed_left * 0.985))
                 self.__robot.setMotorSpeed('right', speed_right)
-            rospy.sleep(0.01)  # Prevent thread from taking too much CPU, 100 Hz is enough for this anyway
+            rospy.sleep(0.01)  # Prevent thread from taking too much CPU
 
     def startFollowing(self):
         """ Start following the lane using the camera

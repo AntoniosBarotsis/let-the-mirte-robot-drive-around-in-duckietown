@@ -98,7 +98,10 @@ class Line:
     angle: float
 
     def __str__(self):
-        return f"Line(origin={self.origin}, direction={self.direction}, start={self.start}, angle={self.angle})"
+        return f"Line(origin={self.origin}, " \
+               f"direction={self.direction}, " \
+               f"start={self.start}, " \
+               f"angle={self.angle})"
 
     @staticmethod
     def fromMessage(message):
@@ -113,13 +116,13 @@ class Line:
         return Line(
             Point(message.origin.x, message.origin.y),
             Vector(message.direction.x, message.direction.y),
-            calculate_y1_intercept(
+            calculateY1Intercept(
                 message.origin.x,
                 message.origin.y,
                 message.origin.x + message.direction.x,
                 message.origin.y + message.direction.y
             ),
-            convert_angle_to_degrees(calculate_radians(message.direction.x, message.direction.y))
+            convertAngleToDegrees(calculateRadians(message.direction.x, message.direction.y))
         )
 
 
@@ -150,23 +153,27 @@ class Lane:
         )
 
     def __str__(self):
-        return f"Lane(left_line={self.left_line}, centre_line={self.centre_line}, right_line={self.right_line})"
+        return f"Lane(left_line={self.left_line}, " \
+               f"centre_line={self.centre_line}, " \
+               f"right_line={self.right_line})"
 
 # Some helper functions:
-
+# pylint: disable=invalid-name
+# pylint: disable=missing-function-docstring
 
 # Calculates an angle from a vector [x, y]
-def calculate_radians(x, y):
+def calculateRadians(x, y):
     return math.atan2(y, x)
 
 
-# Converts an angle in radians to degrees, where 0 degrees is straight up, and positive angles are clockwise
-def convert_angle_to_degrees(angle):
+# Converts an angle in radians to degrees
+# 0 degrees is straight up, and positive angles are clockwise
+def convertAngleToDegrees(angle):
     return math.degrees(angle) + 90
 
 
 # Calculates the intercept of a line given by two points with the line y=1 (the bottom of the image)
-def calculate_y1_intercept(x1, y1, x2, y2):
+def calculateY1Intercept(x1, y1, x2, y2):
     if x1 == x2:
         return x1  # vertical line, so intercept will be the x coordinate
     a = (y2 - y1)/(x2 - x1)
