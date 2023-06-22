@@ -1,6 +1,7 @@
 from __future__ import annotations
 from datetime import datetime
 import signal
+import sys
 import rospy
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
@@ -77,7 +78,7 @@ class Subscriber:
         # Shutdown handler
         def shutdownHandler(signum, frame):
             rospy.signal_shutdown(f"signal: {signum}\nframe: {frame}")
-            exit()
+            sys.exit()
 
         # Register shutdown handler
         signal.signal(signal.SIGINT, shutdownHandler)
