@@ -203,7 +203,7 @@ class Camera:
         return False
 
 
-def createCamera():
+def createCamera(robot=None):
     """Creates a Camera object
 
     Parameters:

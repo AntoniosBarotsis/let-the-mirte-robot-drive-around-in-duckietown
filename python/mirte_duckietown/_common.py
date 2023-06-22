@@ -2,9 +2,9 @@ import os
 from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
+import math
 import yaml
 from .sign import Sign
-import math
 
 
 class Colour(Enum):

@@ -10,8 +10,8 @@ from mirte_msgs.msg import (
     Line as LineMsg,
     Lane as LaneMsg,
 )
-from ._common import LineSegment, Line, Lane, AprilTag
 from apriltag_ros.msg import AprilTagDetectionArray as AprilTagMsg
+from ._common import LineSegment, Line, Lane, AprilTag
 
 
 class Subscriber:
