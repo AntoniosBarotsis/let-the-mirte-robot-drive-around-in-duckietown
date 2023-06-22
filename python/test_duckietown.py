@@ -21,7 +21,7 @@ class TestCamera(unittest.TestCase):
     def testGetLines(self):
         """Test the getLines method"""
         subscriber = MagicMock(spec=Subscriber)
-        camera = Camera(subscriber)
+        camera = Camera(subscriber=subscriber)
 
         # No lines are visible
         subscriber.getLines = MagicMock(return_value=[])
@@ -45,7 +45,7 @@ class TestCamera(unittest.TestCase):
     def testGetStopLine(self):
         """Test the getStopLine method"""
         subscriber = MagicMock(spec=Subscriber)
-        camera = Camera(subscriber)
+        camera = Camera(subscriber=subscriber)
 
         # Stop line is not visible
         subscriber.getStopLine = MagicMock(return_value=None)
@@ -55,12 +55,14 @@ class TestCamera(unittest.TestCase):
         subscriber.getStopLine = MagicMock(
             return_value=Line(Point(0, 0), Vector(1, 1), 0, 0)
         )
-        self.assertEqual(camera.getStopLine(), Line(Point(0, 0), Vector(1, 1), 0, 0))
+        self.assertEqual(
+            camera.getStopLine(), Line(Point(0, 0), Vector(1, 1), 0, 0)
+        )
 
     def testGetStopLineHeight(self):
         """Test the getStopLineHeight method"""
         subscriber = MagicMock(spec=Subscriber)
-        camera = Camera(subscriber)
+        camera = Camera(subscriber=subscriber)
 
         # Stop line is not visible
         subscriber.getStopLine = MagicMock(return_value=None)
@@ -120,7 +122,7 @@ class TestCamera(unittest.TestCase):
     def testGetAprilTags(self):
         """Test the getAprilTags method"""
         subscriber = MagicMock(spec=Subscriber)
-        camera = Camera(subscriber)
+        camera = Camera(subscriber=subscriber)
 
         # No AprilTags are visible
         subscriber.getAprilTags = MagicMock(return_value=[])
@@ -144,7 +146,7 @@ class TestCamera(unittest.TestCase):
     def testSeesSign(self):
         """Test the seesSign method"""
         subscriber = MagicMock(spec=Subscriber)
-        camera = Camera(subscriber)
+        camera = Camera(subscriber=subscriber)
 
         # No AprilTags are visible
         subscriber.getAprilTags = MagicMock(return_value=[])
@@ -168,7 +170,7 @@ class TestCamera(unittest.TestCase):
     def testSeesStreet(self):
         """Test the seesStreet method"""
         subscriber = MagicMock(spec=Subscriber)
-        camera = Camera(subscriber)
+        camera = Camera(subscriber=subscriber)
 
         # No AprilTags are visible
         subscriber.getAprilTags = MagicMock(return_value=[])
