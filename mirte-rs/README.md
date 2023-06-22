@@ -11,6 +11,23 @@ The steps for compiling each crate are listed in detail on each crate's README.
 In addition to that, a [Dockerfile](./Dockerfile) is provided which includes all dependencies
 needed, we are using that in our CI workflow.
 
+### Compiling as ROS Node
+
+The `mirte-rs` folder is a ROS package. In order to run it, it must be within your `catkin` workspace (otherwise it can't find it). You can either copy the folder there, or linking it by running:
+
+```
+ln -s <path-to-repo>/mirte-rs <catkin-workspace>/src/mirte-rs
+```
+
+Note:\\
+- For most people, `<catkin-workspace>` is `~/catkin_ws`.
+- `<path-to-repo>` needs to be an absolute path, otherwise linking fails.
+
+After linking or copying, go to your `catkin` workspace directory and run `catkin_make`. Then, you can run the node two ways:
+- `rosrun mirte-rs mirte-rs` (first name is package name, second is executable name. In our case, these are the same. Also, you need to have `roscore` running to use `rosrun`.)
+- `roslaunch mirte-rs duckietown_navigator.launch` (This launches `roscore` automatically)
+In both cases, you can run `rosnode info duckietown_navigator` to verify the node is running.
+
 ## Cross Compiling
 
 Compiling on the Mirte bot itself is terribly inefficient which is why you might want to compile
