@@ -1,9 +1,18 @@
 import unittest
 from unittest.mock import MagicMock
+from datetime import datetime
 
 from mirte_duckietown.duckietown import Camera
 from mirte_duckietown._topic import Subscriber
-from mirte_duckietown._common import Point, LineSegment, Colour, Line, Vector
+from mirte_duckietown._common import (
+    Point,
+    LineSegment,
+    Colour,
+    Line,
+    Vector,
+    AprilTag,
+)
+from mirte_duckietown.sign import Sign
 
 
 class TestCamera(unittest.TestCase):
@@ -107,6 +116,83 @@ class TestCamera(unittest.TestCase):
             return_value=Line(Point(0, 0), Vector(1, 1.49))
         )
         self.assertEqual(camera.seesStopLine(), False)
+
+    def testGetAprilTags(self):
+        """Test the getAprilTags method"""
+        subscriber = MagicMock(spec=Subscriber)
+        camera = Camera(subscriber)
+
+        # No AprilTags are visible
+        subscriber.getAprilTags = MagicMock(return_value=[])
+        self.assertEqual(camera.getAprilTags(), [])
+
+        # Two AprilTags are visible
+        subscriber.getAprilTags = MagicMock(
+            return_value=[
+                AprilTag(13, datetime.now()),
+                AprilTag(531, datetime.now()),
+            ]
+        )
+        self.assertEqual(
+            camera.getAprilTags(),
+            [
+                AprilTag(13, datetime.now()),
+                AprilTag(531, datetime.now()),
+            ],
+        )
+
+    def testSeesSign(self):
+        """Test the seesSign method"""
+        subscriber = MagicMock(spec=Subscriber)
+        camera = Camera(subscriber)
+
+        # No AprilTags are visible
+        subscriber.getAprilTags = MagicMock(return_value=[])
+        self.assertFalse(camera.seesSign(Sign.FOUR_WAY_INTERSECT))
+
+        # AprilTag is visible, but not the one we are looking for
+        subscriber.getAprilTags = MagicMock(
+            return_value=[AprilTag(531, datetime.now())]
+        )
+        self.assertFalse(camera.seesSign(Sign.FOUR_WAY_INTERSECT))
+
+        # AprilTag is visible and the one we are looking for
+        subscriber.getAprilTags = MagicMock(
+            return_value=[
+                AprilTag(13, datetime.now()),
+                AprilTag(531, datetime.now()),
+            ]
+        )
+        self.assertTrue(camera.seesSign(Sign.FOUR_WAY_INTERSECT))
+
+    def testSeesStreet(self):
+        """Test the seesStreet method"""
+        subscriber = MagicMock(spec=Subscriber)
+        camera = Camera(subscriber)
+
+        # No AprilTags are visible
+        subscriber.getAprilTags = MagicMock(return_value=[])
+        self.assertFalse(camera.seesStreet("DUDEK ST"))
+
+        # AprilTag is visible, but not the one we are looking for
+        subscriber.getAprilTags = MagicMock(
+            return_value=[
+                AprilTag(13, datetime.now()),
+                AprilTag(532, datetime.now()),
+            ]
+        )
+        self.assertFalse(camera.seesStreet("DUDEK ST"))
+
+        # AprilTag is visible and the one we are looking for
+        subscriber.getAprilTags = MagicMock(
+            return_value=[
+                AprilTag(13, datetime.now()),
+                AprilTag(531, datetime.now()),
+            ]
+        )
+        self.assertTrue(camera.seesStreet("DUDEK ST"))
+        self.assertTrue(camera.seesStreet("dudek st."))
+        self.assertTrue(camera.seesStreet("dUdEk St"))
 
 
 if __name__ == "__main__":
