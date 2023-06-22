@@ -1,0 +1,3 @@
+[submodule "mirte-ros-packages"]
+	path = mirte-ros-packages
+	url = https://github.com/AntoniosBarotsis/mirte-ros-packages.git

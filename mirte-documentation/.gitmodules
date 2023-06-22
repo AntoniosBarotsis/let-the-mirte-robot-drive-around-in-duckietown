@@ -1,6 +1,6 @@
-[submodule "_modules/catkin_ws/src/mirte-ros-packages"]
-	path = _modules/catkin_ws/src/mirte-ros-packages
-	url = https://github.com/mirte-robot/mirte-ros-packages
 [submodule "_modules/mirte-python"]
 	path = _modules/mirte-python
 	url = https://github.com/mirte-robot/mirte-python
+[submodule "mirte-ros-packages"]
+	path = mirte-ros-packages
+	url = https://github.com/AntoniosBarotsis/mirte-ros-packages.git
