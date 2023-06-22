@@ -167,6 +167,7 @@ class AprilTag:
         """
         tag_db = TagDatabase()
         tag: dict = tag_db.lookup(self.tag_id)
+        print(tag, self.tag_id)
         # Check if tag exists
         if tag is None:
             return None
@@ -231,8 +232,8 @@ class TagDatabase:
         Returns:
             dict: The AprilTag if found, None otherwise
         """
-        for item in self.data:
-            if item.get("tag_id") == tag_id:
+        for item in dict(self.data)['standalone_tags']:
+            if item["id"] == tag_id:
                 return item
         return None
 
