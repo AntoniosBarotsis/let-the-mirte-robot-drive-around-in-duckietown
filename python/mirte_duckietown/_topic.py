@@ -75,8 +75,8 @@ class Subscriber:
         rospy.Subscriber("tag_detections", AprilTagMsg, aprilTagCb)
 
         # Shutdown handler
-        def shutdownHandler():
-            rospy.signal_shutdown("SIGINT received")
+        def shutdownHandler(signum, frame):
+            rospy.signal_shutdown(f"signal: {signum}\nframe: {frame}")
             exit()
 
         # Register shutdown handler
