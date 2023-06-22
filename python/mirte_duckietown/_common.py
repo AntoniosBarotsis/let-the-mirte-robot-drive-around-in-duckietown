@@ -1,5 +1,9 @@
+import os
+from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
+import yaml
+from .sign import Sign
 
 
 class Colour(Enum):
@@ -107,3 +111,110 @@ class Line:
             Point(message.origin.x, message.origin.y),
             Vector(message.direction.x, message.direction.y),
         )
+
+
+@dataclass
+class AprilTag:
+    """AprilTag
+
+    Represents an AprilTag with an ID and timestamp.
+    """
+
+    tag_id: int
+    timestamp: datetime
+
+    def __str__(self):
+        return f"AprilTag(tag_id={self.tag_id}, timestamp={self.timestamp})"
+
+    def __eq__(self, other):
+        return self.tag_id == other.tag_id
+
+    def hasExpired(self, tag_life):
+        """Checks if the AprilTag has expired
+
+        Parameters:
+            tag_life (int): The shelf life of the AprilTag in milliseconds
+
+        Returns:
+            bool: True if the AprilTag has expired, False otherwise
+        """
+        return (
+            datetime.now() - self.timestamp
+        ).total_seconds() * 1000 > tag_life
+
+    def toSign(self):
+        """Converts the AprilTag to a Sign
+
+        Returns:
+            Sign: The converted Sign
+        """
+        tag_db = TagDatabase()
+        tag: dict = tag_db.lookup(self.tag_id)
+        # Check if tag exists
+        if tag is None:
+            return None
+        # If tag is a traffic sign, return the corresponding type
+        if tag.get("tag_type") == "TrafficSign":
+            return Sign(tag.get("traffic_sign_type"))
+        # If tag is a street sign, return the street sign type
+        if tag.get("tag_type") == "StreetName":
+            return Sign("street")
+
+        return None
+
+    def getStreetName(self):
+        """Gets the street name of the AprilTag
+
+        Returns:
+            str: The street name if the AprilTag is a street sign, None otherwise
+        """
+        tag_db = TagDatabase()
+        tag: dict = tag_db.lookup(self.tag_id)
+        if tag is None:
+            return None
+        # If tag is a street sign, return the street name
+        street_name: str = tag.get("street_name")
+        if street_name is None:
+            return None
+        # Remove trailing dots
+        return street_name.rstrip(".")
+
+
+class TagDatabase:
+    """Database for AprilTags
+
+    Reads the AprilTag database from a YAML file and provides a lookup function.
+    """
+
+    _instance = None
+    _initialized = False
+
+    def __new__(cls):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        # Don't initialize twice
+        if self._initialized:
+            return
+        # Load the database
+        file_path = os.path.join(os.path.dirname(__file__), "apriltagsDB.yaml")
+        with open(file_path, encoding="utf8") as file:
+            self.data = yaml.load(file, Loader=yaml.FullLoader)
+        # Mark as initialized
+        self._initialized = True
+
+    def lookup(self, tag_id):
+        """Looks up the AprilTag in the database
+
+        Parameters:
+            tag_id (int): The ID of the AprilTag
+
+        Returns:
+            dict: The AprilTag if found, None otherwise
+        """
+        for item in self.data:
+            if item.get("tag_id") == tag_id:
+                return item
+        return None

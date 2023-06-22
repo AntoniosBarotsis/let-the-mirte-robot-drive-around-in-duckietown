@@ -16,3 +16,11 @@ source .venv/bin/activate
 pip install -r requirements.txt
 python3 computer_vision.py
 ```
+
+## Installing the Wheel
+
+```sh
+python3 -m pip install --upgrade build
+python3 -m build
+pip3 install dist/mirte-1.0-py3-none-any.whl
+```
