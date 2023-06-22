@@ -27,6 +27,15 @@ Mirte Documentation
    doc/mirte_python_api
    doc/mirte_ros_api
    doc/duckietown_python_api
+   doc/duckietown_ros_api
+
+.. toctree::
+   :caption: Computer Vision
+   :maxdepth: 1
+   :hidden:
+
+   doc/duckietown_detect_line
+   doc/duckietown_stop_line
 
 .. toctree::
    :caption: Mirte Development
