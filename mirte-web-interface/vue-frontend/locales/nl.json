@@ -104,5 +104,25 @@
     "START_FOLLOWING_TIP": "Start met het volgen van de Duckietown weg",
     "STOP_FOLLOWING": "Stop met volgen",
     "STOP_FOLLOWING_TIP": "Stopt met het volgen van de Duckietown weg"
+    "SIGN": "ziet %1 bord",
+    "SIGN_TIP": "Vertelt of Mirte het gegeven verkeersbord ziet",
+    "STOP": "stop",
+    "YIELD": "voorrangs",
+    "NO_RIGHT_TURN": "verboden rechtsaf te slaan",
+    "NO_LEFT_TURN": "verboden linksaf te slaan",
+    "DO_NOT_ENTER": "verboden in te rijden",
+    "ONEWAY_RIGHT": "eenrichtingsweg rechts",
+    "ONEWAY_LEFT": "eenrichtingsweg links",
+    "FOUR_WAY_INTERSECT": "kruispunt",
+    "RIGHT_T_INTERSECT": "t-splitsing rechts",
+    "LEFT_T_INTERSECT": "t-splitsing links",
+    "T_INTERSECTION": "t-splitsing",
+    "PEDESTRIAN": "voetgangers",
+    "T_LIGHT_AHEAD": "verkeerslicht",
+    "DUCK_CROSSING": "eenden oversteekplaats",
+    "PARKING": "parkeer",
+    "STREET": "straatnaam",
+    "STREET_SIGN": "ziet %1 straatnaambord",
+    "STREET_SIGN_TIP": "Vertelt of Mirte het gegeven straatnaambord ziet"
   }
 }

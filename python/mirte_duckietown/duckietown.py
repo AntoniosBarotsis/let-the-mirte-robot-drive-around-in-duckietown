@@ -15,6 +15,7 @@ class Camera:
         robot=None,
         subscriber=None,
         stop_line_threshold_height=0.75,
+        tag_life=500,
     ):
         """Initialises a new camera
 
@@ -23,10 +24,14 @@ class Camera:
                 If None, a new subscriber will be created.
             robot (Robot): The robot to use for controlling the robot.
                 If None, you will not be able to control the robot automatically.
+            stop_line_threshold_height (float): The theshold where the stop
+                line is considered to be visible
+            tag_life (int): The number of milliseconds a tag will be remembered
+                until it is considered expired
         """
         # Initialise subscriber
         if subscriber is None:
-            self.__subscriber = Subscriber()
+            self.__subscriber = Subscriber(tag_life=tag_life)
         else:
             self.__subscriber = subscriber
 
@@ -47,7 +52,7 @@ class Camera:
         """Gets line segments from the camera
 
         Returns:
-            list: List of LineSegment objects
+            list[LineSegment]: List of LineSegment objects
         """
         return self.__subscriber.getLines()
 
@@ -159,7 +164,46 @@ class Camera:
             self.__robot.setMotorSpeed('right', 0)
 
 
-def createCamera(robot=None):
+    def getAprilTags(self):
+        """Gets the april tags from the camera
+        Returns:
+            list[AprilTag]: List of AprilTag objects
+        """
+        return self.__subscriber.getAprilTags()
+
+    def seesSign(self, sign):
+        """Checks if the robot sees the given sign
+
+        Parameters:
+            sign (Sign): The sign to check for
+
+        Returns:
+            bool: True if the robot sees the sign, False otherwise
+        """
+        for tag in self.getAprilTags():
+            if tag.toSign() == sign:
+                return True
+        return False
+
+    def seesStreet(self, street_name: str):
+        """Checks if the robot sees the given street
+
+        Parameters:
+            street_name (str): The street to check for
+
+        Returns:
+            bool: True if the robot sees the street, False otherwise
+        """
+        # Convert street name to uppercase and remove trailing dot
+        street_name = street_name.upper().rstrip(".")
+        # Check if street name is in the list of street names
+        for tag in self.getAprilTags():
+            if tag.getStreetName() == street_name:
+                return True
+        return False
+
+
+def createCamera():
     """Creates a Camera object
 
     Parameters:

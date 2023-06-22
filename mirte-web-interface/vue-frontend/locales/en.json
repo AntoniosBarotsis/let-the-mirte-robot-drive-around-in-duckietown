@@ -104,5 +104,25 @@
     "START_FOLLOWING_TIP": "Starts following the Duckietown road",
     "STOP_FOLLOWING": "Stop following",
     "STOP_FOLLOWING_TIP": "Stops following the Duckietown road"
+    "SIGN": "sees %1 sign",
+    "SIGN_TIP": "Tells whether Mirte sees the given sign",
+    "STOP": "stop",
+    "YIELD": "yield",
+    "NO_RIGHT_TURN": "no right turn",
+    "NO_LEFT_TURN": "no left turn",
+    "DO_NOT_ENTER": "do not enter",
+    "ONEWAY_RIGHT": "one way right",
+    "ONEWAY_LEFT": "one way left",
+    "FOUR_WAY_INTERSECT": "4-way intersection",
+    "RIGHT_T_INTERSECT": "right t-intersection",
+    "LEFT_T_INTERSECT": "left t-intersection",
+    "T_INTERSECTION": "t-intersection",
+    "PEDESTRIAN": "pedestrian",
+    "T_LIGHT_AHEAD": "traffic light",
+    "DUCK_CROSSING": "duck crossing",
+    "PARKING": "parking",
+    "STREET": "street",
+    "STREET_SIGN": "sees %1 street sign",
+    "STREET_SIGN_TIP": "Tells whether Mirte sees the given street sign"
   }
 }
