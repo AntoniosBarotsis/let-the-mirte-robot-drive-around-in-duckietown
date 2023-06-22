@@ -103,7 +103,7 @@
     "START_FOLLOWING": "Follow the road",
     "START_FOLLOWING_TIP": "Starts following the Duckietown road",
     "STOP_FOLLOWING": "Stop following",
-    "STOP_FOLLOWING_TIP": "Stops following the Duckietown road"
+    "STOP_FOLLOWING_TIP": "Stops following the Duckietown road",
     "SIGN": "sees %1 sign",
     "SIGN_TIP": "Tells whether Mirte sees the given sign",
     "STOP": "stop",

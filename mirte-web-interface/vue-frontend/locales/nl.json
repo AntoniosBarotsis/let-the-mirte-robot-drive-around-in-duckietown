@@ -103,7 +103,7 @@
     "START_FOLLOWING": "Volg de weg",
     "START_FOLLOWING_TIP": "Start met het volgen van de Duckietown weg",
     "STOP_FOLLOWING": "Stop met volgen",
-    "STOP_FOLLOWING_TIP": "Stopt met het volgen van de Duckietown weg"
+    "STOP_FOLLOWING_TIP": "Stopt met het volgen van de Duckietown weg",
     "SIGN": "ziet %1 bord",
     "SIGN_TIP": "Vertelt of Mirte het gegeven verkeersbord ziet",
     "STOP": "stop",
