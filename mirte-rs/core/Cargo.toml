@@ -1,5 +1,5 @@
 [package]
-name = "mirte-rs"
+name = "core"
 version = "0.1.0"
 edition = "2021"
 repository = "https://gitlab.ewi.tudelft.nl/cse2000-software-project/2022-2023-q4/cluster-09/let-the-mirte-robot-drive-around-in-duckietown/let-the-mirte-robot-drive-around-in-duckietown"
@@ -11,3 +11,7 @@ ros = { path = "../ros"}
 cv = { path = "../cv"}
 common = { path = "../common" }
 thiserror = "1.0.40"
+
+[[bin]]
+name = "mirte-rs"
+path = "./src/main.rs"

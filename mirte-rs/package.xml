@@ -2,7 +2,7 @@
 <package format="2">
   <name>mirte-rs</name>
   <version>0.0.1</version>
-  <description>the description</description>
+  <description>Contains code to navigate around Duckietown using computer vision.</description>
 
   <maintainer email="your_mail@todo.todo">your_name</maintainer>
   <license>TODO</license>

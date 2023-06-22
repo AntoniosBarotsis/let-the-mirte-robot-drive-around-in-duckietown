@@ -26,7 +26,7 @@ You can then run any Rust build command to produce an output binary such as:
 
 ```sh
 # Build the project's entry point in release
-cargo build --package mirte-rs --release
+cargo build --release
 ```
 
 > Note that the time it takes for this build to complete can vary severely and depends on your
