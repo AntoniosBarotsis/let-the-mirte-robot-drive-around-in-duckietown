@@ -26,16 +26,14 @@ Mirte Documentation
 
    doc/mirte_python_api
    doc/mirte_ros_api
-   doc/duckietown_mirte/duckietown_python_api
-   doc/duckietown_mirte/duckietown_ros_api
 
 .. toctree::
    :caption: Duckietown Mirte
    :maxdepth: 1
    :hidden:
 
-   doc/duckietown_mirte/duckietown_detect_line
-   doc/duckietown_mirte/duckietown_stop_line
+   doc/duckietown_mirte/duckietown_python_api
+   doc/duckietown_mirte/duckietown_ros_api
    doc/duckietown_mirte/duckietown_instalation_guide
 
 .. toctree::
