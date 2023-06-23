@@ -32,6 +32,7 @@ class Camera:
         # Initialise subscriber
         if subscriber is None:
             self.__subscriber = Subscriber(robot, tag_life=tag_life)
+            self.__rospy_rate = rospy.Rate(30)
         else:
             self.__subscriber = subscriber
 
@@ -47,8 +48,6 @@ class Camera:
         # Run the follower in a separate thread
         if self.__robot is not None:
             threading.Thread(target=self._follower).start()
-
-        self.__rospy_rate = rospy.Rate(30)
 
     def getLines(self):
         """Gets line segments from the camera

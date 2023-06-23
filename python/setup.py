@@ -13,5 +13,6 @@ setup(
         "cvbridge3",
     ],
     packages=["mirte_duckietown"],
-    data_files=["./mirte_duckietown/apriltagsDB.yaml"],
+    package_data={"mirte_duckietown": ["*.yaml", "*.yml"]},
+    include_package_data=True,
 )
