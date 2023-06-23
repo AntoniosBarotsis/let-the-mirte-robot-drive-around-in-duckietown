@@ -28,4 +28,4 @@ Following a lane
 
             print("placeholder")
 
-.. |pic_duck_1| image:: doc/duckietown_mirte/duckie_images/follow_lane_blockly.png
+.. |pic_duck_1| image:: duckie_images/follow_lane_blockly.png
