@@ -123,11 +123,22 @@ class Camera:
         while not rospy.is_shutdown():
             lane = self.__subscriber.getLane()
             if self.__following and lane is not None:
+                # Variables
                 speed = 65
                 turn_speed = 10
                 turn_speed_corr = 5
+                off_lane_threshold = 0.5
+                off_lane_correction = 30
 
+                # Calculate angle and correction
                 angle = lane.centre_line.angle
+                start = lane.centre_line.start
+                if start < -off_lane_threshold:  # on the right, so turn left
+                    angle -= off_lane_correction
+                elif start > off_lane_threshold:  # on the left, so turn right
+                    angle += off_lane_correction
+
+                # calculate speed
                 speed_left = speed
                 speed_right = speed
                 if angle > 10:
@@ -136,7 +147,9 @@ class Camera:
                 elif angle < -10:
                     speed_left -= (turn_speed + turn_speed_corr)
                     speed_right += turn_speed
-                self.__robot.setMotorSpeed('left', int(speed_left * 0.985))
+
+                # Set motor speeds
+                self.__robot.setMotorSpeed('left', speed_left)
                 self.__robot.setMotorSpeed('right', speed_right)
             rospy.sleep(0.01)  # Prevent thread from taking too much CPU
 
