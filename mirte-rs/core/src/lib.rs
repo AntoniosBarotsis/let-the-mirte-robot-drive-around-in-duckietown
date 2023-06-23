@@ -1,7 +1,5 @@
 pub mod detection;
 pub mod mirte_error;
-#[cfg(test)]
-pub mod test;
 
 use common::{
   debug, edebug,

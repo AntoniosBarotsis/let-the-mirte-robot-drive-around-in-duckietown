@@ -7,8 +7,6 @@ pub mod drive;
 pub mod param;
 pub mod publishers;
 pub mod ros_error;
-#[cfg(test)]
-pub mod test;
 
 use cv_bridge::msgs::sensor_msgs::Image;
 

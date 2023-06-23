@@ -38,7 +38,7 @@ fn get_average_line(lines: &[LineSegment], colour: ColourEnum) -> Option<Line> {
       } else {
         1.0
       };
-      let threshold: Line = Line::from_dir(Vector3::new(sign, DIRECTION_SLOPE));
+      let threshold: Line = Line::from_vec(Vector3::new(sign, DIRECTION_SLOPE));
       if lies_on_right(Point::from_vector(line.direction()), &threshold) {
         line.direction() * sign
       } else {
@@ -112,4 +112,124 @@ pub fn detect_lane(lines: &[LineSegment]) -> Lane {
 pub fn detect_stop_line(lines: &[LineSegment]) -> Line {
   get_average_line(lines, ColourEnum::Red)
     .unwrap_or(Line::new(Point::new(0.0, 0.0), Vector3::new(0.0, 0.0)))
+}
+
+#[cfg(test)]
+mod test {
+  use super::{bisect, detect_lane, get_average_line, get_midline, lies_on_right};
+  use common::{
+    geometry_msgs::{Point, Vector3},
+    structs::colour::ColourEnum,
+  };
+  use ros::mirte_msgs::{Line, LineSegment};
+
+  fn line(x1: f64, y1: f64, x2: f64, y2: f64, c: ColourEnum) -> LineSegment {
+    LineSegment::new(c, Point::new(x1, y1), Point::new(x2, y2))
+  }
+
+  fn w_line(x1: f64, y1: f64, x2: f64, y2: f64) -> LineSegment {
+    line(x1, y1, x2, y2, ColourEnum::White)
+  }
+
+  fn y_line(x1: f64, y1: f64, x2: f64, y2: f64) -> LineSegment {
+    line(x1, y1, x2, y2, ColourEnum::Yellow)
+  }
+
+  fn lines() -> Vec<LineSegment> {
+    vec![
+      y_line(0.5, 1.0, 1.5, 1.0),
+      y_line(1.5, 1.0, 2.5, 1.0),
+      y_line(-0.5, 0.0, 0.5, 0.0),
+      y_line(-4.0, 5.5, -4.0, 6.5),
+      y_line(5.0, -3.5, 5.0, -2.5),
+      y_line(4.0, -2.5, 4.0, -1.5),
+      y_line(-1.0, 3.5, -1.0, 4.5),
+      w_line(6.5, 1.0, 7.5, 1.0),
+      w_line(7.5, 1.0, 8.5, 1.0),
+      w_line(5.5, 0.0, 6.5, 0.0),
+      w_line(2.0, 5.5, 2.0, 6.5),
+      w_line(11.0, -3.5, 11.0, -2.5),
+      w_line(10.0, -2.5, 10.0, -1.5),
+      w_line(5.0, 3.5, 5.0, 4.5),
+    ]
+  }
+
+  #[test]
+  fn test_average_yellow_line() {
+    let line = get_average_line(&lines(), ColourEnum::Yellow).unwrap();
+    println!("{line:?}");
+    assert!(line.line_eq(&Line::new(Point::new(1.0, 1.0), Vector3::new(3.0, -4.0))));
+  }
+
+  #[test]
+  fn test_average_white_line() {
+    let line = get_average_line(&lines(), ColourEnum::White).unwrap();
+    println!("{line:?}");
+    assert!(line.line_eq(&Line::new(Point::new(7.0, 1.0), Vector3::new(-3.0, -4.0))));
+  }
+
+  #[test]
+  fn test_lies_on_right() {
+    let boundary = Line::new(Point::new(1.0, 1.0), Vector3::new(1.0, -1.0));
+    assert!(lies_on_right(Point::new(2.0, 2.0), &boundary));
+    assert!(!lies_on_right(Point::new(0.0, 0.0), &boundary));
+    assert!(!lies_on_right(Point::new(1.0, 1.0), &boundary));
+  }
+
+  #[test]
+  fn test_lines_on_right() {
+    let lines: Vec<LineSegment> = vec![
+      LineSegment::new(ColourEnum::Red, Point::new(0.0, 0.0), Point::new(3.0, 3.0)),
+      LineSegment::new(ColourEnum::Red, Point::new(0.0, 0.0), Point::new(2.0, 2.0)),
+      LineSegment::new(ColourEnum::Red, Point::new(0.0, 0.0), Point::new(1.0, 1.0)),
+    ];
+    let boundary = Line::new(Point::new(1.0, 1.0), Vector3::new(1.0, -1.0));
+    let right_lines = super::lines_on_right(&lines, &boundary);
+    println!("{right_lines:?}");
+    assert_eq!(right_lines.len(), 1);
+    assert!(right_lines.contains(&lines[0]));
+  }
+
+  #[test]
+  fn test_bisect_valid() {
+    let line1 = Line::new(Point::new(1.0, 1.0), Vector3::new(3.0, -4.0));
+    let line2 = Line::new(Point::new(7.0, 1.0), Vector3::new(-3.0, -4.0));
+    let bisection =
+      bisect(&line1, &line2).expect("Bisection should be valid, expected value to not be `None`");
+    println!("{bisection:?}");
+    assert!(bisection.line_eq(&Line::new(Point::new(4.0, 37.0), Vector3::new(0.0, -40.0))));
+  }
+
+  #[test]
+  fn test_bisect_invalid() {
+    let line1 = Line::new(Point::new(0.0, 0.0), Vector3::new(0.0, 1.0));
+    let line2 = Line::new(Point::new(2.0, 0.0), Vector3::new(0.0, 1.0));
+    let bisection = bisect(&line1, &line2);
+    println!("{bisection:?}");
+    assert!(bisection.is_none());
+  }
+
+  #[test]
+  fn test_midline_vertical() {
+    let line1 = Line::new(Point::new(0.0, 0.0), Vector3::new(0.0, 1.0));
+    let line2 = Line::new(Point::new(2.0, 0.0), Vector3::new(0.0, 1.0));
+    let midline = get_midline(&line1, &line2);
+    println!("{midline:?}");
+    assert!(midline.line_eq(&Line::new(Point::new(1.0, 0.0), Vector3::new(0.0, 1.0))));
+  }
+
+  #[test]
+  fn test_detect_lane() {
+    let lane = detect_lane(&lines());
+    println!("{lane:?}");
+    assert!(lane
+      .centre
+      .line_eq(&Line::new(Point::new(4.0, 37.0), Vector3::new(0.0, -40.0))));
+    assert!(lane
+      .left
+      .line_eq(&Line::new(Point::new(1.0, 1.0), Vector3::new(3.0, -4.0))));
+    assert!(lane
+      .right
+      .line_eq(&Line::new(Point::new(7.0, 1.0), Vector3::new(-3.0, -4.0))));
+  }
 }

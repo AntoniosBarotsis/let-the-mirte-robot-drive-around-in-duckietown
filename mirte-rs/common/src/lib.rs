@@ -1,7 +1,5 @@
 pub mod logger;
 pub mod structs;
-#[cfg(test)]
-pub mod test;
 
 rosrust::rosmsg_include!(
   geometry_msgs / Point,
@@ -16,6 +14,9 @@ rosrust::rosmsg_include!(
   mirte_msgs / ObstacleList,
 );
 
+pub const IMAGE_CROP_HEIGHT: f32 = 0.58;
+
+#[allow(clippy::cast_possible_truncation)]
 fn float_eq(f1: f64, f2: f64) -> bool {
-  (f1 - f2).abs() < f64::EPSILON || f1 == f2
+  ((f1 - f2).abs() as f32) < f32::EPSILON || f1 == f2
 }
