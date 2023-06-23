@@ -32,9 +32,10 @@ Mirte Documentation
    :maxdepth: 1
    :hidden:
 
+   doc/duckietown_mirte/duckietown_instalation_guide
    doc/duckietown_mirte/duckietown_python_api
    doc/duckietown_mirte/duckietown_ros_api
-   doc/duckietown_mirte/duckietown_instalation_guide
+   doc/duckietown_mirte/duckietown_example
 
 .. toctree::
    :caption: Mirte Development
