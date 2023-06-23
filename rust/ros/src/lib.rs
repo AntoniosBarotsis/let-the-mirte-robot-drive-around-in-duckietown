@@ -25,8 +25,8 @@ pub(crate) fn init() {
     env_logger::init();
 
     // Initialize node
-    // TODO: Rename this, name should represent the entire project and webcam is annoying me 😭
     rosrust::init("image_processor");
+    rosrust::ros_info!("Initialized node");
   });
 }
 
@@ -56,12 +56,8 @@ where
 
   // Create subscriber
   // The subscriber is stopped when the returned object is destroyed
-  let _subscriber_raii = rosrust::subscribe("/webcam/image_raw", 1, move |img: Image| {
-    rosrust::ros_info!("Image received.");
-
-    callback(img);
-  })
-  .map_err(|e| RosError::SubscriberCreation(e.to_string()))?;
+  let _subscriber_raii = rosrust::subscribe("/webcam/image_raw", 1, callback)
+    .map_err(|e| RosError::SubscriberCreation(e.to_string()))?;
 
   // Block the thread until a shutdown signal is received
   rosrust::spin();
