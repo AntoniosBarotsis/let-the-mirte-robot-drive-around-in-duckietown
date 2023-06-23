@@ -51,7 +51,6 @@ class Subscriber:
         def laneCb(data: LaneMsg):
             self.__lane = Lane.fromMessage(data)
 
-
         # Callback for april tags
         def aprilTagCb(data: AprilTagMsg):
             new_tags = []

@@ -86,9 +86,9 @@ class Camera:
             return None
 
         # Calculate y-intercept
-        y_intercept = stop_line.origin.y_coord + (
-            0.5 - stop_line.origin.x_coord
-        ) * (stop_line.direction.y_coord / stop_line.direction.x_coord)
+        y_intercept = stop_line.origin.y_coord + (0.5 - stop_line.origin.x_coord) * (
+            stop_line.direction.y_coord / stop_line.direction.x_coord
+        )
 
         # Clamp to [0.0, 1.0]
         return max(min(y_intercept, 1.0), 0.0)
@@ -132,16 +132,16 @@ class Camera:
                 speed_right = speed
                 if angle > 10:
                     speed_left += turn_speed
-                    speed_right -= (turn_speed + turn_speed_corr)
+                    speed_right -= turn_speed + turn_speed_corr
                 elif angle < -10:
-                    speed_left -= (turn_speed + turn_speed_corr)
+                    speed_left -= turn_speed + turn_speed_corr
                     speed_right += turn_speed
-                self.__robot.setMotorSpeed('left', int(speed_left * 0.985))
-                self.__robot.setMotorSpeed('right', speed_right)
+                self.__robot.setMotorSpeed("left", int(speed_left * 0.985))
+                self.__robot.setMotorSpeed("right", speed_right)
             rospy.sleep(0.01)  # Prevent thread from taking too much CPU
 
     def startFollowing(self):
-        """ Start following the lane using the camera
+        """Start following the lane using the camera
         Will not do anything if no robot is available
 
         Returns:
@@ -152,7 +152,7 @@ class Camera:
         self.__following = True
 
     def stopFollowing(self):
-        """ Stop following the lane using the camera
+        """Stop following the lane using the camera
         Will turn off the motors when called
 
         Returns:
@@ -160,9 +160,8 @@ class Camera:
         """
         self.__following = False
         if self.__robot is not None:
-            self.__robot.setMotorSpeed('left', 0)
-            self.__robot.setMotorSpeed('right', 0)
-
+            self.__robot.setMotorSpeed("left", 0)
+            self.__robot.setMotorSpeed("right", 0)
 
     def getAprilTags(self):
         """Gets the april tags from the camera

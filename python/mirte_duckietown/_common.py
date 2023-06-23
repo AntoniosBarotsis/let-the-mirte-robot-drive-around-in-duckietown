@@ -102,10 +102,12 @@ class Line:
     angle: float
 
     def __str__(self):
-        return f"Line(origin={self.origin}, " \
-               f"direction={self.direction}, " \
-               f"start={self.start}, " \
-               f"angle={self.angle})"
+        return (
+            f"Line(origin={self.origin}, "
+            f"direction={self.direction}, "
+            f"start={self.start}, "
+            f"angle={self.angle})"
+        )
 
     @staticmethod
     def fromMessage(message):
@@ -124,9 +126,11 @@ class Line:
                 message.origin.x,
                 message.origin.y,
                 message.origin.x + message.direction.x,
-                message.origin.y + message.direction.y
+                message.origin.y + message.direction.y,
             ),
-            convertAngleToDegrees(calculateRadians(message.direction.x, message.direction.y))
+            convertAngleToDegrees(
+                calculateRadians(message.direction.x, message.direction.y)
+            ),
         )
 
 
@@ -155,9 +159,7 @@ class AprilTag:
         Returns:
             bool: True if the AprilTag has expired, False otherwise
         """
-        return (
-            datetime.now() - self.timestamp
-        ).total_seconds() * 1000 > tag_life
+        return (datetime.now() - self.timestamp).total_seconds() * 1000 > tag_life
 
     def toSign(self):
         """Converts the AprilTag to a Sign
@@ -232,7 +234,7 @@ class TagDatabase:
         Returns:
             dict: The AprilTag if found, None otherwise
         """
-        for item in dict(self.data)['standalone_tags']:
+        for item in dict(self.data)["standalone_tags"]:
             if item["id"] == tag_id:
                 return item
         return None
@@ -244,6 +246,7 @@ class Lane:
 
     A datastructure containing three lines, representing the left, centre and right lines of a lane.
     """
+
     left_line: Line
     centre_line: Line
     right_line: Line
@@ -261,17 +264,21 @@ class Lane:
         return Lane(
             Line.fromMessage(message.left),
             Line.fromMessage(message.centre),
-            Line.fromMessage(message.right)
+            Line.fromMessage(message.right),
         )
 
     def __str__(self):
-        return f"Lane(left_line={self.left_line}, " \
-               f"centre_line={self.centre_line}, " \
-               f"right_line={self.right_line})"
+        return (
+            f"Lane(left_line={self.left_line}, "
+            f"centre_line={self.centre_line}, "
+            f"right_line={self.right_line})"
+        )
+
 
 # Some helper functions:
 # pylint: disable=invalid-name
 # pylint: disable=missing-function-docstring
+
 
 # Calculates an angle from a vector [x, y]
 def calculateRadians(x, y):
@@ -288,8 +295,8 @@ def convertAngleToDegrees(angle):
 def calculateY1Intercept(x1, y1, x2, y2):
     if x1 == x2:
         return x1  # vertical line, so intercept will be the x coordinate
-    a = (y2 - y1)/(x2 - x1)
+    a = (y2 - y1) / (x2 - x1)
     if a == 0:
         return math.inf  # horizontal line, so intercept will be infinity
-    b = y1-a*x1
-    return (1 - b)/a
+    b = y1 - a * x1
+    return (1 - b) / a

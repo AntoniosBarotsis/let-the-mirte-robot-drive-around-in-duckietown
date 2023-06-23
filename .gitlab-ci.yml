@@ -46,5 +46,6 @@ lint:
     - cargo clippy --all-features -- -D warnings
     - cargo fmt --check
     - cd ..
-    - pip3 install pylint
+    - pip3 install black pylint
+    - black --check ./python
     - pylint --ignore='.venv' --recursive=y ./python
