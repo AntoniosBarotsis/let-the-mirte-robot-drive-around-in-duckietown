@@ -30,12 +30,13 @@ Mirte Documentation
    doc/duckietown_ros_api
 
 .. toctree::
-   :caption: Computer Vision
+   :caption: Duckietown
    :maxdepth: 1
    :hidden:
 
    doc/duckietown_detect_line
    doc/duckietown_stop_line
+   doc/duckietown_installation_guide
 
 .. toctree::
    :caption: Mirte Development
