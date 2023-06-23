@@ -1,6 +1,10 @@
 Following a lane
 ================
 
+This is an example for how to get the Mirte robot drive around in Duckietown only following the lane.
+The example is made for Blockly, Python-simple and Python-hard.
+The example follows the lane in Duckietown for 30 seconds.
+
 .. tabs::
 
     .. group-tab:: Blockly
