@@ -175,10 +175,10 @@ class AprilTag:
         if tag is None:
             return None
         # If tag is a traffic sign, return the corresponding type
-        if tag.get("tag_type") == "TrafficSign":
-            return Sign(tag.get("traffic_sign_type"))
+        if tag["tag_type"] == "TrafficSign":
+            return Sign(tag["traffic_sign_type"])
         # If tag is a street sign, return the street sign type
-        if tag.get("tag_type") == "StreetName":
+        if tag["tag_type"] == "StreetName":
             return Sign("street")
 
         return None
@@ -194,7 +194,7 @@ class AprilTag:
         if tag is None:
             return None
         # If tag is a street sign, return the street name
-        street_name: str = tag.get("street_name")
+        street_name: str = tag["street_name"]
         if street_name is None:
             return None
         # Remove trailing dots
@@ -235,8 +235,8 @@ class TagDatabase:
         Returns:
             dict: The AprilTag if found, None otherwise
         """
-        for item in dict(self.data)["standalone_tags"]:
-            if item["id"] == tag_id:
+        for item in self.data:
+            if item["tag_id"] == tag_id:
                 return item
         return None
 

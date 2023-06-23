@@ -86,9 +86,9 @@ class Camera:
             return None
 
         # Calculate y-intercept
-        y_intercept = stop_line.origin.y_coord + (0.5 - stop_line.origin.x_coord) * (
-            stop_line.direction.y_coord / stop_line.direction.x_coord
-        )
+        y_intercept = stop_line.origin.y_coord + (
+            0.5 - stop_line.origin.x_coord
+        ) * (stop_line.direction.y_coord / stop_line.direction.x_coord)
 
         # Clamp to [0.0, 1.0]
         return max(min(y_intercept, 1.0), 0.0)
@@ -168,7 +168,6 @@ class Camera:
             bool: True if the robot sees the sign, False otherwise
         """
         for tag in self.getAprilTags():
-            print("sign stuff", tag, tag.toSign(), sign)
             if tag.toSign() == sign:
                 return True
         return False
