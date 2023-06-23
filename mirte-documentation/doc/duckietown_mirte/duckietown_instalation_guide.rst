@@ -1,2 +1,2 @@
-Getting every for Duckietown working on Mirte
+Getting everything for Duckietown working on Mirte
 =============================================
