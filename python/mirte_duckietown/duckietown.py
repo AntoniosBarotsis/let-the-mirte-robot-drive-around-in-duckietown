@@ -169,16 +169,10 @@ class Camera:
         Returns:
             bool: True if the robot sees the sign, False otherwise
         """
-        print("in seesSign, amt of tags: ", len(self.getAprilTags()))
-        start = time.time()
 
         for tag in self.getAprilTags():
-            print("in loop")
             if tag.toSign() == sign:
                 return True
-            
-        end = time.time()
-        print("Iterated tags in: ", end - start)
         return False
 
     def seesStreet(self, street_name: str):
@@ -194,8 +188,6 @@ class Camera:
         street_name = street_name.upper().rstrip(".")
         # Check if street name is in the list of street names
         for tag in self.getAprilTags():
-            print(tag)
-            print("tag.getStreetName()", tag.getStreetName())
             if tag.getStreetName() == street_name:
                 return True
         return False
