@@ -48,6 +48,8 @@ class Camera:
         if self.__robot is not None:
             threading.Thread(target=self._follower).start()
 
+        self.__rospy_rate = rospy.Rate(30)
+
     def getLines(self):
         """Gets line segments from the camera
 
@@ -86,9 +88,9 @@ class Camera:
             return None
 
         # Calculate y-intercept
-        y_intercept = stop_line.origin.y_coord + (0.5 - stop_line.origin.x_coord) * (
-            stop_line.direction.y_coord / stop_line.direction.x_coord
-        )
+        y_intercept = stop_line.origin.y_coord + (
+            0.5 - stop_line.origin.x_coord
+        ) * (stop_line.direction.y_coord / stop_line.direction.x_coord)
 
         # Clamp to [0.0, 1.0]
         return max(min(y_intercept, 1.0), 0.0)
@@ -121,19 +123,21 @@ class Camera:
                 speed = 65
                 turn_speed = 10
                 turn_speed_corr = 5
-
                 angle = lane.centre_line.angle
                 speed_left = speed
                 speed_right = speed
+                # Turn left when the angle is positive
                 if angle > 10:
                     speed_left += turn_speed
                     speed_right -= turn_speed + turn_speed_corr
+                # Turn right when the angle is negative
                 elif angle < -10:
                     speed_left -= turn_speed + turn_speed_corr
                     speed_right += turn_speed
                 self.__robot.setMotorSpeed("left", int(speed_left * 0.985))
                 self.__robot.setMotorSpeed("right", speed_right)
-            rospy.sleep(0.01)  # Prevent thread from taking too much CPU
+            # Prevent CPU from overheating
+            self.__rospy_rate.sleep()
 
     def startFollowing(self):
         """Start following the lane using the camera, if the robot is initialized"""
