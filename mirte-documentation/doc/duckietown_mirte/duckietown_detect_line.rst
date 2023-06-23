@@ -5,9 +5,7 @@ Following a lane
 
     .. group-tab:: Blockly
 
-        .. code-block:: python 
-
-            print("placeholder")
+        |pic_duck_1|
 
     .. group-tab:: Python-simple
 
@@ -29,3 +27,5 @@ Following a lane
         .. code-block:: python 
 
             print("placeholder")
+
+|pic_duck_1| image:: doc/duckietown_mirte/duckie_images/follow_lane_blockly.png
