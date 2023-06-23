@@ -137,11 +137,11 @@ class Camera:
                 # calculate speed
                 speed_left = speed
                 speed_right = speed
-                # Turn left when the angle is positive
+                # Turn right when the angle is positive
                 if angle > 10:
                     speed_left += turn_speed
                     speed_right -= turn_speed + turn_speed_corr
-                # Turn right when the angle is negative
+                # Turn left when the angle is negative
                 elif angle < -10:
                     speed_left -= turn_speed + turn_speed_corr
                     speed_right += turn_speed
