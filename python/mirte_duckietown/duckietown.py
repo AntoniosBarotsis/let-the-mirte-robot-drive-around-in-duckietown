@@ -31,7 +31,7 @@ class Camera:
         """
         # Initialise subscriber
         if subscriber is None:
-            self.__subscriber = Subscriber(tag_life=tag_life)
+            self.__subscriber = Subscriber(robot, robot, tag_life=tag_life)
         else:
             self.__subscriber = subscriber
 
@@ -136,15 +136,13 @@ class Camera:
             rospy.sleep(0.01)  # Prevent thread from taking too much CPU
 
     def startFollowing(self):
-        """Start following the lane using the camera
-        will not do anything if no robot is available"""
+        """Start following the lane using the camera, if the robot is initialized"""
         if self.__robot is None:
             return
         self.__following = True
 
     def stopFollowing(self):
-        """Stop following the lane using the camera
-        will turn off the motors when called"""
+        """Stop following the lane using the camera, if the robot is initialized"""
         self.__following = False
         if self.__robot is not None:
             self.__robot.setMotorSpeed("left", 0)

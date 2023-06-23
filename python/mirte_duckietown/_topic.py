@@ -29,7 +29,7 @@ class Subscriber:
     __tag_life: int
     __lane: Lane = None
 
-    def __init__(self, tag_life=500):
+    def __init__(self, robot=None, tag_life=500):
         self.__tag_life = tag_life
 
         # Callback for line segments
@@ -84,6 +84,9 @@ class Subscriber:
         # Shutdown handler
         def shutdownHandler(signum, frame):
             rospy.signal_shutdown(f"signal: {signum}\nframe: {frame}")
+            if robot is not None:
+                robot.setMotorSpeed("left", 0)
+                robot.setMotorSpeed("right", 0)
             sys.exit()
 
         # Register shutdown handler
