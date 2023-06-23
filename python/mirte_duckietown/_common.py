@@ -135,6 +135,41 @@ class Line:
 
 
 @dataclass
+class Lane:
+    """Lane datastructure
+
+    A datastructure containing three lines, representing the left, centre and right lines of a lane.
+    """
+
+    left_line: Line
+    centre_line: Line
+    right_line: Line
+
+    @staticmethod
+    def fromMessage(message):
+        """Converts a Lane message to a Lane object
+
+        Parameters:
+            message (mirte_msgs.msg.Lane): The message to convert
+
+        Returns:
+            Lane: The converted object
+        """
+        return Lane(
+            Line.fromMessage(message.left),
+            Line.fromMessage(message.centre),
+            Line.fromMessage(message.right),
+        )
+
+    def __str__(self):
+        return (
+            f"Lane(left_line={self.left_line}, "
+            f"centre_line={self.centre_line}, "
+            f"right_line={self.right_line})"
+        )
+
+
+@dataclass
 class AprilTag:
     """AprilTag
 
@@ -159,9 +194,7 @@ class AprilTag:
         Returns:
             bool: True if the AprilTag has expired, False otherwise
         """
-        return (
-            datetime.now() - self.timestamp
-        ).total_seconds() * 1000 > tag_life
+        return (datetime.now() - self.timestamp).total_seconds() * 1000 > tag_life
 
     def toSign(self):
         """Converts the AprilTag to a Sign
@@ -239,38 +272,3 @@ class TagDatabase:
             if item["tag_id"] == tag_id:
                 return item
         return None
-
-
-@dataclass
-class Lane:
-    """Lane datastructure
-
-    A datastructure containing three lines, representing the left, centre and right lines of a lane.
-    """
-
-    left_line: Line
-    centre_line: Line
-    right_line: Line
-
-    @staticmethod
-    def fromMessage(message):
-        """Converts a Lane message to a Lane object
-
-        Parameters:
-            message (mirte_msgs.msg.Lane): The message to convert
-
-        Returns:
-            Lane: The converted object
-        """
-        return Lane(
-            Line.fromMessage(message.left),
-            Line.fromMessage(message.centre),
-            Line.fromMessage(message.right),
-        )
-
-    def __str__(self):
-        return (
-            f"Lane(left_line={self.left_line}, "
-            f"centre_line={self.centre_line}, "
-            f"right_line={self.right_line})"
-        )
