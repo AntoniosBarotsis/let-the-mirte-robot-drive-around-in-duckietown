@@ -31,7 +31,7 @@ class Camera:
         """
         # Initialise subscriber
         if subscriber is None:
-            self.__subscriber = Subscriber(robot, robot, tag_life=tag_life)
+            self.__subscriber = Subscriber(robot, tag_life=tag_life)
         else:
             self.__subscriber = subscriber
 
