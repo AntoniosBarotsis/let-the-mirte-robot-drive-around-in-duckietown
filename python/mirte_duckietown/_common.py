@@ -2,8 +2,8 @@ import os
 from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
-import math
 import yaml
+from _util import calculateRadians, convertAngleToDegrees, calculateY1Intercept
 from .sign import Sign
 
 
@@ -169,7 +169,6 @@ class AprilTag:
         """
         tag_db = TagDatabase()
         tag: dict = tag_db.lookup(self.tag_id)
-        print(tag, self.tag_id)
         # Check if tag exists
         if tag is None:
             return None
@@ -273,30 +272,3 @@ class Lane:
             f"centre_line={self.centre_line}, "
             f"right_line={self.right_line})"
         )
-
-
-# Some helper functions:
-# pylint: disable=invalid-name
-# pylint: disable=missing-function-docstring
-
-
-# Calculates an angle from a vector [x, y]
-def calculateRadians(x, y):
-    return math.atan2(y, x)
-
-
-# Converts an angle in radians to degrees
-# 0 degrees is straight up, and positive angles are clockwise
-def convertAngleToDegrees(angle):
-    return math.degrees(angle) + 90
-
-
-# Calculates the intercept of a line given by two points with the line y=1 (the bottom of the image)
-def calculateY1Intercept(x1, y1, x2, y2):
-    if x1 == x2:
-        return x1  # vertical line, so intercept will be the x coordinate
-    a = (y2 - y1) / (x2 - x1)
-    if a == 0:
-        return math.inf  # horizontal line, so intercept will be infinity
-    b = y1 - a * x1
-    return (1 - b) / a
