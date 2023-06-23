@@ -1,7 +1,7 @@
 [workspace]
 
 members = [
-  "mirte-rs",
+  "core",
   "cv",
   "ros",
   "rostest",
