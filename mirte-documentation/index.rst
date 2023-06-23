@@ -37,7 +37,6 @@ Mirte Documentation
    doc/duckietown_mirte/duckietown_detect_line
    doc/duckietown_mirte/duckietown_stop_line
    doc/duckietown_mirte/duckietown_instalation_guide
-   doc/test
 
 .. toctree::
    :caption: Mirte Development
