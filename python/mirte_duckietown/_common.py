@@ -5,7 +5,6 @@ from dataclasses import dataclass
 import yaml
 from ._util import calculateRadians, convertAngleToDegrees, calculateY1Intercept
 from .sign import Sign
-import time
 
 
 class Colour(Enum):
@@ -256,7 +255,6 @@ class TagDatabase:
             return
         # Load the database
         file_path = os.path.join(os.path.dirname(__file__), "apriltagsDB.yaml")
-        
 
         with open(file_path, encoding="utf8") as file:
             self.data = yaml.load(file, Loader=yaml.CBaseLoader)
@@ -275,5 +273,5 @@ class TagDatabase:
         for item in self.data:
             if int(item["tag_id"]) == tag_id:
                 return item
-            
+
         return None

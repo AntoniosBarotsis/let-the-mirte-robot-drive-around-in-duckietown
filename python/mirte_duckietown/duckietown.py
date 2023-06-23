@@ -2,7 +2,6 @@ import threading
 
 import rospy
 from ._topic import Subscriber
-import time
 
 
 class Camera:
