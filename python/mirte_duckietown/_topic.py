@@ -1,6 +1,7 @@
 from __future__ import annotations
 from datetime import datetime
 import signal
+from time import sleep
 import sys
 import rospy
 from cv_bridge import CvBridge
@@ -87,6 +88,7 @@ class Subscriber:
             if robot is not None:
                 robot.setMotorSpeed("left", 0)
                 robot.setMotorSpeed("right", 0)
+                sleep(0.1)
             sys.exit()
 
         # Register shutdown handler
