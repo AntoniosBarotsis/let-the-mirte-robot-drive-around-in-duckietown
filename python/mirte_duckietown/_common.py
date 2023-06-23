@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import yaml
 from ._util import calculateRadians, convertAngleToDegrees, calculateY1Intercept
 from .sign import Sign
+import time
 
 
 class Colour(Enum):
@@ -202,6 +203,7 @@ class AprilTag:
         Returns:
             Sign: The converted Sign
         """
+
         tag_db = TagDatabase()
         tag: dict = tag_db.lookup(self.tag_id)
         # Check if tag exists
@@ -224,6 +226,7 @@ class AprilTag:
         """
         tag_db = TagDatabase()
         tag: dict = tag_db.lookup(self.tag_id)
+        print("tag", tag)
         if tag is None:
             return None
         # If tag is a street sign, return the street name
@@ -253,10 +256,20 @@ class TagDatabase:
         if self._initialized:
             return
         # Load the database
+        print("Loading the database")
+        start = time.time()
         file_path = os.path.join(os.path.dirname(__file__), "apriltagsDB.yaml")
+        
+
         with open(file_path, encoding="utf8") as file:
-            self.data = yaml.load(file, Loader=yaml.FullLoader)
+            end = time.time()
+            print("Loaded yml file in: ", end - start)
+            start = time.time()
+            self.data = yaml.load(file, Loader=yaml.CBaseLoader)
+            end = time.time()
+            print("Parsed yml file in: ", end - start)
         # Mark as initialized
+        print("Database loaded")
         self._initialized = True
 
     def lookup(self, tag_id):
@@ -268,7 +281,11 @@ class TagDatabase:
         Returns:
             dict: The AprilTag if found, None otherwise
         """
+        start = time.time()
         for item in self.data:
-            if item["tag_id"] == tag_id:
+            if int(item["tag_id"]) == tag_id:
+                end = time.time()
+                print("Performed lookup in: ", end - start)
                 return item
+            
         return None
