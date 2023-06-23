@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
 import yaml
-from _util import calculateRadians, convertAngleToDegrees, calculateY1Intercept
+from ._util import calculateRadians, convertAngleToDegrees, calculateY1Intercept
 from .sign import Sign
 
 
@@ -159,7 +159,9 @@ class AprilTag:
         Returns:
             bool: True if the AprilTag has expired, False otherwise
         """
-        return (datetime.now() - self.timestamp).total_seconds() * 1000 > tag_life
+        return (
+            datetime.now() - self.timestamp
+        ).total_seconds() * 1000 > tag_life
 
     def toSign(self):
         """Converts the AprilTag to a Sign
