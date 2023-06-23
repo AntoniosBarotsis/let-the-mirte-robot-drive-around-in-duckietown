@@ -55,9 +55,7 @@ class TestCamera(unittest.TestCase):
         subscriber.getStopLine = MagicMock(
             return_value=Line(Point(0, 0), Vector(1, 1), 0, 0)
         )
-        self.assertEqual(
-            camera.getStopLine(), Line(Point(0, 0), Vector(1, 1), 0, 0)
-        )
+        self.assertEqual(camera.getStopLine(), Line(Point(0, 0), Vector(1, 1), 0, 0))
 
     def testGetStopLineHeight(self):
         """Test the getStopLineHeight method"""

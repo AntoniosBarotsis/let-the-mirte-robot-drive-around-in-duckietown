@@ -132,7 +132,8 @@ export function load(Blockly) {
       "from mirte_robot import robot\nmirte=robot.createRobot()";
     Blockly.Python.definitions_["import_duckietown"] =
       "from mirte_duckietown import duckietown\ncamera=duckietown.createCamera(mirte)";
-    Blockly.Python.definitions_["import_sign"] = "from sign import Sign";
+    Blockly.Python.definitions_["import_sign"] =
+      "from mirte_duckietown.sign import Sign";
     let code = `camera.seesSign(${block.getFieldValue("SIGN")})`;
     return [code, Blockly.Python.ORDER_NONE];
   };

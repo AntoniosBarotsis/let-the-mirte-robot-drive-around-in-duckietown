@@ -39,7 +39,7 @@ This resulting binary should be in `./target/release/mirte-rs`. To copy it over 
 machine, you can run 
 
 ```sh
-docker cp xcompile:~/target/release/mirte-rs .
+docker cp xcompile:/target/release/mirte-rs .
 ```
 
 You can now transfer the file over to Mirte via SSH

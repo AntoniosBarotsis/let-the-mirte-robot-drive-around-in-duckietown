@@ -20,18 +20,19 @@ class Camera:
         """Initialises a new camera
 
         Parameters:
-            subscriber (Subscriber): The subscriber to use for fetching ROS topics.
-                If None, a new subscriber will be created.
             robot (Robot): The robot to use for controlling the robot.
                 If None, you will not be able to control the robot automatically.
-            stop_line_threshold_height (float): The theshold where the stop
+            subscriber (Subscriber): The subscriber to use for fetching ROS topics.
+                If None, a new subscriber will be created.
+            stop_line_threshold_height (float): The threshold where the stop
                 line is considered to be visible
             tag_life (int): The number of milliseconds a tag will be remembered
                 until it is considered expired
         """
         # Initialise subscriber
         if subscriber is None:
-            self.__subscriber = Subscriber(tag_life=tag_life)
+            self.__subscriber = Subscriber(robot, tag_life=tag_life)
+            self.__rospy_rate = rospy.Rate(30)
         else:
             self.__subscriber = subscriber
 
@@ -46,7 +47,7 @@ class Camera:
 
         # Run the follower in a separate thread
         if self.__robot is not None:
-            threading.Thread(target=self.__follower).start()
+            threading.Thread(target=self._follower).start()
 
     def getLines(self):
         """Gets line segments from the camera
@@ -86,9 +87,9 @@ class Camera:
             return None
 
         # Calculate y-intercept
-        y_intercept = stop_line.origin.y_coord + (
-            0.5 - stop_line.origin.x_coord
-        ) * (stop_line.direction.y_coord / stop_line.direction.x_coord)
+        y_intercept = stop_line.origin.y_coord + (0.5 - stop_line.origin.x_coord) * (
+            stop_line.direction.y_coord / stop_line.direction.x_coord
+        )
 
         # Clamp to [0.0, 1.0]
         return max(min(y_intercept, 1.0), 0.0)
@@ -113,13 +114,8 @@ class Camera:
         """
         return self.__subscriber.getImage()
 
-    # pylint: disable=invalid-name
-    def __follower(self):
-        """Follows the lane using the camera
-
-        Returns:
-            None
-        """
+    def _follower(self):
+        """Follows the lane using the camera"""
         while not rospy.is_shutdown():
             lane = self.__subscriber.getLane()
             if self.__following and lane is not None:
@@ -141,44 +137,36 @@ class Camera:
                 # calculate speed
                 speed_left = speed
                 speed_right = speed
+                # Turn left when the angle is positive
                 if angle > 10:
                     speed_left += turn_speed
-                    speed_right -= (turn_speed + turn_speed_corr)
+                    speed_right -= turn_speed + turn_speed_corr
+                # Turn right when the angle is negative
                 elif angle < -10:
-                    speed_left -= (turn_speed + turn_speed_corr)
+                    speed_left -= turn_speed + turn_speed_corr
                     speed_right += turn_speed
 
                 # Set motor speeds
                 self.__robot.setMotorSpeed('left', speed_left)
                 self.__robot.setMotorSpeed('right', speed_right)
-            rospy.sleep(0.01)  # Prevent thread from taking too much CPU
+            self.__rospy_rate.sleep()
 
     def startFollowing(self):
-        """ Start following the lane using the camera
-        Will not do anything if no robot is available
-
-        Returns:
-            None
-        """
+        """Start following the lane using the camera, if the robot is initialized"""
         if self.__robot is None:
             return
         self.__following = True
 
     def stopFollowing(self):
-        """ Stop following the lane using the camera
-        Will turn off the motors when called
-
-        Returns:
-            None
-        """
+        """Stop following the lane using the camera, if the robot is initialized"""
         self.__following = False
         if self.__robot is not None:
-            self.__robot.setMotorSpeed('left', 0)
-            self.__robot.setMotorSpeed('right', 0)
-
+            self.__robot.setMotorSpeed("left", 0)
+            self.__robot.setMotorSpeed("right", 0)
 
     def getAprilTags(self):
         """Gets the april tags from the camera
+
         Returns:
             list[AprilTag]: List of AprilTag objects
         """

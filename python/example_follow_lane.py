@@ -2,6 +2,7 @@
 
 from mirte_robot import robot
 from mirte_duckietown import duckietown
+
 mirte = robot.createRobot()
 camera = duckietown.createCamera(mirte)
 

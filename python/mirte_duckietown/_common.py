@@ -2,8 +2,8 @@ import os
 from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
-import math
 import yaml
+from ._util import calculateRadians, convertAngleToDegrees, calculateY1Intercept
 from .sign import Sign
 
 
@@ -102,10 +102,12 @@ class Line:
     angle: float
 
     def __str__(self):
-        return f"Line(origin={self.origin}, " \
-               f"direction={self.direction}, " \
-               f"start={self.start}, " \
-               f"angle={self.angle})"
+        return (
+            f"Line(origin={self.origin}, "
+            f"direction={self.direction}, "
+            f"start={self.start}, "
+            f"angle={self.angle})"
+        )
 
     @staticmethod
     def fromMessage(message):
@@ -124,9 +126,46 @@ class Line:
                 message.origin.x,
                 message.origin.y,
                 message.origin.x + message.direction.x,
-                message.origin.y + message.direction.y
+                message.origin.y + message.direction.y,
             ),
-            convertAngleToDegrees(calculateRadians(message.direction.x, message.direction.y))
+            convertAngleToDegrees(
+                calculateRadians(message.direction.x, message.direction.y)
+            ),
+        )
+
+
+@dataclass
+class Lane:
+    """Lane datastructure
+
+    A datastructure containing three lines, representing the left, centre and right lines of a lane.
+    """
+
+    left_line: Line
+    centre_line: Line
+    right_line: Line
+
+    @staticmethod
+    def fromMessage(message):
+        """Converts a Lane message to a Lane object
+
+        Parameters:
+            message (mirte_msgs.msg.Lane): The message to convert
+
+        Returns:
+            Lane: The converted object
+        """
+        return Lane(
+            Line.fromMessage(message.left),
+            Line.fromMessage(message.centre),
+            Line.fromMessage(message.right),
+        )
+
+    def __str__(self):
+        return (
+            f"Lane(left_line={self.left_line}, "
+            f"centre_line={self.centre_line}, "
+            f"right_line={self.right_line})"
         )
 
 
@@ -155,9 +194,7 @@ class AprilTag:
         Returns:
             bool: True if the AprilTag has expired, False otherwise
         """
-        return (
-            datetime.now() - self.timestamp
-        ).total_seconds() * 1000 > tag_life
+        return (datetime.now() - self.timestamp).total_seconds() * 1000 > tag_life
 
     def toSign(self):
         """Converts the AprilTag to a Sign
@@ -171,10 +208,10 @@ class AprilTag:
         if tag is None:
             return None
         # If tag is a traffic sign, return the corresponding type
-        if tag.get("tag_type") == "TrafficSign":
-            return Sign(tag.get("traffic_sign_type"))
+        if tag["tag_type"] == "TrafficSign":
+            return Sign(tag["traffic_sign_type"])
         # If tag is a street sign, return the street sign type
-        if tag.get("tag_type") == "StreetName":
+        if tag["tag_type"] == "StreetName":
             return Sign("street")
 
         return None
@@ -190,7 +227,7 @@ class AprilTag:
         if tag is None:
             return None
         # If tag is a street sign, return the street name
-        street_name: str = tag.get("street_name")
+        street_name: str = tag["street_name"]
         if street_name is None:
             return None
         # Remove trailing dots
@@ -232,63 +269,6 @@ class TagDatabase:
             dict: The AprilTag if found, None otherwise
         """
         for item in self.data:
-            if item.get("tag_id") == tag_id:
+            if item["tag_id"] == tag_id:
                 return item
         return None
-
-
-@dataclass
-class Lane:
-    """Lane datastructure
-
-    A datastructure containing three lines, representing the left, centre and right lines of a lane.
-    """
-    left_line: Line
-    centre_line: Line
-    right_line: Line
-
-    @staticmethod
-    def fromMessage(message):
-        """Converts a Lane message to a Lane object
-
-        Parameters:
-            message (mirte_msgs.msg.Lane): The message to convert
-
-        Returns:
-            Lane: The converted object
-        """
-        return Lane(
-            Line.fromMessage(message.left),
-            Line.fromMessage(message.centre),
-            Line.fromMessage(message.right)
-        )
-
-    def __str__(self):
-        return f"Lane(left_line={self.left_line}, " \
-               f"centre_line={self.centre_line}, " \
-               f"right_line={self.right_line})"
-
-# Some helper functions:
-# pylint: disable=invalid-name
-# pylint: disable=missing-function-docstring
-
-# Calculates an angle from a vector [x, y]
-def calculateRadians(x, y):
-    return math.atan2(y, x)
-
-
-# Converts an angle in radians to degrees
-# 0 degrees is straight up, and positive angles are clockwise
-def convertAngleToDegrees(angle):
-    return math.degrees(angle) + 90
-
-
-# Calculates the intercept of a line given by two points with the line y=1 (the bottom of the image)
-def calculateY1Intercept(x1, y1, x2, y2):
-    if x1 == x2:
-        return x1  # vertical line, so intercept will be the x coordinate
-    a = (y2 - y1)/(x2 - x1)
-    if a == 0:
-        return math.inf  # horizontal line, so intercept will be infinity
-    b = y1-a*x1
-    return (1 - b)/a
