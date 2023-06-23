@@ -1,5 +1,5 @@
 use common::edebug;
-use core::process_mat;
+use mirte_rs::process_mat;
 use ros::{process_ros_image, CvImage};
 
 /// For now, just reads an image from ROS and shows it on screen.

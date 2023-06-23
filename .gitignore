@@ -16,9 +16,9 @@ target/
 *.pdb
 
 **/Cargo.lock
-!mirte-rs/Cargo.lock
+!rust/Cargo.lock
 
-mirte-rs/assets/output.jpg
+rust/assets/output.jpg
 
 # Mirte Web Interface ignores
 mirte-web-interface/node_modules/

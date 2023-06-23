@@ -1,6 +1,8 @@
 pub mod detection;
 pub mod mirte_error;
 
+use std::time::Instant;
+
 use common::{
   debug, edebug,
   structs::{colour::ColourEnum, threshold::Threshold},
@@ -12,6 +14,12 @@ use detection::{detect_lane, detect_stop_line};
 use mirte_error::MirteError;
 use ros::{process_ros_image_one, publishers::RosBgPublisher, CvImage};
 use std::collections::HashMap;
+
+#[cfg(debug_assertions)]
+use cv::{draw_lines::draw_lines, image::downscale};
+
+#[cfg(debug_assertions)]
+use ros::mirte_msgs::LineSegment;
 
 #[allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
 pub fn get_image() -> Result<Mat, MirteError> {
@@ -26,18 +34,13 @@ pub fn get_image() -> Result<Mat, MirteError> {
   Ok(mat.clone())
 }
 
-#[cfg(debug_assertions)]
-use std::time::Instant;
-
 pub fn process_mat<S: std::hash::BuildHasher>(
   mat: &Mat,
   thresholds: &HashMap<ColourEnum, Threshold, S>,
 ) {
-  #[cfg(debug_assertions)]
   let time_total = Instant::now();
 
   // Converting to usable image
-  #[cfg(debug_assertions)]
   let time_hsv = Instant::now();
   if let Ok(hsv_img) = downscale_enhance_hsv(mat) {
     debug!("converting to hsv: {:?}", time_hsv.elapsed());
@@ -47,21 +50,18 @@ pub fn process_mat<S: std::hash::BuildHasher>(
 
     // Detecting lines
     let colours = vec![ColourEnum::Yellow, ColourEnum::White, ColourEnum::Red];
-    #[cfg(debug_assertions)]
     let time_detecting_lines = Instant::now();
     if let Ok(lines) = detect_line_type(&hsv_img, thresholds, colours) {
       debug!("detecting lines: {:?}", time_detecting_lines.elapsed());
       publisher.publish_line_segment(lines.clone());
 
       // Detecting lane
-      #[cfg(debug_assertions)]
       let time_detect_lane = Instant::now();
       let lane = detect_lane(&lines);
       debug!("detecting lane: {:?}", time_detect_lane.elapsed());
       publisher.publish_lane(lane);
 
       // Detecting stop line
-      #[cfg(debug_assertions)]
       let time_detect_stop_line = Instant::now();
       let stop_line = detect_stop_line(&lines);
       debug!("detecting stop line: {:?}", time_detect_stop_line.elapsed());
@@ -70,8 +70,6 @@ pub fn process_mat<S: std::hash::BuildHasher>(
       // Draw lines, lane and stop line in debug
       #[cfg(debug_assertions)]
       {
-        use cv::{draw_lines::draw_lines, image::downscale};
-        use ros::mirte_msgs::LineSegment;
         let all_lines = [
           lines,
           lane.get_coloured_segments(ColourEnum::Green, ColourEnum::Orange, ColourEnum::Black),
@@ -88,7 +86,6 @@ pub fn process_mat<S: std::hash::BuildHasher>(
       edebug!("Could not detect lines");
     }
 
-    #[cfg(debug_assertions)]
     let time_detecting_obstacles = Instant::now();
     if let Ok(obstacles) = detect_obstacles(&hsv_img) {
       debug!(

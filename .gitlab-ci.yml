@@ -8,12 +8,12 @@ variables:
 cache:
   key:
     files:
-      - mirte-rs/Cargo.lock
+      - rust/Cargo.lock
   paths:
     - .cargo/registry/index
     - .cargo/registry/cache
-    - mirte-rs/target/debug/deps
-    - mirte-rs/target/debug/build
+    - rust/target/debug/deps
+    - rust/target/debug/build
 
 stages:
   - build
@@ -23,7 +23,7 @@ stages:
 build:
   stage: build
   script:
-    - cd mirte-rs
+    - cd rust
     - cargo build --all-features
 
 test:
@@ -31,7 +31,7 @@ test:
   needs:
     - build
   script:
-    - cd mirte-rs
+    - cd rust
     - cargo test -r --verbose
     # - cd ..
     # - python3 -m unittest discover ./python
@@ -41,7 +41,7 @@ lint:
   needs:
     - build
   script:
-    - cd mirte-rs
+    - cd rust
     - rustup component add clippy rustfmt
     - cargo clippy --all-features -- -D warnings
     - cargo fmt --check

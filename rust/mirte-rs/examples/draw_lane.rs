@@ -1,10 +1,10 @@
 use common::structs::colour::ColourEnum;
-use core::detection::detect_lane;
 use cv::{
   detect_lines::detect_line_type,
   image::{downscale, downscale_enhance_hsv},
 };
 use cv::{draw_lines::draw_lines, image::read_image};
+use mirte_rs::detection::detect_lane;
 use std::collections::HashMap;
 use std::env;
 
