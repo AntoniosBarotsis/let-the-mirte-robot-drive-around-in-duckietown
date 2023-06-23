@@ -1,6 +1,6 @@
 use crate::{
   geometry_msgs::Point,
-  mirte_msgs::{Object, Obstacle},
+  mirte_duckietown_msgs::{Object, Obstacle},
 };
 
 impl Obstacle {

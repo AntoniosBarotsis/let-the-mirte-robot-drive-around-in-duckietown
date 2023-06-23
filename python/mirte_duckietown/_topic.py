@@ -6,7 +6,7 @@ import sys
 import rospy
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
-from mirte_msgs.msg import (
+from mirte_duckietown_msgs.msg import (
     LineSegmentList as LineSegmentMsg,
     Line as LineMsg,
     Lane as LaneMsg,

@@ -19,7 +19,7 @@ use std::collections::HashMap;
 use cv::{draw_lines::draw_lines, image::downscale};
 
 #[cfg(debug_assertions)]
-use ros::mirte_msgs::LineSegment;
+use ros::mirte_duckietown_msgs::LineSegment;
 
 #[allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
 pub fn get_image() -> Result<Mat, MirteError> {

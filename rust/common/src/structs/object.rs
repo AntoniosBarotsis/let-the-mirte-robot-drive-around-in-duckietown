@@ -1,3 +1,3 @@
-use crate::mirte_msgs::Object;
+use crate::mirte_duckietown_msgs::Object;
 
 impl Copy for Object {}
