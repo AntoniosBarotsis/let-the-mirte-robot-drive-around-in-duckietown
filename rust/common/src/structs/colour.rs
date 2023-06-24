@@ -1,4 +1,4 @@
-use crate::mirte_msgs::Colour;
+use crate::mirte_duckietown_msgs::Colour;
 use std::hash::{Hash, Hasher};
 
 /// A slightly more convenient wrapper around [`Colour`].
@@ -6,7 +6,7 @@ use std::hash::{Hash, Hasher};
 /// # Example
 ///
 /// ```
-/// # use common::{mirte_msgs::Colour, structs::colour::ColourEnum};
+/// # use common::{mirte_duckietown_msgs::Colour, structs::colour::ColourEnum};
 /// // Instead of
 /// let c_1 = Colour { type_: Colour::RED };
 ///

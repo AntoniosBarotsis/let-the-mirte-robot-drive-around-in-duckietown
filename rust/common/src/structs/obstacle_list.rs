@@ -1,4 +1,4 @@
-use crate::mirte_msgs::{Obstacle, ObstacleList};
+use crate::mirte_duckietown_msgs::{Obstacle, ObstacleList};
 
 impl From<Vec<Obstacle>> for ObstacleList {
   fn from(value: Vec<Obstacle>) -> Self {

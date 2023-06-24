@@ -1,6 +1,6 @@
 use crate::{cv_error::CvError, image::convert_to_rgb};
 use common::edebug;
-use common::{mirte_msgs::LineSegment, structs::colour::ColourEnum};
+use common::{mirte_duckietown_msgs::LineSegment, structs::colour::ColourEnum};
 use opencv::{
   core::{Mat, Point, Scalar},
   highgui::{imshow, wait_key},

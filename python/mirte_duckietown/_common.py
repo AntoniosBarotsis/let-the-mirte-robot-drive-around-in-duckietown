@@ -73,7 +73,7 @@ class LineSegment:
         """Converts a LineSegment message to a LineSegment object
 
         Parameters:
-            message (mirte_msgs.msg.LineSegment): The message to convert
+            message (mirte_duckietown_msgs.msg.LineSegment): The message to convert
 
         Returns:
             LineSegment: The converted object
@@ -114,7 +114,7 @@ class Line:
         """Converts a Line message to a Line object
 
         Parameters:
-            message (mirte_msgs.msg.Line): The message to convert
+            message (mirte_duckietown_msgs.msg.Line): The message to convert
 
         Returns:
             Line: The converted object
@@ -150,7 +150,7 @@ class Lane:
         """Converts a Lane message to a Lane object
 
         Parameters:
-            message (mirte_msgs.msg.Lane): The message to convert
+            message (mirte_duckietown_msgs.msg.Lane): The message to convert
 
         Returns:
             Lane: The converted object

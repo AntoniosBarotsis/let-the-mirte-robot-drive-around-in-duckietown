@@ -1,5 +1,5 @@
 use crate::geometry_msgs::{Point, Vector3};
-use crate::mirte_msgs::{Line, LineSegment, LineSegmentList};
+use crate::mirte_duckietown_msgs::{Line, LineSegment, LineSegmentList};
 
 use super::colour::ColourEnum;
 

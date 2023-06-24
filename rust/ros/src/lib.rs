@@ -10,7 +10,7 @@ pub mod ros_error;
 
 use cv_bridge::msgs::sensor_msgs::Image;
 
-pub use common::mirte_msgs;
+pub use common::mirte_duckietown_msgs;
 /// Intermediate stage between a `ROS` and an `OpenCV` image.
 pub use cv_bridge::CvImage;
 pub use ros_error::RosError;
