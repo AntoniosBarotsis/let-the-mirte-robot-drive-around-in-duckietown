@@ -22,6 +22,6 @@ python3 computer_vision.py
 ```sh
 python3 -m pip install --upgrade build
 python3 -m build
-pip3 uninstall mirte
+pip3 uninstall mirte -y
 pip3 install dist/mirte-1.0-py3-none-any.whl
 ```

@@ -253,13 +253,14 @@ class TagDatabase:
         # Don't initialize twice
         if self._initialized:
             return
-        # Load the database
-        file_path = os.path.join(os.path.dirname(__file__), "apriltagsDB.yaml")
 
-        with open(file_path, encoding="utf8") as file:
-            self.data = yaml.load(file, Loader=yaml.CBaseLoader)
         # Mark as initialized
         self._initialized = True
+
+        # Load the database
+        file_path = os.path.join(os.path.dirname(__file__), "apriltagsDB.yaml")
+        with open(file_path, encoding="utf8") as file:
+            self.data = yaml.load(file, Loader=yaml.CBaseLoader)
 
     def lookup(self, tag_id):
         """Looks up the AprilTag in the database

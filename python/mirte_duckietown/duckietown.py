@@ -31,7 +31,7 @@ class Camera:
         """
         # Initialise subscriber
         if subscriber is None:
-            self.__subscriber = Subscriber(robot, tag_life=tag_life)
+            self.__subscriber = Subscriber(tag_life=tag_life)
             self.__rospy_rate = rospy.Rate(30)
         else:
             self.__subscriber = subscriber
@@ -42,8 +42,11 @@ class Camera:
         # Stop line threshold height
         self.__stop_line_threshold_height = stop_line_threshold_height
 
-        # Don't follow the lane using the camera
+        # Don't yet follow the lane
         self.__following = False
+
+        # Start executing of the follower
+        print("starting execution...")
 
         # Run the follower in a separate thread
         if self.__robot is not None:

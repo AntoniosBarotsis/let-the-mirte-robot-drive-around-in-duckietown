@@ -1,7 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
 import signal
-from time import sleep
 import sys
 import rospy
 from cv_bridge import CvBridge
@@ -12,7 +11,7 @@ from mirte_duckietown_msgs.msg import (
     Lane as LaneMsg,
 )
 from apriltag_ros.msg import AprilTagDetectionArray as AprilTagMsg
-from ._common import LineSegment, Line, Lane, AprilTag
+from ._common import LineSegment, Line, Lane, AprilTag, TagDatabase
 
 
 class Subscriber:
@@ -30,7 +29,7 @@ class Subscriber:
     __tag_life: int
     __lane: Lane = None
 
-    def __init__(self, robot=None, tag_life=500):
+    def __init__(self, tag_life=500):
         self.__tag_life = tag_life
 
         # Callback for line segments
@@ -70,25 +69,28 @@ class Subscriber:
             # Update tags
             self.__april_tags = new_tags
 
-        # Initialise node and subscriptions
+        # Initialise node
         try:
+            print("starting rospy...")
             rospy.init_node("camera", anonymous=True)
         except rospy.exceptions.ROSException:
-            print("Node has already been initialized!")
+            print("rospy is aleady running!")
 
+        # Initialise subscribers
         rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
         rospy.Subscriber("stop_line", LineMsg, stopLineCb)
         rospy.Subscriber("webcam/image_raw", Image, imageCb)
         rospy.Subscriber("lanes", LaneMsg, laneCb)
         rospy.Subscriber("tag_detections", AprilTagMsg, aprilTagCb)
 
+        # Load tag database
+        print("loading april tags...")
+        TagDatabase()
+
         # Shutdown handler
         def shutdownHandler(signum, frame):
             rospy.signal_shutdown(f"signal: {signum}\nframe: {frame}")
-            if robot is not None:
-                robot.setMotorSpeed("left", 0)
-                robot.setMotorSpeed("right", 0)
-                sleep(0.1)
+            print("stopping execution...")
             sys.exit()
 
         # Register shutdown handler
