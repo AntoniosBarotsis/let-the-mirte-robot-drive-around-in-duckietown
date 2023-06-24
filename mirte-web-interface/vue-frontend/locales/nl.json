@@ -99,7 +99,7 @@
     "GET_ANALOG_PIN_VALUE": "analoge waarde van pin %1",
     "GET_DIGITAL_PIN_VALUE": "digitale waarde van pin %1",
     "STOP_LINE": "ziet stop streep",
-    "STOP_LINE_TIP": "Vertelt of Mirte en stopstreep ziet",
+    "STOP_LINE_TIP": "Vertelt of Mirte een stopstreep ziet",
     "START_FOLLOWING": "Volg de weg",
     "START_FOLLOWING_TIP": "Start met het volgen van de Duckietown weg",
     "STOP_FOLLOWING": "Stop met volgen",
