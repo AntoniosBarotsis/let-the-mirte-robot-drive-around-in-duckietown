@@ -1,5 +1,4 @@
 pub mod detection;
-pub mod mirte_error;
 
 use common::{
   debug, edebug,
@@ -9,26 +8,24 @@ use cv::{
   detect_lines::detect_line_type, image::downscale_enhance_hsv, object::detect_obstacles, Mat,
 };
 use detection::{detect_lane, detect_stop_line};
-use mirte_error::MirteError;
-use ros::{process_ros_image_one, publishers::RosBgPublisher, CvImage};
+use ros::publishers::RosBgPublisher;
 use std::collections::HashMap;
-
-#[allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
-pub fn get_image() -> Result<Mat, MirteError> {
-  let img = process_ros_image_one()?;
-
-  let mat = CvImage::from_imgmsg(img).unwrap().as_cvmat().unwrap();
-
-  // This clone here, although seemingly useless, fixes a weird bug that causes artifacts to
-  // appear during the color conversion. For more details, refer to:
-  // https://github.com/twistedfall/opencv-rust/issues/277
-  #[allow(clippy::redundant_clone)]
-  Ok(mat.clone())
-}
 
 #[cfg(debug_assertions)]
 use std::time::Instant;
 
+/// Does all required processing on a given image and publishes the data on the correct topics.
+/// This consists of detecting lines, the lane, stop lines, and obstacles. This function does not
+/// fail, since we want the robot to keep running even if a single image may have an error.
+/// If run in debug mode, it also prints the time each process took, and any debug information
+/// if the process failed in any way.
+///
+/// * `mat` - The HSV image in which the lines need to be detected
+/// * `thresholds` - The thresholds for each colour. These must at least contain Yellow, White and
+/// Red
+///
+/// # Usage
+/// To see how to use this method, refer to `main.rs`, where this function is used.
 pub fn process_mat<S: std::hash::BuildHasher>(
   mat: &Mat,
   thresholds: &HashMap<ColourEnum, Threshold, S>,
@@ -104,4 +101,49 @@ pub fn process_mat<S: std::hash::BuildHasher>(
   }
 
   debug!("total: {:?}", time_total.elapsed());
+}
+
+#[cfg(test)]
+mod test {
+  use super::process_mat;
+  use common::structs::{colour::ColourEnum, threshold::Threshold};
+  use common::{
+    geometry_msgs::{Point, Vector3},
+    mirte_msgs::Line,
+  };
+  use cv::image::read_image;
+  //use rosrust_msg::std_msgs as msgs;
+  use rostest_macro::ros_test;
+  use std::collections::HashMap;
+
+  fn default_process_mat() {
+    let thresholds: HashMap<ColourEnum, Threshold> =
+      [ColourEnum::Red, ColourEnum::Yellow, ColourEnum::White]
+        .iter()
+        .map(|&colour| (colour, Threshold::by_colour(colour)))
+        .collect();
+    let path = "../assets/test_images/test_image_1.png";
+    let img = read_image(path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
+    process_mat(&img, &thresholds);
+  }
+
+  #[ros_test]
+  fn test_process_mat() {
+    // Init topics
+    let stop_line_topic = rostest::Topic::<Line>::create("/test/stop_line");
+
+    // Create node
+    rostest::instantiate_node(default_process_mat);
+
+    // Publish message
+    //let message = msgs::String {
+    //  data: "Hello World".to_string(),
+    //};
+    //line_data.ros_publish(message);
+
+    // Assert response
+    let expected = Line::new(Point::new(1.0, 0.0), Vector3::new(0.0, 0.0));
+
+    //stop_line_topic.assert_message(expected);
+  }
 }

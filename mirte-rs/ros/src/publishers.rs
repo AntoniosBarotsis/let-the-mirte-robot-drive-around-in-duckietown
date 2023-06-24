@@ -94,7 +94,7 @@ impl RosBgPublisher {
     self.publish_work(OBSTACLE_TOPIC_NAME.to_string(), msg, publisher_clone);
   }
 
-  /// Publishes a lane to the [`LANE_TOPIC_NAME`] ROS topic.
+  /// Publishes a lane to the [`STOP_LINE_TOPIC_NAME`] ROS topic.
   pub fn publish_stop_line(&self, msg: impl Into<Line> + Send + 'static) {
     // Clone is required as the thread might outlive &self.
     let publisher_clone = self.stop_line_publisher.clone();

@@ -116,7 +116,9 @@ pub fn detect_stop_line(lines: &[LineSegment]) -> Line {
 
 #[cfg(test)]
 mod test {
-  use super::{bisect, detect_lane, get_average_line, get_midline, lies_on_right};
+  use super::{
+    bisect, detect_lane, detect_stop_line, get_average_line, get_midline, lies_on_right,
+  };
   use common::{
     geometry_msgs::{Point, Vector3},
     structs::colour::ColourEnum,
@@ -231,5 +233,12 @@ mod test {
     assert!(lane
       .right
       .line_eq(&Line::new(Point::new(7.0, 1.0), Vector3::new(-3.0, -4.0))));
+  }
+
+  #[test]
+  fn test_no_stop_line() {
+    let stop_line = detect_stop_line(&lines());
+    println!("{stop_line:?}");
+    assert!(stop_line.line_eq(&Line::new(Point::new(0.0, 0.0), Vector3::new(0.0, 0.0))));
   }
 }
