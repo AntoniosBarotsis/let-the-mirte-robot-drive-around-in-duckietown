@@ -33,6 +33,8 @@ RUN apt-get install python3.7 python3-pip -y
 # Source ROS setup
 RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 
-# Get mirte_msgs
-RUN git clone https://github.com/AntoniosBarotsis/mirte-ros-packages
+# Get mirte_msgs and mirte_duckietown_msgs
+RUN git clone https://github.com/dheijmans/mirte_duckietown_msgs.git
+RUN git clone https://github.com/mirte-robot/mirte-ros-packages.git
+RUN cp ./mirte_duckietown_msgs/mirte_duckietown_msgs /opt/ros/noetic/share -r
 RUN cp ./mirte-ros-packages/mirte_msgs /opt/ros/noetic/share -r
