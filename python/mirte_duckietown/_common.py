@@ -194,9 +194,7 @@ class AprilTag:
         Returns:
             bool: True if the AprilTag has expired, False otherwise
         """
-        return (
-            datetime.now() - self.timestamp
-        ).total_seconds() * 1000 > tag_life
+        return (datetime.now() - self.timestamp).total_seconds() * 1000 > tag_life
 
     def toSign(self):
         """Converts the AprilTag to a Sign
