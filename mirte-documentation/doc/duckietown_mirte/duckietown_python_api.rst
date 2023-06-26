@@ -11,7 +11,14 @@ This documentation is automatically generated based on the source file.
    This API is still under development and might still change. Please
    take this into account when developing (course material). 
 
+.. automodule:: mirte_duckietown.sign
+   :members:
+   :undoc-members:
 
-.. automodule:: duckietown
+.. automodule:: mirte_duckietown.duckietown
+   :members:
+   :undoc-members:
+
+.. automodule:: mirte_robot.robot
    :members:
    :undoc-members:
