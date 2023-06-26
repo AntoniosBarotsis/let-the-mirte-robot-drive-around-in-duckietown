@@ -16,10 +16,23 @@ target/
 *.pdb
 
 **/Cargo.lock
-!rust/Cargo.lock
+!mirte-rs/Cargo.lock
 
-rust/assets/output.jpg
+mirte-rs/assets/output.jpg
 
-python/.venv
+# Mirte Web Interface ignores
+mirte-web-interface/node_modules/
+mirte-web-interface/dist/
+mirte-web-interface/node_env/
+mirte-web-interface/.git_disabled/
+mirte-web-interface/.gitignore_disabled
+mirte-web-interface/nodejs-backend/node_modules/
+mirte-web-interface/vue-frontend/node_modules/
+mirte-web-interface/vue-frontend/dist/
 
+python/.venv/
 python/__pycache__/
+python/mirte_robot/__pycache__/
+python/mirte_duckietown/__pycache__/
+python/dist
+python/mirte.egg-info
