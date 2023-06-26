@@ -12,6 +12,6 @@ This documentation is automatically generated based on the source file.
    take this into account when developing (course material). 
 
 
-.. automodule:: cv
+.. automodule:: mirte_duckietown
    :members:
    :undoc-members:
