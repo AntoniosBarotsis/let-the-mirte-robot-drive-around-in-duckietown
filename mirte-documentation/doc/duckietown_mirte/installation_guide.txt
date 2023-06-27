@@ -1,0 +1,76 @@
+  _____           _        _ _       _   _                           _     _      
+  \_   \_ __  ___| |_ __ _| | | __ _| |_(_) ___  _ __     __ _ _   _(_) __| | ___ 
+   / /\/ '_ \/ __| __/ _` | | |/ _` | __| |/ _ \| '_ \   / _` | | | | |/ _` |/ _ \
+/\/ /_ | | | \__ \ || (_| | | | (_| | |_| | (_) | | | | | (_| | |_| | | (_| |  __/
+\____/ |_| |_|___/\__\__,_|_|_|\__,_|\__|_|\___/|_| |_|  \__, |\__,_|_|\__,_|\___|
+                                                         |___/                    
+
+-----------------------------------
+ INSTALL MIRTE DUCKIETOWN MESSAGES
+-----------------------------------
+
+
+git clone https://github.com/dheijmans/mirte_duckietown_msgs.git
+sudo cp ./mirte_duckietown_msgs/mirte_duckietown_msgs /opt/ros/noetic/share -r
+cp ./mirte_duckietown_msgs/mirte_duckietown_msgs /home/mirte/mirte_ws/src -r
+rm -rf mirte_duckietown_msgs
+cd mirte_ws
+rm -rf build devel logs
+catkin_make
+
+
+-----------------------------------
+ UPLOAD BINARY
+-----------------------------------
+
+scp -r path/to/mirte-rs mirte@<hostname>:~
+
+
+-----------------------------------
+CONFIGURE APRILTAGS
+-----------------------------------
+
+ssh mirte@<hostname>
+sudo apt-get update
+sudo apt install ros-noetic-apriltag-ros -y
+exit
+scp path/to/continuous_detection.launch mirte@<hostname>:~
+scp path/to/settings.yaml mirte@<hostname>:~
+scp path/to/tags.yaml mirte@<hostname>:~
+
+ssh mirte@<hostname>
+sudo mv continuous_detection.launch /opt/ros/noetic/share/apriltag_ros/launch/continuous_detection.launch
+sudo mv settings.yaml /opt/ros/noetic/share/apriltag_ros/config/settings.yaml
+sudo mv tags.yaml /opt/ros/noetic/share/apriltag_ros/config/tags.yaml
+
+
+-----------------------------------
+ INSTALL PYTHON PACKAGE
+-----------------------------------
+
+scp -r path/to/python/folder mirte@<hostname>:~
+ssh mirte@<hostname>
+cd python
+python3 -m pip install --upgrade build
+python3 -m build
+pip3 uninstall mirte -y 		# when reinstalling
+pip install numpy --upgrade	# when having an old version of numpy installed
+pip3 install dist/mirte-1.0-py3-none-any.whl
+cd ..
+rm -rf python
+
+
+-----------------------------------
+ UPDATE WEB INTERFACE
+-----------------------------------
+
+Use instructions from https://www.mirte.org/docs/doc/mirte_development.html#development-for-web-interface
+
+
+-----------------------------------
+ START DUCKIETOWN
+-----------------------------------
+
+ssh mirte@<hostname>
+./mirte-rs
+roslaunch apriltag_ros continuous_detection.launch
