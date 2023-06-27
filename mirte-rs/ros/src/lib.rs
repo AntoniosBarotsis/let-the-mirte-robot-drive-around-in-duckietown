@@ -3,7 +3,6 @@ use std::{
   time::Duration,
 };
 
-pub mod drive;
 pub mod param;
 pub mod publishers;
 pub mod ros_error;
@@ -20,18 +19,13 @@ use std::sync::Once;
 static INIT: Once = Once::new();
 
 /// Initializes the logger and the ROS node exactly once.
-pub(crate) fn init() {
-  // Temporary solution to disable calling init() when testing. For some reason, using cfg!(test)
-  // did not work.
-  return;
-  //if !cfg!(test) {
+pub fn init() {
   INIT.call_once(|| {
     env_logger::init();
 
     // Initialize node
     rosrust::init("duckietown_navigator");
   });
-  //}
 }
 
 /// This reads an image from the ROS `/webcam/image_raw` topic and runs the callback on it.
@@ -56,8 +50,6 @@ pub fn process_ros_image<T>(callback: T) -> Result<(), RosError>
 where
   T: Fn(Image) + Send + 'static,
 {
-  init();
-
   // Create subscriber
   // The subscriber is stopped when the returned object is destroyed
   let _subscriber_raii = rosrust::subscribe("/webcam/image_raw", 1, move |img: Image| {
@@ -84,8 +76,6 @@ pub fn process_ros_image_one() -> Result<Image, RosError> {
   let arcmut: Arc<(Mutex<Image>, Condvar)> =
     Arc::new((Mutex::new(Image::default()), Condvar::new()));
   let arcmut_clone: Arc<(Mutex<Image>, Condvar)> = arcmut.clone();
-
-  init();
 
   // Create subscriber
   // The subscriber is stopped when the returned object is destroyed

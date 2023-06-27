@@ -109,41 +109,92 @@ mod test {
   use common::structs::{colour::ColourEnum, threshold::Threshold};
   use common::{
     geometry_msgs::{Point, Vector3},
-    mirte_msgs::Line,
+    mirte_msgs::{Lane, Line, ObstacleList},
   };
   use cv::image::read_image;
   //use rosrust_msg::std_msgs as msgs;
   use rostest_macro::ros_test;
   use std::collections::HashMap;
 
-  fn default_process_mat() {
+  fn process_lane_image() {
+    process_image("../assets/test_images/test_image_lane.jpg");
+  }
+
+  fn process_obstacle_image() {
+    process_image("../assets/test_images/test_image_obstacles.png");
+  }
+
+  fn process_image(path: &str) {
     let thresholds: HashMap<ColourEnum, Threshold> =
       [ColourEnum::Red, ColourEnum::Yellow, ColourEnum::White]
         .iter()
         .map(|&colour| (colour, Threshold::by_colour(colour)))
         .collect();
-    let path = "../assets/test_images/test_image_1.png";
     let img = read_image(path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
     process_mat(&img, &thresholds);
   }
 
   #[ros_test]
-  fn test_process_mat() {
+  fn test_detect_lane() {
     // Init topics
-    let stop_line_topic = rostest::Topic::<Line>::create("/test/stop_line");
+    let stop_line_topic = rostest::Topic::<Line>::create("/stop_line");
+    let lane_topic = rostest::Topic::<Lane>::create("/lanes");
+    let obstacle_topic = rostest::Topic::<ObstacleList>::create("/obstacles");
 
     // Create node
-    rostest::instantiate_node(default_process_mat);
-
-    // Publish message
-    //let message = msgs::String {
-    //  data: "Hello World".to_string(),
-    //};
-    //line_data.ros_publish(message);
+    rostest::instantiate_node(process_lane_image);
 
     // Assert response
-    let expected = Line::new(Point::new(1.0, 0.0), Vector3::new(0.0, 0.0));
+    let expected_stop_line = Line::new(Point::new(0.0, 0.0), Vector3::new(0.0, 0.0));
+    let expected_obstacles = ObstacleList::from(vec![]);
 
-    //stop_line_topic.assert_message(expected);
+    stop_line_topic.assert_message(expected_stop_line);
+    obstacle_topic.assert_message(expected_obstacles);
+    let messages = lane_topic.get_messages();
+    let front_msg = messages
+      .front()
+      .expect("Message queue was empty after timeout")
+      .to_owned();
+    println!("{front_msg:?}");
+    assert!(front_msg
+      .centre
+      .origin
+      .point_eq(&Point::new(0.509012626389063, 0.7392593887128791)));
+    assert!(front_msg
+      .centre
+      .direction
+      .vec_eq(&Vector3::new(-0.005384461745997382, -0.22147785168950884)));
+  }
+
+  #[ros_test]
+  fn test_detect_obstacles() {
+    // Init topics
+    let stop_line_topic = rostest::Topic::<Line>::create("/stop_line");
+    let lane_topic = rostest::Topic::<Lane>::create("/lanes");
+    let obstacle_topic = rostest::Topic::<ObstacleList>::create("/obstacles");
+
+    // Create node
+    rostest::instantiate_node(process_obstacle_image);
+
+    // Assert response
+    let expected_stop_line = Line::new(Point::new(0.0, 0.0), Vector3::new(0.0, 0.0));
+    let expected_obstacles = ObstacleList::from(vec![]);
+
+    obstacle_topic.assert_message(expected_obstacles);
+    stop_line_topic.assert_message(expected_stop_line);
+    let messages = lane_topic.get_messages();
+    let front_msg = messages
+      .front()
+      .expect("Message queue was empty after timeout")
+      .to_owned();
+    println!("{front_msg:?}");
+    //    assert!(front_msg
+    //      .centre
+    //      .origin
+    //      .point_eq(&Point::new(0.509012626389063, 0.7392593887128791)));
+    //    assert!(front_msg
+    //      .centre
+    //      .direction
+    //      .vec_eq(&Vector3::new(-0.005384461745997382, -0.22147785168950884)));
   }
 }

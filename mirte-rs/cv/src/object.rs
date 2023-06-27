@@ -198,7 +198,7 @@ fn detect_obstacles_with_params(
   img_size: Size,
   object: Object,
 ) -> Result<Vec<Obstacle>, CvError> {
-  let mut blob_detector_ptr = <dyn SimpleBlobDetector>::create(params)?;
+  let mut blob_detector_ptr = SimpleBlobDetector::create(params)?;
 
   let mut keypoints = Vector::<KeyPoint>::new();
 

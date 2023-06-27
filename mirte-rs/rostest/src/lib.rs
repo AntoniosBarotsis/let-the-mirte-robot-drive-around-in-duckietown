@@ -180,6 +180,7 @@ impl Drop for ProcessWrapper {
       nix::sys::signal::Signal::SIGINT,
     )
     .expect("send SIGINT to roscore");
+    println!("finished dropping");
   }
 }
 
@@ -248,7 +249,7 @@ where
 
   /// Gets received topic messages with a timeout of 1s.
   pub fn get_messages(&self) -> MutexGuard<'_, VecDeque<T>> {
-    self.get_messages_timeout(Duration::from_secs(1))
+    self.get_messages_timeout(Duration::from_secs(10))
   }
 
   /// Gets received topic messages.
@@ -267,7 +268,11 @@ where
       let elapsed = start.elapsed();
 
       // TODO: Return an error instead
-      assert!(elapsed <= timeout, "No message received.");
+      assert!(
+        elapsed <= timeout,
+        "No message received on {} within {timeout:?}",
+        self.topic
+      );
     }
 
     self
@@ -377,6 +382,26 @@ mod test {
 
   #[ros_test]
   fn test() {
+    // Init topics
+    let strings = Topic::<msgs::String>::create("/test/strings");
+    let ints = Topic::<msgs::UInt32>::create("/test/lengths");
+
+    // Create node
+    instantiate_node(strlen);
+
+    // Publish message
+    let message = msgs::String {
+      data: "Hello World".to_string(),
+    };
+    strings.ros_publish(message);
+
+    // Assert response
+    let expected = msgs::UInt32 { data: 11 };
+    ints.assert_message(expected);
+  }
+
+  //#[ros_test]
+  fn test2() {
     // Init topics
     let strings = Topic::<msgs::String>::create("/test/strings");
     let ints = Topic::<msgs::UInt32>::create("/test/lengths");

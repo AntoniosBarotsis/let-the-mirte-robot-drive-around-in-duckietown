@@ -5,6 +5,7 @@ use std::error::Error;
 /// For now, just reads an image from ROS and shows it on screen.
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 fn main() -> Result<(), Box<dyn Error>> {
+  ros::init();
   let thresholds = ros::param::get_thresholds();
 
   process_ros_image(move |img| {

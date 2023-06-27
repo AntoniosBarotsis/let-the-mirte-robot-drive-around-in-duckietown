@@ -11,7 +11,7 @@ use once_cell::sync::OnceCell;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use rosrust::Publisher;
 
-use crate::{init, RosError};
+use crate::RosError;
 
 use common::mirte_msgs::{Lane, Line, LineSegmentList, ObstacleList};
 
@@ -42,8 +42,6 @@ impl RosBgPublisher {
   /// Initializes or gets the existing instance of [`RosBgPublisher`].
   pub fn get_or_create() -> &'static Self {
     INSTANCE.get_or_init(|| {
-      init();
-
       // Init publishers
       let line_segment_publisher = rosrust::publish::<LineSegmentList>(LINE_SEGMENTS_TOPIC_NAME, 1)
         .expect("Create LINE_SEGMENT_PUBLISHER");
