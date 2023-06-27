@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import yaml
 from ._util import calculateRadians, convertAngleToDegrees, calculateY1Intercept
 from .sign import Sign
+from .object import Object
 
 
 class Colour(Enum):
@@ -21,19 +22,6 @@ class Colour(Enum):
     PURPLE = 5
     BLACK = 6
     WHITE = 7
-
-    def __str__(self):
-        return self.name
-
-
-class Object(Enum):
-    """Enum for objects
-
-    Represents the available objects for an obstacle.
-    """
-
-    MIRTE = 0
-    DUCK = 1
 
     def __str__(self):
         return self.name

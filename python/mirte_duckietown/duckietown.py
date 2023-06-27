@@ -46,7 +46,7 @@ class Camera:
         self.__following = False
 
         # Start executing of the follower
-        print("starting execution...")
+        print("starting execution...\n")
 
         # Run the follower in a separate thread
         if self.__robot is not None:
@@ -90,9 +90,9 @@ class Camera:
             return None
 
         # Calculate y-intercept
-        y_intercept = stop_line.origin.y_coord + (0.5 - stop_line.origin.x_coord) * (
-            stop_line.direction.y_coord / stop_line.direction.x_coord
-        )
+        y_intercept = stop_line.origin.y_coord + (
+            0.5 - stop_line.origin.x_coord
+        ) * (stop_line.direction.y_coord / stop_line.direction.x_coord)
 
         # Clamp to [0.0, 1.0]
         return max(min(y_intercept, 1.0), 0.0)
@@ -215,8 +215,11 @@ class Camera:
         """
         return self.__subscriber.getObstacles()
 
-    def seesObstacleOnLane(self):
+    def seesObstacleOnLane(self, object_type, size):
         """Checks if the robot sees an obstacle on the lane
+
+        Parameters:
+            object_type (Object): The type of object to check for
 
         Returns:
             bool: True if the robot sees an obstacle on the lane, False otherwise
@@ -226,18 +229,71 @@ class Camera:
             return False
         # Check if obstacle is on lane
         for obstacle in obstacles:
-            if self.isOnLane(obstacle):
+            if (
+                obstacle.object_type == object_type
+                and obstacle.diameter > size
+                and self.isOnLane(obstacle)
+            ):
                 return True
         return False
 
     def isOnLane(self, obstacle):
         """Checks if the obstacle is on the lane
 
+        Parameters:
+            obstacle (Obstacle): The obstacle to check for
+
         Returns:
             bool: True if the obstacle is on the lane, False otherwise
         """
-        if obstacle.diameter > 30:
-            return True
+        return True
+
+    def seesObstacleOnLeft(self, object_type, size):
+        """Checks if the robot sees an obstacle on the left half of the image
+
+        Parameters:
+            object_type (Object): The type of object to check for
+            size (float): The minimum size of the obstacle to be detected
+
+        Returns:
+            bool: True if the robot sees an obstacle on the left half of the image, False otherwise
+        """
+        obstacles = self.getObstacles()
+        if obstacles is None:
+            return False
+        # Check if obstacle is on right half of image'
+        for obstacle in obstacles:
+            if (
+                obstacle.object_type == object_type
+                and obstacle.diameter > size
+                and obstacle.x < 0.5
+            ):
+                return True
+        # No obstacle found
+        return False
+
+    def seesObstacleOnRight(self, object_type, size):
+        """Checks if the robot sees an obstacle on the right half of the image
+
+        Parameters:
+            object_type (Object): The type of object to check for
+            size (float): The minimum size of the obstacle to be detected
+
+        Returns:
+            bool: True if the robot sees an obstacle on the right half of the image, False otherwise
+        """
+        obstacles = self.getObstacles()
+        if obstacles is None:
+            return False
+        # Check if obstacle is on right half of image'
+        for obstacle in obstacles:
+            if (
+                obstacle.object_type == object_type
+                and obstacle.diameter > size
+                and obstacle.x > 0.5
+            ):
+                return True
+        # No obstacle found
         return False
 
 
