@@ -2,6 +2,7 @@ import threading
 
 import rospy
 from ._topic import Subscriber
+from ._util import intersectWithHorizontalLine
 
 
 class Camera:
@@ -90,9 +91,9 @@ class Camera:
             return None
 
         # Calculate y-intercept
-        y_intercept = stop_line.origin.y_coord + (
-            0.5 - stop_line.origin.x_coord
-        ) * (stop_line.direction.y_coord / stop_line.direction.x_coord)
+        y_intercept = stop_line.origin.y_coord + (0.5 - stop_line.origin.x_coord) * (
+            stop_line.direction.y_coord / stop_line.direction.x_coord
+        )
 
         # Clamp to [0.0, 1.0]
         return max(min(y_intercept, 1.0), 0.0)
@@ -230,7 +231,7 @@ class Camera:
         # Check if obstacle is on lane
         for obstacle in obstacles:
             if (
-                obstacle.object_type == object_type
+                obstacle.object == object_type
                 and obstacle.diameter > size
                 and self.isOnLane(obstacle)
             ):
@@ -246,7 +247,24 @@ class Camera:
         Returns:
             bool: True if the obstacle is on the lane, False otherwise
         """
-        return True
+        lane = self.getLane()
+        # Check if obstacle is in front of the robot
+        if obstacle.location.y_coord < 0.5:
+            return False
+        # Check if lane is available
+        if lane is None:
+            return False
+        # Check if obstacle is on lane
+        left_line = lane.left_line
+        right_line = lane.right_line
+        if left_line is None or right_line is None:
+            return False
+        # Check if obstacle is on lane
+        left_x = intersectWithHorizontalLine(left_line, obstacle.location.y_coord)
+        right_x = intersectWithHorizontalLine(right_line, obstacle.location.y_coord)
+        if left_x is None or right_x is None:
+            return False
+        return left_x <= obstacle.location.x_coord <= right_x
 
     def seesObstacleOnLeft(self, object_type, size):
         """Checks if the robot sees an obstacle on the left half of the image
@@ -264,9 +282,9 @@ class Camera:
         # Check if obstacle is on right half of image'
         for obstacle in obstacles:
             if (
-                obstacle.object_type == object_type
+                obstacle.object == object_type
                 and obstacle.diameter > size
-                and obstacle.x < 0.5
+                and obstacle.location.x_coord < 0.5
             ):
                 return True
         # No obstacle found
@@ -288,9 +306,9 @@ class Camera:
         # Check if obstacle is on right half of image'
         for obstacle in obstacles:
             if (
-                obstacle.object_type == object_type
+                obstacle.object == object_type
                 and obstacle.diameter > size
-                and obstacle.x > 0.5
+                and obstacle.location.x_coord > 0.5
             ):
                 return True
         # No obstacle found

@@ -52,3 +52,19 @@ def calculateY1Intercept(x1, y1, x2, y2):
         return math.inf
     b = y1 - a * x1
     return (1 - b) / a
+
+
+def intersectWithHorizontalLine(line, height):
+    """Calculates the intersection of two lines
+
+    Parameters:
+        line1 (Line): The first line
+        height (float): The height of the horizontal line
+
+    Returns:
+        float: The x value of the instersection
+    """
+    # In case of a horizontal line, there is no intersection
+    if line.direction.y_coord == 0:
+        return None
+    return (height - line.start) / line.direction.y_coord

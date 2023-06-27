@@ -2,12 +2,20 @@ import unittest
 from datetime import datetime, timedelta
 from freezegun import freeze_time
 
-from mirte_duckietown._common import LineSegment, Colour, Line, AprilTag
+from mirte_duckietown._common import (
+    LineSegment,
+    Colour,
+    Line,
+    AprilTag,
+    Obstacle,
+)
 from mirte_duckietown.sign import Sign
 from mirte_duckietown_msgs.msg import (
     LineSegment as LineSegmentMsg,
     Line as LineMsg,
+    Obstacle as ObstacleMsg,
 )
+from mirte_duckietown.object import Object
 
 
 class TestCommonClasses(unittest.TestCase):
@@ -77,6 +85,20 @@ class TestCommonClasses(unittest.TestCase):
         """Test the getStreetName method of the AprilTag class"""
         tag = AprilTag(530, datetime.now())
         self.assertEqual(tag.getStreetName(), "BARFOOT ST")
+
+    def testObstacleFromMessage(self):
+        """Test the Obstacle class"""
+        message = ObstacleMsg()
+        message.object.type = 0
+        message.location.x = 1
+        message.location.y = 2
+        message.diameter = 3
+
+        obstacle = Obstacle.fromMessage(message)
+        self.assertEqual(obstacle.object, Object.MIRTE)
+        self.assertEqual(obstacle.location.x_coord, 1)
+        self.assertEqual(obstacle.location.y_coord, 2)
+        self.assertEqual(obstacle.diameter, 3)
 
 
 if __name__ == "__main__":
