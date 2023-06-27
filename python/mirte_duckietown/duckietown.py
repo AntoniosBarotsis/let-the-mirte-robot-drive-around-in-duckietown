@@ -1,3 +1,6 @@
+import threading
+
+import rospy
 from ._topic import Subscriber
 
 
@@ -9,6 +12,7 @@ class Camera:
 
     def __init__(
         self,
+        robot=None,
         subscriber=None,
         stop_line_threshold_height=0.75,
         tag_life=500,
@@ -16,9 +20,11 @@ class Camera:
         """Initialises a new camera
 
         Parameters:
-            subscriber (Subscriber): The subscriber to use for fetching ROS topics. If
-                None, a new subscriber will be created
-            stop_line_threshold_height (float): The theshold where the stop
+            robot (Robot): The robot to use for controlling the robot.
+                If None, you will not be able to control the robot automatically.
+            subscriber (Subscriber): The subscriber to use for fetching ROS topics.
+                If None, a new subscriber will be created.
+            stop_line_threshold_height (float): The threshold where the stop
                 line is considered to be visible
             tag_life (int): The number of milliseconds a tag will be remembered
                 until it is considered expired
@@ -26,11 +32,25 @@ class Camera:
         # Initialise subscriber
         if subscriber is None:
             self.__subscriber = Subscriber(tag_life=tag_life)
+            self.__rospy_rate = rospy.Rate(30)
         else:
             self.__subscriber = subscriber
 
+        # Initialise robot
+        self.__robot = robot
+
         # Stop line threshold height
         self.__stop_line_threshold_height = stop_line_threshold_height
+
+        # Don't yet follow the lane
+        self.__following = False
+
+        # Start executing of the follower
+        print("starting execution...")
+
+        # Run the follower in a separate thread
+        if self.__robot is not None:
+            threading.Thread(target=self._follower).start()
 
     def getLines(self):
         """Gets line segments from the camera
@@ -39,6 +59,14 @@ class Camera:
             list[LineSegment]: List of LineSegment objects
         """
         return self.__subscriber.getLines()
+
+    def getLane(self):
+        """Gets the lane from the camera
+
+        Returns:
+            Lane: Lane
+        """
+        return self.__subscriber.getLane()
 
     def getStopLine(self):
         """Gets the stop line from the camera
@@ -62,9 +90,9 @@ class Camera:
             return None
 
         # Calculate y-intercept
-        y_intercept = stop_line.origin.y_coord + (
-            0.5 - stop_line.origin.x_coord
-        ) * (stop_line.direction.y_coord / stop_line.direction.x_coord)
+        y_intercept = stop_line.origin.y_coord + (0.5 - stop_line.origin.x_coord) * (
+            stop_line.direction.y_coord / stop_line.direction.x_coord
+        )
 
         # Clamp to [0.0, 1.0]
         return max(min(y_intercept, 1.0), 0.0)
@@ -89,6 +117,56 @@ class Camera:
         """
         return self.__subscriber.getImage()
 
+    def _follower(self):
+        """Follows the lane using the camera"""
+        while not rospy.is_shutdown():
+            lane = self.__subscriber.getLane()
+            if self.__following and lane is not None:
+                # Variables
+                speed = 65
+                turn_speed = 10
+                turn_speed_corr = 5
+                off_lane_threshold = 0.5
+                off_lane_correction = 30
+
+                # Calculate angle and correction
+                angle = lane.centre_line.angle
+                start = lane.centre_line.start
+                if start < -off_lane_threshold:  # on the right, so turn left
+                    angle -= off_lane_correction
+                elif start > off_lane_threshold:  # on the left, so turn right
+                    angle += off_lane_correction
+
+                # calculate speed
+                speed_left = speed
+                speed_right = speed
+                # Turn right when the angle is positive
+                if angle > 10:
+                    speed_left += turn_speed
+                    speed_right -= turn_speed + turn_speed_corr
+                # Turn left when the angle is negative
+                elif angle < -10:
+                    speed_left -= turn_speed + turn_speed_corr
+                    speed_right += turn_speed
+
+                # Set motor speeds
+                self.__robot.setMotorSpeed("left", speed_left)
+                self.__robot.setMotorSpeed("right", speed_right)
+            self.__rospy_rate.sleep()
+
+    def startFollowing(self):
+        """Start following the lane using the camera, if the robot is initialized"""
+        if self.__robot is None:
+            return
+        self.__following = True
+
+    def stopFollowing(self):
+        """Stop following the lane using the camera, if the robot is initialized"""
+        self.__following = False
+        if self.__robot is not None:
+            self.__robot.setMotorSpeed("left", 0)
+            self.__robot.setMotorSpeed("right", 0)
+
     def getAprilTags(self):
         """Gets the april tags from the camera
 
@@ -106,6 +184,7 @@ class Camera:
         Returns:
             bool: True if the robot sees the sign, False otherwise
         """
+
         for tag in self.getAprilTags():
             if tag.toSign() == sign:
                 return True
@@ -129,10 +208,13 @@ class Camera:
         return False
 
 
-def createCamera():
+def createCamera(robot=None):
     """Creates a Camera object
+
+    Parameters:
+        robot (Robot): The robot object to use for controlling the robot.
 
     Returns:
         Camera: The created Camera object
     """
-    return Camera()
+    return Camera(robot)
