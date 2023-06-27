@@ -5,12 +5,13 @@ import sys
 import rospy
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
-from mirte_msgs.msg import (
+from apriltag_ros.msg import AprilTagDetectionArray as AprilTagMsg
+from mirte_duckietown_msgs.msg import (
     LineSegmentList as LineSegmentMsg,
     Line as LineMsg,
+    Lane as LaneMsg,
 )
-from apriltag_ros.msg import AprilTagDetectionArray as AprilTagMsg
-from ._common import LineSegment, Line, AprilTag
+from ._common import LineSegment, Line, Lane, AprilTag, TagDatabase
 
 
 class Subscriber:
@@ -26,6 +27,7 @@ class Subscriber:
     __bridge: CvBridge = CvBridge()
     __april_tags: list[AprilTag] = []
     __tag_life: int
+    __lane: Lane = None
 
     def __init__(self, tag_life=500):
         self.__tag_life = tag_life
@@ -46,6 +48,9 @@ class Subscriber:
                 data, desired_encoding="passthrough"
             )
 
+        def laneCb(data: LaneMsg):
+            self.__lane = Lane.fromMessage(data)
+
         # Callback for april tags
         def aprilTagCb(data: AprilTagMsg):
             new_tags = []
@@ -64,20 +69,28 @@ class Subscriber:
             # Update tags
             self.__april_tags = new_tags
 
-        # Initialise node and subscriptions
+        # Initialise node
         try:
+            print("starting rospy...")
             rospy.init_node("camera", anonymous=True)
         except rospy.exceptions.ROSException:
-            print("Node has already been initialized!")
+            print("rospy is aleady running!")
 
+        # Initialise subscribers
         rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
         rospy.Subscriber("stop_line", LineMsg, stopLineCb)
         rospy.Subscriber("webcam/image_raw", Image, imageCb)
+        rospy.Subscriber("lanes", LaneMsg, laneCb)
         rospy.Subscriber("tag_detections", AprilTagMsg, aprilTagCb)
+
+        # Load tag database
+        print("loading april tags...")
+        TagDatabase()
 
         # Shutdown handler
         def shutdownHandler(signum, frame):
             rospy.signal_shutdown(f"signal: {signum}\nframe: {frame}")
+            print("stopping execution...")
             sys.exit()
 
         # Register shutdown handler
@@ -106,6 +119,14 @@ class Subscriber:
             Image: Current image
         """
         return self.__current_image
+
+    def getLane(self):
+        """Gets the current lane from ROS
+
+        Returns:
+            Lane: Current lane
+        """
+        return self.__lane
 
     def getAprilTags(self):
         """Gets the april tags from ROS

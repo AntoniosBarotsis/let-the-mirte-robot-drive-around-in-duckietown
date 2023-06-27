@@ -4,7 +4,10 @@ from freezegun import freeze_time
 
 from mirte_duckietown._common import LineSegment, Colour, Line, AprilTag
 from mirte_duckietown.sign import Sign
-from mirte_msgs.msg import LineSegment as LineSegmentMsg, Line as LineMsg
+from mirte_duckietown_msgs.msg import (
+    LineSegment as LineSegmentMsg,
+    Line as LineMsg,
+)
 
 
 class TestCommonClasses(unittest.TestCase):
