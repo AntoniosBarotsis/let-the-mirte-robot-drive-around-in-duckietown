@@ -2,6 +2,7 @@ import unittest
 from datetime import datetime, timedelta
 from freezegun import freeze_time
 
+from mirte_duckietown.object import Object
 from mirte_duckietown._common import (
     LineSegment,
     Colour,
@@ -15,7 +16,6 @@ from mirte_duckietown_msgs.msg import (
     Line as LineMsg,
     Obstacle as ObstacleMsg,
 )
-from mirte_duckietown.object import Object
 
 
 class TestCommonClasses(unittest.TestCase):
