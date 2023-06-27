@@ -5,12 +5,12 @@ import sys
 import rospy
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
+from apriltag_ros.msg import AprilTagDetectionArray as AprilTagMsg
 from mirte_duckietown_msgs.msg import (
     LineSegmentList as LineSegmentMsg,
     Line as LineMsg,
     Lane as LaneMsg,
 )
-from apriltag_ros.msg import AprilTagDetectionArray as AprilTagMsg
 from ._common import LineSegment, Line, Lane, AprilTag, TagDatabase
 
 
