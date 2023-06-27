@@ -78,9 +78,6 @@ pub fn enhance_contrast(img: &Mat) -> Result<Mat, CvError> {
   let mut gray_img = Mat::default();
   cvt_color(&img, &mut gray_img, COLOR_RGB2GRAY, 0)?;
 
-  let mut type_img = Mat::default();
-  gray_img.convert_to(&mut type_img, CV_32SC1, 1.0, 0.0)?;
-
   let mut hist = Mat::default();
 
   let mut range = opencv::core::Vector::<f32>::from_elem(0.0, 1);
