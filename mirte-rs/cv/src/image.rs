@@ -1,5 +1,5 @@
 use opencv::{
-  core::{convert_scale_abs, Size_, CV_32SC1},
+  core::{convert_scale_abs, Size_},
   imgcodecs::{imread, IMREAD_UNCHANGED},
   imgproc::{
     calc_hist, cvt_color, resize, COLOR_BGR2RGB, COLOR_HSV2BGR, COLOR_RGB2GRAY, COLOR_RGB2HSV,
