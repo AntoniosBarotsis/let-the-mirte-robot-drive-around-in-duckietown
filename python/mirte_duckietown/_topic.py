@@ -3,7 +3,7 @@ from datetime import datetime
 import signal
 import sys
 import rospy
-from cv_bridge import CvBridge
+# from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from apriltag_ros.msg import AprilTagDetectionArray as AprilTagMsg
 from mirte_duckietown_msgs.msg import (
@@ -24,7 +24,7 @@ class Subscriber:
     __line_segments: list[LineSegment] = []
     __stop_line: Line = None
     __current_image: Image = None
-    __bridge: CvBridge = CvBridge()
+    #__bridge: CvBridge = CvBridge()
     __april_tags: list[AprilTag] = []
     __tag_life: int
     __lane: Lane = None
@@ -43,10 +43,10 @@ class Subscriber:
             self.__stop_line = Line.fromMessage(data)
 
         # Callback for image
-        def imageCb(data: Image):
-            self.__current_image = self.__bridge.imgmsg_to_cv2(
-                data, desired_encoding="passthrough"
-            )
+        #def imageCb(data: Image):
+        #    self.__current_image = self.__bridge.imgmsg_to_cv2(
+        #        data, desired_encoding="passthrough"
+        #    )
 
         def laneCb(data: LaneMsg):
             self.__lane = Lane.fromMessage(data)
@@ -79,7 +79,7 @@ class Subscriber:
         # Initialise subscribers
         rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
         rospy.Subscriber("stop_line", LineMsg, stopLineCb)
-        rospy.Subscriber("webcam/image_raw", Image, imageCb)
+        #rospy.Subscriber("webcam/image_raw", Image, imageCb)
         rospy.Subscriber("lanes", LaneMsg, laneCb)
         rospy.Subscriber("tag_detections", AprilTagMsg, aprilTagCb)
 

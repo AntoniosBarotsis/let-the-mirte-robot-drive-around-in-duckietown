@@ -119,7 +119,7 @@ class Camera:
 
     def _follower(self):
         """Follows the lane using the camera"""
-        while not self.__following:
+        while self.__following:
             lane = self.__subscriber.getLane()
             if lane is not None:
                 # Variables
@@ -129,26 +129,32 @@ class Camera:
                 off_lane_threshold = 0.5
                 off_lane_correction = 30
 
-                # Calculate angle and correction
+                # calculate angle and correction
                 angle = lane.centre_line.angle
                 start = lane.centre_line.start
+                # calculate lane offset between [0,1] from [-1,1]
+                offset = abs(start)
                 if start < -off_lane_threshold:  # on the right, so turn left
-                    angle -= off_lane_correction
+                    angle -= (off_lane_correction * offset)
                 elif start > off_lane_threshold:  # on the left, so turn right
-                    angle += off_lane_correction
+                    angle += (off_lane_correction * offset)
 
                 # calculate speed
                 speed_left = speed
                 speed_right = speed
+
+                # calculate "extremeness" of the angle
+                ratio = (max(angle, 90) / 90)
+
                 # Turn right when the angle is positive
                 if angle > 10:
-                    speed_left += turn_speed
-                    speed_right -= turn_speed + turn_speed_corr
+                    speed_left += int(turn_speed * ratio)
+                    speed_right -= int((turn_speed + turn_speed_corr) * ratio)
                 # Turn left when the angle is negative
                 elif angle < -10:
-                    speed_left -= turn_speed + turn_speed_corr
-                    speed_right += turn_speed
-
+                    speed_left -= int((turn_speed + turn_speed_corr) * ratio)
+                    speed_right += int(turn_speed * ratio)
+                
                 # Set motor speeds
                 self.__robot.setMotorSpeed("left", speed_left)
                 self.__robot.setMotorSpeed("right", speed_right)
@@ -160,14 +166,14 @@ class Camera:
             return
         self.__thread = threading.Thread(target=self._follower)
         self.__following = True
-        self.__thread.daemon = True
+        # self.__thread.daemon = True
         self.__thread.start()
 
     def stopFollowing(self):
         """Stop following the lane using the camera, if the robot is initialized"""
         self.__following = False
-		self.__thread.join()
         if self.__robot is not None:
+            self.__thread.join()
             self.__robot.setMotorSpeed("left", 0)
             self.__robot.setMotorSpeed("right", 0)
 
