@@ -14,7 +14,7 @@ class Camera:
         self,
         robot=None,
         subscriber=None,
-        stop_line_threshold_height=0.75,
+        stop_line_threshold_height=0.8,
         tag_life=500,
     ):
         """Initialises a new camera
@@ -158,9 +158,9 @@ class Camera:
         """Start following the lane using the camera, if the robot is initialized"""
         if self.__robot is None:
             return
-		self.__thread = threading.Thread(target=self._follower)
-		self.__following = True
-		self.__thread.daemon = True
+        self.__thread = threading.Thread(target=self._follower)
+        self.__following = True
+        self.__thread.daemon = True
         self.__thread.start()
 
     def stopFollowing(self):
