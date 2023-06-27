@@ -1,5 +1,5 @@
 use crate::geometry_msgs::{Point, Vector3};
-use crate::mirte_msgs::{Line, LineSegment};
+use crate::mirte_duckietown_msgs::{Line, LineSegment};
 
 impl Line {
   pub fn new(origin: Point, direction: Vector3) -> Self {

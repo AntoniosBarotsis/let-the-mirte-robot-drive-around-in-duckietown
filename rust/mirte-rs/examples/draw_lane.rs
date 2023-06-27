@@ -8,11 +8,13 @@ use mirte_rs::detection::detect_lane;
 use std::collections::HashMap;
 use std::env;
 
+use common::debug;
+
 #[allow(clippy::expect_used)]
 fn main() {
   let mut args = env::args();
   let path = args.nth(1).unwrap_or_else(|| {
-    println!("\nError: no input path given!\nExample usage: cargo r -r --example draw_lane ./assets/input_1.jpg\n");
+    debug!("\nError: no input path given!\nExample usage: cargo r -r --example draw_lane ./assets/input_1.jpg\n");
     std::process::exit(1);
   });
   let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));

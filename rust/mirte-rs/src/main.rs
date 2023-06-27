@@ -1,3 +1,4 @@
+use common::edebug;
 use mirte_rs::process_mat;
 use ros::{process_ros_image, CvImage};
 
@@ -19,6 +20,6 @@ fn main() {
   });
 
   if let Err(e) = res {
-    eprintln!("{e}");
+    edebug!("{e}");
   }
 }

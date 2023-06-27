@@ -13,7 +13,7 @@ pub mod vector;
 mod tests {
   use crate::{
     geometry_msgs::{Point, Vector3},
-    mirte_msgs::{Line, LineSegment},
+    mirte_duckietown_msgs::{Line, LineSegment},
   };
 
   use super::colour::ColourEnum;

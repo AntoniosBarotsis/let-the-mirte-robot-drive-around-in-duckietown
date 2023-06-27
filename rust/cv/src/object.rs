@@ -1,6 +1,6 @@
 use common::{
   geometry_msgs::Point,
-  mirte_msgs::{Object, Obstacle},
+  mirte_duckietown_msgs::{Object, Obstacle},
   structs::threshold::Threshold,
 };
 use opencv::{
@@ -39,7 +39,7 @@ pub static HSV_MIRTE: Threshold = Threshold {
 /// ```
 /// use cv::image::{dbg_mat, downscale_enhance_hsv};
 /// use cv::object::detect_obstacles;
-/// use common::mirte_msgs::{Object, Obstacle};
+/// use common::mirte_duckietown_msgs::{Object, Obstacle};
 /// use common::geometry_msgs::Point;
 ///
 /// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get the image");
@@ -78,7 +78,7 @@ pub fn detect_obstacles(img: &Mat) -> Result<Vec<Obstacle>, CvError> {
 /// ```
 /// use cv::image::{dbg_mat, downscale_enhance_hsv};
 /// use cv::object::get_duckies;
-/// use common::mirte_msgs::{Object, Obstacle};
+/// use common::mirte_duckietown_msgs::{Object, Obstacle};
 /// use common::geometry_msgs::Point;
 ///
 /// use opencv::{
@@ -137,7 +137,7 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
 /// ```
 /// use cv::image::{dbg_mat, downscale_enhance_hsv};
 /// use cv::object::get_mirtes;
-/// use common::mirte_msgs::{Object, Obstacle};
+/// use common::mirte_duckietown_msgs::{Object, Obstacle};
 /// use common::geometry_msgs::Point;
 ///
 /// use opencv::{
@@ -237,10 +237,8 @@ fn detect_obstacles_with_params(
     .collect();
 
   #[cfg(debug_assertions)]
-  {
-    for ob in obstacles.clone().into_iter().rev() {
-      println!("{ob:?}");
-    }
+  for ob in obstacles.clone().into_iter().rev() {
+    common::debug!("{ob:?}");
   }
 
   Ok(obstacles)

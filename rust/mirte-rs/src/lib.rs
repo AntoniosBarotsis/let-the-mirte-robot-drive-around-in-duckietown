@@ -3,7 +3,10 @@ pub mod mirte_error;
 
 use std::time::Instant;
 
-use common::structs::{colour::ColourEnum, threshold::Threshold};
+use common::{
+  debug, edebug,
+  structs::{colour::ColourEnum, threshold::Threshold},
+};
 use cv::{
   detect_lines::detect_line_type, image::downscale_enhance_hsv, object::detect_obstacles, Mat,
 };
@@ -16,7 +19,7 @@ use std::collections::HashMap;
 use cv::{draw_lines::draw_lines, image::downscale};
 
 #[cfg(debug_assertions)]
-use ros::mirte_msgs::LineSegment;
+use ros::mirte_duckietown_msgs::LineSegment;
 
 #[allow(clippy::unwrap_used, clippy::expect_used, clippy::missing_panics_doc)]
 pub fn get_image() -> Result<Mat, MirteError> {
@@ -40,7 +43,7 @@ pub fn process_mat<S: std::hash::BuildHasher>(
   // Converting to usable image
   let time_hsv = Instant::now();
   if let Ok(hsv_img) = downscale_enhance_hsv(mat) {
-    println!("converting to hsv: {:?}", time_hsv.elapsed());
+    debug!("converting to hsv: {:?}", time_hsv.elapsed());
 
     // Creating ROS publisher
     let publisher = RosBgPublisher::get_or_create();
@@ -49,19 +52,19 @@ pub fn process_mat<S: std::hash::BuildHasher>(
     let colours = vec![ColourEnum::Yellow, ColourEnum::White, ColourEnum::Red];
     let time_detecting_lines = Instant::now();
     if let Ok(lines) = detect_line_type(&hsv_img, thresholds, colours) {
-      println!("detecting lines: {:?}", time_detecting_lines.elapsed());
+      debug!("detecting lines: {:?}", time_detecting_lines.elapsed());
       publisher.publish_line_segment(lines.clone());
 
       // Detecting lane
       let time_detect_lane = Instant::now();
       let lane = detect_lane(&lines);
-      println!("detecting lane: {:?}", time_detect_lane.elapsed());
+      debug!("detecting lane: {:?}", time_detect_lane.elapsed());
       publisher.publish_lane(lane);
 
       // Detecting stop line
       let time_detect_stop_line = Instant::now();
       let stop_line = detect_stop_line(&lines);
-      println!("detecting stop line: {:?}", time_detect_stop_line.elapsed());
+      debug!("detecting stop line: {:?}", time_detect_stop_line.elapsed());
       publisher.publish_stop_line(stop_line);
 
       // Draw lines, lane and stop line in debug
@@ -76,26 +79,26 @@ pub fn process_mat<S: std::hash::BuildHasher>(
         if let Ok(resized) = downscale(mat) {
           draw_lines(&resized, &all_lines);
         } else {
-          eprintln!("could not downscale image for drawing the lines");
+          edebug!("could not downscale image for drawing the lines");
         }
       }
     } else {
-      eprintln!("Could not detect lines");
+      edebug!("Could not detect lines");
     }
 
     let time_detecting_obstacles = Instant::now();
     if let Ok(obstacles) = detect_obstacles(&hsv_img) {
-      println!(
+      debug!(
         "detecting obstacles: {:?}",
         time_detecting_obstacles.elapsed()
       );
       publisher.publish_obstacle(obstacles);
     } else {
-      eprintln!("Could not detect obstacles");
+      edebug!("Could not detect obstacles");
     }
   } else {
-    eprintln!("Could not downscale, enhance or convert to hsv");
+    edebug!("Could not downscale, enhance or convert to hsv");
   }
 
-  println!("total: {:?}", time_total.elapsed());
+  debug!("total: {:?}", time_total.elapsed());
 }

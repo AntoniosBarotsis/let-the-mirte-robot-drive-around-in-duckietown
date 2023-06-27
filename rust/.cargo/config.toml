@@ -121,4 +121,6 @@ rustflags = [
     "-Wclippy::similar_names",
     "-Wclippy::uninlined_format_args",
     "-Wclippy::unwrap_or_else_default",
+    "-Wclippy::print_stdout",
+    "-Wclippy::print_stderr",
 ]
