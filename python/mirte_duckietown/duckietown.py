@@ -43,14 +43,14 @@ class Camera:
         self.__stop_line_threshold_height = stop_line_threshold_height
 
         # Don't yet follow the lane
-        self.__following = False
+        # self.__following = False
 
         # Start executing of the follower
-        print("starting execution...")
+        #print("starting execution...")
 
         # Run the follower in a separate thread
-        if self.__robot is not None:
-            threading.Thread(target=self._follower).start()
+        #if self.__robot is not None:
+		#	self.__thread = threading.Thread(target=self._follower)
 
     def getLines(self):
         """Gets line segments from the camera
@@ -119,9 +119,9 @@ class Camera:
 
     def _follower(self):
         """Follows the lane using the camera"""
-        while not rospy.is_shutdown():
+        while not self.__following:
             lane = self.__subscriber.getLane()
-            if self.__following and lane is not None:
+            if lane is not None:
                 # Variables
                 speed = 65
                 turn_speed = 10
@@ -158,11 +158,15 @@ class Camera:
         """Start following the lane using the camera, if the robot is initialized"""
         if self.__robot is None:
             return
-        self.__following = True
+		self.__thread = threading.Thread(target=self._follower)
+		self.__following = True
+		self.__thread.daemon = True
+        self.__thread.start()
 
     def stopFollowing(self):
         """Stop following the lane using the camera, if the robot is initialized"""
         self.__following = False
+		self.__thread.join()
         if self.__robot is not None:
             self.__robot.setMotorSpeed("left", 0)
             self.__robot.setMotorSpeed("right", 0)
