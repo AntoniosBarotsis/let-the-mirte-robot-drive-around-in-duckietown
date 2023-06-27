@@ -150,8 +150,8 @@ class Camera:
                     speed_right += turn_speed
 
                 # Set motor speeds
-                self.__robot.setMotorSpeed('left', speed_left)
-                self.__robot.setMotorSpeed('right', speed_right)
+                self.__robot.setMotorSpeed("left", speed_left)
+                self.__robot.setMotorSpeed("right", speed_right)
             self.__rospy_rate.sleep()
 
     def startFollowing(self):
