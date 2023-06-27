@@ -6,6 +6,7 @@ sphinxcontrib-spelling==8.0.0
 sphinxcontrib-napoleon==0.7
 sphinx-multiversion==0.2.4
 Sphinx==6.2.1
+empy
 
 
 wheel
