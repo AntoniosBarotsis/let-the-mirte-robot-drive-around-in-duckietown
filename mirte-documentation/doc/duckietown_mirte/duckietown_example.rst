@@ -11,7 +11,8 @@ Simple example
 
 This example does the following:
 
-#. 
+#. Start following the road
+#. When it sees a stop-line stop following
 
 .. tabs:: 
 
