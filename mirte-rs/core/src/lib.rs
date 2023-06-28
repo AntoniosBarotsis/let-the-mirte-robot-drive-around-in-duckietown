@@ -29,6 +29,7 @@ use std::time::Instant;
 pub fn process_mat<S: std::hash::BuildHasher>(
   mat: &Mat,
   thresholds: &HashMap<ColourEnum, Threshold, S>,
+  publisher: &RosBgPublisher,
 ) {
   #[cfg(debug_assertions)]
   let time_total = Instant::now();
@@ -38,9 +39,6 @@ pub fn process_mat<S: std::hash::BuildHasher>(
   let time_hsv = Instant::now();
   if let Ok(hsv_img) = downscale_enhance_hsv(mat) {
     debug!("converting to hsv: {:?}", time_hsv.elapsed());
-
-    // Creating ROS publisher
-    let publisher = RosBgPublisher::get_or_create();
 
     // Detecting lines
     let colours = vec![ColourEnum::Yellow, ColourEnum::White, ColourEnum::Red];
@@ -109,9 +107,10 @@ mod test {
   use common::structs::{colour::ColourEnum, threshold::Threshold};
   use common::{
     geometry_msgs::{Point, Vector3},
-    mirte_msgs::{Lane, Line, ObstacleList},
+    mirte_msgs::{Lane, Line, Object, Obstacle, ObstacleList},
   };
   use cv::image::read_image;
+  use ros::publishers::RosBgPublisher;
   //use rosrust_msg::std_msgs as msgs;
   use rostest_macro::ros_test;
   use std::collections::HashMap;
@@ -121,7 +120,7 @@ mod test {
   }
 
   fn process_obstacle_image() {
-    process_image("../assets/test_images/test_image_obstacles.png");
+    process_image("../assets/test_images/test_image_obstacles.jpg");
   }
 
   fn process_image(path: &str) {
@@ -130,8 +129,9 @@ mod test {
         .iter()
         .map(|&colour| (colour, Threshold::by_colour(colour)))
         .collect();
+    let publisher = RosBgPublisher::create();
     let img = read_image(path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
-    process_mat(&img, &thresholds);
+    process_mat(&img, &thresholds, &publisher);
   }
 
   #[ros_test]
@@ -178,7 +178,22 @@ mod test {
 
     // Assert response
     let expected_stop_line = Line::new(Point::new(0.0, 0.0), Vector3::new(0.0, 0.0));
-    let expected_obstacles = ObstacleList::from(vec![]);
+    let expected_obstacles = ObstacleList::from(vec![
+      Obstacle::new(
+        Point::new(0.4405809879302979, 0.5192097028096517),
+        6.7849393,
+        Object {
+          type_: Object::MIRTE,
+        },
+      ),
+      Obstacle::new(
+        Point::new(0.44025073051452634, 0.4123835563659668),
+        20.952547,
+        Object {
+          type_: Object::DUCK,
+        },
+      ),
+    ]);
 
     obstacle_topic.assert_message(expected_obstacles);
     stop_line_topic.assert_message(expected_stop_line);

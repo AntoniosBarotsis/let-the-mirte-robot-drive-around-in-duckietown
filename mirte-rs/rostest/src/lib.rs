@@ -180,7 +180,6 @@ impl Drop for ProcessWrapper {
       nix::sys::signal::Signal::SIGINT,
     )
     .expect("send SIGINT to roscore");
-    println!("finished dropping");
     thread::sleep(Duration::from_secs(1));
   }
 }
@@ -293,7 +292,10 @@ where
       .front()
       .expect("Message queue was empty after timeout")
       .to_owned();
-    assert_eq!(message, actual);
+    assert_eq!(
+      message, actual,
+      "Received message was different from expected. Expected message on left, but received message on right"
+    );
   }
 }
 

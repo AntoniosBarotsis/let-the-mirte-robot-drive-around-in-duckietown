@@ -1,5 +1,5 @@
 use core::process_mat;
-use ros::{process_ros_image, CvImage};
+use ros::{process_ros_image, publishers::RosBgPublisher, CvImage};
 use std::error::Error;
 
 /// For now, just reads an image from ROS and shows it on screen.
@@ -7,6 +7,7 @@ use std::error::Error;
 fn main() -> Result<(), Box<dyn Error>> {
   ros::init();
   let thresholds = ros::param::get_thresholds();
+  let publisher = RosBgPublisher::create();
 
   process_ros_image(move |img| {
     let mat = CvImage::from_imgmsg(img).unwrap().as_cvmat().unwrap();
@@ -17,7 +18,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     #[allow(clippy::redundant_clone)]
     let mat = mat.clone();
 
-    process_mat(&mat, &thresholds);
+    process_mat(&mat, &thresholds, &publisher);
   })?;
 
   Ok(())
