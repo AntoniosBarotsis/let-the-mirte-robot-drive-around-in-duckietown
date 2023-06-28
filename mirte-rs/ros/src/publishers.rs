@@ -40,8 +40,8 @@ pub struct RosBgPublisher {
 #[allow(clippy::expect_used)]
 impl RosBgPublisher {
   /// Initializes or gets the existing instance of [`RosBgPublisher`].
-  pub fn get_or_create() -> &'static Self {
-    INSTANCE.get_or_init(|| {
+  pub fn get_or_create() -> Self {
+    // INSTANCE.get_or_init(|| {
       // Init publishers
       let line_segment_publisher = rosrust::publish::<LineSegmentList>(LINE_SEGMENTS_TOPIC_NAME, 1)
         .expect("Create LINE_SEGMENT_PUBLISHER");
@@ -66,7 +66,7 @@ impl RosBgPublisher {
         obstacle_publisher,
         stop_line_publisher,
       }
-    })
+    // })
   }
 
   /// Publishes a line segment to the [`LINE_SEGMENTS_TOPIC_NAME`] ROS topic.
