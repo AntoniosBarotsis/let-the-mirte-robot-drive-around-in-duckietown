@@ -131,17 +131,11 @@ class TestCamera(unittest.TestCase):
 
         # Two AprilTags are visible
         subscriber.getAprilTags = MagicMock(
-            return_value=[
-                AprilTag(13, datetime.now()),
-                AprilTag(531, datetime.now()),
-            ]
+            return_value=[AprilTag(13, datetime.now()), AprilTag(531, datetime.now())]
         )
         self.assertEqual(
             camera.getAprilTags(),
-            [
-                AprilTag(13, datetime.now()),
-                AprilTag(531, datetime.now()),
-            ],
+            [AprilTag(13, datetime.now()), AprilTag(531, datetime.now())],
         )
 
     def testSeesSign(self):
@@ -161,10 +155,7 @@ class TestCamera(unittest.TestCase):
 
         # AprilTag is visible and the one we are looking for
         subscriber.getAprilTags = MagicMock(
-            return_value=[
-                AprilTag(13, datetime.now()),
-                AprilTag(531, datetime.now()),
-            ]
+            return_value=[AprilTag(13, datetime.now()), AprilTag(531, datetime.now())]
         )
         self.assertTrue(camera.seesSign(Sign.FOUR_WAY_INTERSECT))
 
@@ -179,19 +170,13 @@ class TestCamera(unittest.TestCase):
 
         # AprilTag is visible, but not the one we are looking for
         subscriber.getAprilTags = MagicMock(
-            return_value=[
-                AprilTag(13, datetime.now()),
-                AprilTag(532, datetime.now()),
-            ]
+            return_value=[AprilTag(13, datetime.now()), AprilTag(532, datetime.now())]
         )
         self.assertFalse(camera.seesStreet("DUDEK ST"))
 
         # AprilTag is visible and the one we are looking for
         subscriber.getAprilTags = MagicMock(
-            return_value=[
-                AprilTag(13, datetime.now()),
-                AprilTag(531, datetime.now()),
-            ]
+            return_value=[AprilTag(13, datetime.now()), AprilTag(531, datetime.now())]
         )
         self.assertTrue(camera.seesStreet("DUDEK ST"))
         self.assertTrue(camera.seesStreet("dudek st."))

@@ -3,7 +3,8 @@ import threading
 import rospy
 from ._topic import Subscriber
 from ._util import intersectWithHorizontalLine
-from object import Object
+from .object import Object
+
 
 class Camera:
     """Camera API
@@ -12,11 +13,7 @@ class Camera:
     """
 
     def __init__(
-        self,
-        robot=None,
-        subscriber=None,
-        stop_line_threshold_height=0.8,
-        tag_life=500,
+        self, robot=None, subscriber=None, stop_line_threshold_height=0.8, tag_life=500
     ):
         """Initialises a new camera
 
@@ -47,11 +44,12 @@ class Camera:
         # self.__following = False
 
         # Start executing of the follower
-        #print("starting execution...\n")
+        # print("starting execution...\n")
 
         # Run the follower in a separate thread
-        #if self.__robot is not None:
-		#	self.__thread = threading.Thread(target=self._follower)
+        # if self.__robot is not None:
+
+    # 	self.__thread = threading.Thread(target=self._follower)
 
     def getLines(self):
         """Gets line segments from the camera
@@ -136,16 +134,16 @@ class Camera:
                 # calculate lane offset between [0,1] from [-1,1]
                 offset = abs(start)
                 if start < -off_lane_threshold:  # on the right, so turn left
-                    angle -= (off_lane_correction * offset)
+                    angle -= off_lane_correction * offset
                 elif start > off_lane_threshold:  # on the left, so turn right
-                    angle += (off_lane_correction * offset)
+                    angle += off_lane_correction * offset
 
                 # calculate speed
                 speed_left = speed
                 speed_right = speed
 
                 # calculate "extremeness" of the angle
-                ratio = (max(angle, 90) / 90)
+                ratio = max(angle, 90) / 90
 
                 # Turn right when the angle is positive
                 if angle > 10:
@@ -155,7 +153,7 @@ class Camera:
                 elif angle < -10:
                     speed_left -= int((turn_speed + turn_speed_corr) * ratio)
                     speed_right += int(turn_speed * ratio)
-                
+
                 # Set motor speeds
                 self.__robot.setMotorSpeed("left", speed_left)
                 self.__robot.setMotorSpeed("right", speed_right)
