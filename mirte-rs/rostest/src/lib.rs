@@ -181,6 +181,7 @@ impl Drop for ProcessWrapper {
     )
     .expect("send SIGINT to roscore");
     println!("finished dropping");
+    thread::sleep(Duration::from_secs(1));
   }
 }
 
