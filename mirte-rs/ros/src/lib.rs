@@ -3,7 +3,6 @@ use std::{
   time::Duration,
 };
 
-pub mod drive;
 pub mod param;
 pub mod publishers;
 pub mod ros_error;
@@ -25,7 +24,7 @@ pub(crate) fn init() {
     env_logger::init();
 
     // Initialize node
-    rosrust::init("image_processor");
+    rosrust::init("duckietown_navigator");
     rosrust::ros_info!("Initialized node");
   });
 }
