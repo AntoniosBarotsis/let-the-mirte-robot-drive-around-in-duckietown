@@ -24,7 +24,7 @@ pub static HSV_DUCK: Threshold = Threshold {
   upper: [45, 255, 255],
 };
 pub static HSV_MIRTE: Threshold = Threshold {
-  lower: [70, 100, 50],
+  lower: [70, 100, 30],
   upper: [100, 255, 255],
 };
 
@@ -106,7 +106,7 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
   params.filter_by_color = true;
   params.blob_color = 255;
   params.filter_by_area = true;
-  params.min_area = 100.0; // 55 right now. Might change later if problem occur
+  params.min_area = 1000.0; // 100 right now. Might change later if problem occur
   params.max_area = 12_800.0; // 1/6th of the image
   params.filter_by_inertia = true;
   params.min_inertia_ratio = 0.25;
@@ -168,8 +168,7 @@ pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   params.max_area = 3072.0; // 1/25 of the image
   params.filter_by_inertia = true;
   params.min_inertia_ratio = 0.1;
-  params.filter_by_convexity = false;
-  params.max_convexity = 0.99;
+  params.filter_by_convexity = true;
   params.filter_by_circularity = false;
   params.min_circularity = 0.5;
 

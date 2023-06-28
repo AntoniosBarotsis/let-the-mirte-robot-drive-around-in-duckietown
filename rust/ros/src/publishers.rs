@@ -45,8 +45,9 @@ impl RosBgPublisher {
       init();
 
       // Init publishers
-      let line_segment_publisher = rosrust::publish::<LineSegmentList>(LINE_SEGMENTS_TOPIC_NAME, 100)
-        .expect("Create LINE_SEGMENT_PUBLISHER");
+      let line_segment_publisher =
+        rosrust::publish::<LineSegmentList>(LINE_SEGMENTS_TOPIC_NAME, 100)
+          .expect("Create LINE_SEGMENT_PUBLISHER");
       let lane_publisher =
         rosrust::publish::<Lane>(LANE_TOPIC_NAME, 100).expect("Create LANE_PUBLISHER");
       let obstacle_publisher = rosrust::publish::<ObstacleList>(OBSTACLE_TOPIC_NAME, 100)
