@@ -1,8 +1,5 @@
 pub mod detection;
 
-#[cfg(debug_assertions)]
-use std::time::Instant;
-
 use common::{
   debug, edebug,
   structs::{colour::ColourEnum, threshold::Threshold},
