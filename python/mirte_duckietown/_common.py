@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import yaml
 from ._util import calculateRadians, convertAngleToDegrees, calculateY1Intercept
 from .sign import Sign
+from .object import Object
 
 
 class Colour(Enum):
@@ -135,6 +136,37 @@ class Line:
 
 
 @dataclass
+class Obstacle:
+    """Obstacle in the image
+
+    An obstacle with a diameter, location and object type.
+    """
+
+    diameter: float
+    location: Point
+    object: Object
+
+    def __str__(self):
+        return f"Obstacle(diameter={self.diameter}, location={self.location}, object={self.object})"
+
+    @staticmethod
+    def fromMessage(message):
+        """Converts a Obstacle message to a Obstacle object
+
+        Parameters:
+            message (mirte_msgs.msg.Obstacle): The message to convert
+
+        Returns:
+            Obstacle: The converted object
+        """
+        return Obstacle(
+            message.diameter,
+            Point(message.location.x, message.location.y),
+            Object(message.object.type),
+        )
+
+
+@dataclass
 class Lane:
     """Lane datastructure
 
@@ -253,10 +285,8 @@ class TagDatabase:
         # Don't initialize twice
         if self._initialized:
             return
-
         # Mark as initialized
         self._initialized = True
-
         # Load the database
         file_path = os.path.join(os.path.dirname(__file__), "apriltagsDB.yaml")
         with open(file_path, encoding="utf8") as file:
@@ -274,5 +304,5 @@ class TagDatabase:
         for item in self.data:
             if int(item["tag_id"]) == tag_id:
                 return item
-
+        # Tag not found
         return None

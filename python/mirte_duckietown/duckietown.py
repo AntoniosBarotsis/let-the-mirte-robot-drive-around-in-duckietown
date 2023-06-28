@@ -2,6 +2,7 @@ import threading
 
 import rospy
 from ._topic import Subscriber
+from ._util import intersectWithHorizontalLine
 
 
 class Camera:
@@ -46,7 +47,7 @@ class Camera:
         self.__following = False
 
         # Start executing of the follower
-        print("starting execution...")
+        print("starting execution...\n")
 
         # Run the follower in a separate thread
         if self.__robot is not None:
@@ -205,6 +206,103 @@ class Camera:
         for tag in self.getAprilTags():
             if tag.getStreetName() == street_name:
                 return True
+        return False
+
+    def getObstacles(self):
+        """Gets the obstacles from the camera
+
+        Returns:
+            list: List of Obstacle objects
+        """
+        return self.__subscriber.getObstacles()
+
+    def seesObstacleOnLane(self, object_type):
+        """Checks if the robot sees an obstacle on the lane
+
+        Parameters:
+            object_type (Object): The type of object to check for
+
+        Returns:
+            bool: True if the robot sees an obstacle on the lane, False otherwise
+        """
+        obstacles = self.getObstacles()
+        if obstacles is None:
+            return False
+        # Check if obstacle is on lane
+        for obstacle in obstacles:
+            if obstacle.object == object_type and self.isOnLane(obstacle):
+                return True
+        return False
+
+    def isOnLane(self, obstacle):
+        """Checks if the obstacle is on the lane
+
+        Parameters:
+            obstacle (Obstacle): The obstacle to check for
+
+        Returns:
+            bool: True if the obstacle is on the lane, False otherwise
+        """
+        # Check if obstacle is in front of the robot
+        if obstacle.location.y_coord < 0.5:
+            return False
+        # Check if lane is available
+        lane = self.getLane()
+        if lane is None:
+            return False
+        # Check if obstacle is on lane
+        left_line = lane.left_line
+        right_line = lane.right_line
+        if left_line is None or right_line is None:
+            return False
+        # Check if obstacle is on lane
+        left_x = intersectWithHorizontalLine(left_line, obstacle.location.y_coord)
+        right_x = intersectWithHorizontalLine(right_line, obstacle.location.y_coord)
+        print(left_x)
+        print(right_x)
+        print(obstacle.location.x_coord)
+        if left_x is None or right_x is None:
+            return False
+        return (
+            left_x <= obstacle.location.x_coord and obstacle.location.x_coord <= right_x
+        )
+
+    def seesObstacleOnLeft(self, object_type):
+        """Checks if the robot sees an obstacle on the left half of the image
+
+        Parameters:
+            object_type (Object): The type of object to check for
+
+        Returns:
+            bool: True if the robot sees an obstacle on the left half of the image, False otherwise
+        """
+        obstacles = self.getObstacles()
+        if obstacles is None:
+            return False
+        # Check if obstacle is on right half of image'
+        for obstacle in obstacles:
+            if obstacle.object == object_type and obstacle.location.x_coord < 0.5:
+                return True
+        # No obstacle found
+        return False
+
+    def seesObstacleOnRight(self, object_type):
+        """Checks if the robot sees an obstacle on the right half of the image
+
+        Parameters:
+            object_type (Object): The type of object to check for
+
+        Returns:
+            bool: True if the robot sees an obstacle on the right half of the image, False otherwise
+        """
+        obstacles = self.getObstacles()
+        if obstacles is None:
+            return False
+        # Check if obstacle is on right half of image'
+        for obstacle in obstacles:
+            if obstacle.object == object_type and obstacle.location.x_coord > 0.5:
+                return True
+        # No obstacle found
         return False
 
 
