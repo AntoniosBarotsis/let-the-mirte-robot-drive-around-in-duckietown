@@ -7,7 +7,7 @@ All this data can be used to make Mirte drive around in Duckietown.
 /line-segments      
     ROS topic for line segment data. The /line-segments topic publishes a list of line-segments. A line-segment has three components:
 
-    #. A colour idicating which colour the line is (Colour)
+    #. A colour idicating which colour the line is (Colour*)
     #. A start Point in the image (Point)
     #. An end Point in the image (Point)
 
@@ -32,6 +32,23 @@ All this data can be used to make Mirte drive around in Duckietown.
 /lanes              
     ROS topic for lane data. The /lanes topic topic publishes a single lane. This lane has the following three components:
 
-    #. A left line (Line)
-    #. A right line (Line)
-    #. A middle line (Line)
+    #. A left line (Line**)
+    #. A right line (Line**)
+    #. A middle line (Line**)
+
+
+\* Colour is an enum consists of the following colours:
+
+0. RED
+1. ORANGE
+2. YELLOW
+3. GREEN
+4. BLUE
+5. PURPLE
+6. BLACK
+7. WHITE
+
+\** Line is an object that consists of the following:
+
+#. An Origin (Point)
+#. A Direction (Vector3)
