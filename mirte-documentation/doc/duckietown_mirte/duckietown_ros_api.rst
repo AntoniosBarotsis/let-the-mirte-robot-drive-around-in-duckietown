@@ -11,6 +11,13 @@ All this data can be used to make Mirte drive around in Duckietown.
     #. A start Point in the image (Point)
     #. An end Point in the image (Point)
 
+/lanes              
+    ROS topic for lane data. The /lanes topic topic publishes a single lane. This lane has the following three components:
+
+    #. A left line (Line**)
+    #. A right line (Line**)
+    #. A middle line (Line**)
+
 /stop-line          
     ROS topic for stop-line data. The /stop-line topic publishes the location of a single stop-line. This single stop-line has the following two components:
 
@@ -27,26 +34,20 @@ All this data can be used to make Mirte drive around in Duckietown.
 
     #. A Point for its location in the image (Point)
     #. A diamater (float32)
-    #. The type of Object which is either a Duck or Mirte-bot (Object)
+    #. The type of Object which is either a Mirte-bot (0) or Duck (1) (Object)
 
-/lanes              
-    ROS topic for lane data. The /lanes topic topic publishes a single lane. This lane has the following three components:
-
-    #. A left line (Line**)
-    #. A right line (Line**)
-    #. A middle line (Line**)
 
 
 \* Colour is an enum consists of the following colours:
 
-0. RED
-1. ORANGE
-2. YELLOW
-3. GREEN
-4. BLUE
-5. PURPLE
-6. BLACK
-7. WHITE
+1. RED
+2. ORANGE
+3. YELLOW
+4. GREEN
+5. BLUE
+6. PURPLE
+7. BLACK
+8. WHITE
 
 \** Line is an object that consists of the following:
 
