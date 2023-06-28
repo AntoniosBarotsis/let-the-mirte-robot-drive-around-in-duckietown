@@ -33,8 +33,8 @@ This example does the following:
             camera.startFollowing()
             wait_cond = (camera.seesStopLine())
             while not(wait_cond):
-	            time.sleep(.1)
-	            wait_cond = (camera.seesStopLine())
+                time.sleep(.1)
+                wait_cond = (camera.seesStopLine())
             camera.stopFollowing()
 
 +++++++++++++++++++
