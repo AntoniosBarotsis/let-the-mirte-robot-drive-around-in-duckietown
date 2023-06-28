@@ -16,7 +16,9 @@ import os
 import sys
 from datetime import date
 sys.path.insert(0, os.path.abspath('./_modules/mirte-python/mirte_robot/'))
-sys.path.insert(0, os.path.abspath('./../python/'))
+sys.path.insert(1, os.path.abspath('./../python/mirte_robot/'))
+sys.path.insert(2, os.path.abspath('./../python/mirte_duckietown/'))
+sys.path.insert(3, os.path.abspath('./../python/'))
 import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
