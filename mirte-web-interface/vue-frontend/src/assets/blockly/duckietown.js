@@ -100,6 +100,39 @@ export function load(Blockly) {
     },
   };
 
+  Blockly.Blocks["sees_obstacle_duckietown"] = {
+    init: function() {
+      this.jsonInit({
+        type: "block_type",
+        message0: "sees a %1 on the %2",
+        args0: [
+          {
+            type: "field_dropdown",
+            name: "OBJECT",
+            options: [
+              ["Mirte", "Object.MIRTE"],
+              ["duck", "Object.DUCK"],
+            ],
+          },
+          {
+            type: "field_dropdown",
+            name: "DIRECTION",
+            options: [
+              ["road", "Lane"],
+              ["left", "Left"],
+              ["right", "Right"],
+            ],
+          },
+        ],
+        output: "Boolean",
+        colour: "%{BKY_DUCKIE_RGB}",
+        inputsInline: true,
+        tooltip:
+          "Tells you if the robot sees a duck or mirte on the road or left or right on the screen",
+      });
+    },
+  };
+
   Blockly.Python["sees_stop_line_duckietown"] = function(block) {
     Blockly.Python.definitions_["import_mirte"] =
       "from mirte_robot import robot\nmirte=robot.createRobot()";
@@ -146,4 +179,19 @@ export function load(Blockly) {
     let code = `camera.seesStreet("${block.getFieldValue("STREET")}")`;
     return [code, Blockly.Python.ORDER_NONE];
   };
+
+  Blockly.Python["sees_obstacle_duckietown"] = function(block) {
+    Blockly.Python.definitions_["import_mirte"] =
+      "from mirte_robot import robot\nmirte=robot.createRobot()";
+    Blockly.Python.definitions_["import_duckietown"] =
+      "from mirte_duckietown import duckietown\ncamera=duckietown.createCamera(mirte)";
+    Blockly.Python.definitions_["import_object"] =
+      "from mirte_duckietown.object import Object";
+    let code = `camera.seesObstacleOn${block.getFieldValue(
+      "DIRECTION"
+    )}(${block.getFieldValue("OBJECT")})`;
+    return [code, Blockly.Python.ORDER_NONE];
+  };
 }
+
+"sees_obstacle_on_lane", "sees_obstacle_on_left", "sees_obstacle_on_right";

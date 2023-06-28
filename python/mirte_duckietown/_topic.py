@@ -9,9 +9,10 @@ from apriltag_ros.msg import AprilTagDetectionArray as AprilTagMsg
 from mirte_duckietown_msgs.msg import (
     LineSegmentList as LineSegmentMsg,
     Line as LineMsg,
+    ObstacleList as ObstacleMsg,
     Lane as LaneMsg,
 )
-from ._common import LineSegment, Line, Lane, AprilTag, TagDatabase
+from ._common import LineSegment, Line, Lane, AprilTag, TagDatabase, Obstacle
 
 
 class Subscriber:
@@ -28,6 +29,7 @@ class Subscriber:
     __april_tags: list[AprilTag] = []
     __tag_life: int
     __lane: Lane = None
+    __obstacles = []
 
     def __init__(self, tag_life=500):
         self.__tag_life = tag_life
@@ -69,6 +71,12 @@ class Subscriber:
             # Update tags
             self.__april_tags = new_tags
 
+        # Callback for obstacles
+        def obstacleCb(data: ObstacleMsg):
+            self.__obstacles = []
+            for obstacle in data.obstacles:
+                self.__obstacles.append(Obstacle.fromMessage(obstacle))
+
         # Initialise node
         try:
             print("starting rospy...")
@@ -77,11 +85,13 @@ class Subscriber:
             print("rospy is aleady running!")
 
         # Initialise subscribers
+
         rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
         rospy.Subscriber("stop_line", LineMsg, stopLineCb)
         #rospy.Subscriber("webcam/image_raw", Image, imageCb)
         rospy.Subscriber("lanes", LaneMsg, laneCb)
         rospy.Subscriber("tag_detections", AprilTagMsg, aprilTagCb)
+        rospy.Subscriber("/obstacles", ObstacleMsg, obstacleCb)
 
         # Load tag database
         print("loading april tags...")
@@ -135,3 +145,11 @@ class Subscriber:
             list[AprilTag]: List of AprilTag objects
         """
         return self.__april_tags
+
+    def getObstacles(self):
+        """Gets the current obstacles from ROS
+
+        Returns:
+            list: List of Obstacle objects
+        """
+        return self.__obstacles

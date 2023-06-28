@@ -34,7 +34,7 @@ test:
     - cd rust
     - cargo test -r --verbose
     # - cd ..
-    # - python3 -m unittest discover ./python
+    # - python3 -m unittest discover ./python -b
 
 lint:
   stage: lint
