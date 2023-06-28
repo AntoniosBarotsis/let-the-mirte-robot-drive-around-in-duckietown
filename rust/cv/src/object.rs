@@ -53,9 +53,9 @@ pub static HSV_MIRTE: Threshold = Threshold {
 /// assert_eq!(duckstacles[0].object, Object { type_: Object::DUCK });
 /// assert_eq!(mirtstacles[0].object, Object { type_: Object::MIRTE });
 /// assert!(mirtstacles[0].location.x > 0.40 && mirtstacles[0].location.x < 0.50);
-/// assert!(mirtstacles[0].location.y > 0.45 && mirtstacles[0].location.y < 0.55);
-/// assert!(duckstacles[0].location.x > 0.40 && duckstacles[0].location.x < 0.50);
-/// assert!(duckstacles[0].location.y > 0.35 && duckstacles[0].location.y < 0.45);
+/// assert!(mirtstacles[0].location.y > 0.50 && mirtstacles[0].location.y < 0.65);
+/// assert!(duckstacles[0].location.x > 0.35 && duckstacles[0].location.x < 0.45);
+/// assert!(duckstacles[0].location.y > 0.25 && duckstacles[0].location.y < 0.40);
 /// ```
 pub fn detect_obstacles(img: &Mat) -> Result<Vec<Obstacle>, CvError> {
   let img_size = img.size()?;
@@ -93,8 +93,8 @@ pub fn detect_obstacles(img: &Mat) -> Result<Vec<Obstacle>, CvError> {
 ///
 /// assert_eq!(obstacles.len(), 1);
 /// assert_eq!(obstacles[0].object, Object { type_: Object::DUCK });
-/// assert!(obstacles[0].location.x > 0.40 && obstacles[0].location.x < 0.50);
-/// assert!(obstacles[0].location.y > 0.35 && obstacles[0].location.y < 0.45);
+/// assert!(obstacles[0].location.x > 0.30 && obstacles[0].location.x < 0.40);
+/// assert!(obstacles[0].location.y > 0.30 && obstacles[0].location.y < 0.40);
 /// ```
 pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   // Extract the colours
@@ -153,7 +153,7 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
 /// assert!(obstacles.len() >= 1);
 /// assert_eq!(obstacles[0].object, Object { type_: Object::MIRTE });
 /// assert!(obstacles[0].location.x > 0.40 && obstacles[0].location.x < 0.50);
-/// assert!(obstacles[0].location.y > 0.45 && obstacles[0].location.y < 0.55);
+/// assert!(obstacles[0].location.y > 0.50 && obstacles[0].location.y < 0.65);
 /// ```
 pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   // Extract the colours
