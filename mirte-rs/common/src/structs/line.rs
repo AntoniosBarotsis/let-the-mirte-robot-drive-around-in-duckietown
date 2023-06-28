@@ -72,7 +72,7 @@ pub mod test {
   use crate::{
     float_eq,
     geometry_msgs::{Point, Vector3},
-    mirte_msgs::Line,
+    mirte_duckietown_msgs::Line,
   };
 
   #[test]

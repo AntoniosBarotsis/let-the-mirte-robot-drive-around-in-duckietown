@@ -62,7 +62,7 @@ impl From<Vec<LineSegment>> for LineSegmentList {
 pub mod test {
   use crate::{
     geometry_msgs::{Point, Vector3},
-    mirte_msgs::{Line, LineSegment},
+    mirte_duckietown_msgs::{Line, LineSegment},
     structs::colour::ColourEnum,
   };
 

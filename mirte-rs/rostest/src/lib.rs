@@ -247,9 +247,19 @@ where
       .unwrap_or_else(|_| panic!("Could not send message to topic {}", &self.topic));
   }
 
+  /// Gets the most recently received message.
+  #[allow(clippy::expect_used)]
+  pub fn get_front_message(&self) -> T {
+    let messages = self.get_messages();
+    messages
+      .front()
+      .expect("Message queue was empty after timeout")
+      .to_owned()
+  }
+
   /// Gets received topic messages with a timeout of 1s.
   pub fn get_messages(&self) -> MutexGuard<'_, VecDeque<T>> {
-    self.get_messages_timeout(Duration::from_secs(10))
+    self.get_messages_timeout(Duration::from_secs(1))
   }
 
   /// Gets received topic messages.
@@ -287,11 +297,7 @@ where
   #[allow(clippy::needless_pass_by_value)] // makes test code more readable
   #[allow(clippy::expect_used)]
   pub fn assert_message(&self, message: T) {
-    let messages = self.get_messages();
-    let actual = messages
-      .front()
-      .expect("Message queue was empty after timeout")
-      .to_owned();
+    let actual = self.get_front_message();
     assert_eq!(
       message, actual,
       "Received message was different from expected. Expected message on left, but received message on right"
@@ -403,7 +409,10 @@ mod test {
     ints.assert_message(expected);
   }
 
-  //#[ros_test]
+  // This test may look like a duplicate, but it is here to ensure tests don't interfere with
+  // eachother. There can be bugs where the first test works, but the second doesn't (or the other
+  // way around).
+  #[ros_test]
   fn test2() {
     // Init topics
     let strings = Topic::<msgs::String>::create("/test/strings");

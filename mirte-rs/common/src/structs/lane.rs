@@ -34,7 +34,7 @@ impl Copy for Lane {}
 mod test {
   use crate::{
     geometry_msgs::{Point, Vector3},
-    mirte_msgs::{Lane, Line, LineSegment},
+    mirte_duckietown_msgs::{Lane, Line, LineSegment},
     structs::colour::ColourEnum,
   };
 

@@ -18,7 +18,7 @@ fn main() {
   #[allow(clippy::expect_used)]
   let obstacles = detect_obstacles(&usable_img).expect("get obstacles");
 
-  let publisher = RosBgPublisher::get_or_create();
+  let publisher = RosBgPublisher::create();
   loop {
     publisher.publish_obstacle(obstacles.clone());
   }
