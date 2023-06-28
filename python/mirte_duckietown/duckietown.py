@@ -3,7 +3,7 @@ import threading
 import rospy
 from ._topic import Subscriber
 from ._util import intersectWithHorizontalLine
-
+from object import Object
 
 class Camera:
     """Camera API
@@ -254,7 +254,9 @@ class Camera:
             bool: True if the obstacle is on the lane, False otherwise
         """
         # Check if obstacle is in front of the robot
-        if obstacle.location.y_coord < 0.5:
+        if obstacle.object == Object.DUCK and obstacle.location.y_coord < 0.6:
+            return False
+        if obstacle.object == Object.MIRTE and obstacle.location.y_coord < 0.5:
             return False
         # Check if lane is available
         lane = self.getLane()
@@ -268,9 +270,10 @@ class Camera:
         # Check if obstacle is on lane
         left_x = intersectWithHorizontalLine(left_line, obstacle.location.y_coord)
         right_x = intersectWithHorizontalLine(right_line, obstacle.location.y_coord)
-        print(left_x)
-        print(right_x)
-        print(obstacle.location.x_coord)
+        print("left x intersection", left_x)
+        print("right x intersection", right_x)
+        print("obstacle x", obstacle.location.x_coord)
+        print("obstacle y", obstacle.location.y_coord)
         if left_x is None or right_x is None:
             return False
         return (
