@@ -5,12 +5,14 @@ import sys
 import rospy
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
-from mirte_msgs.msg import (
+from apriltag_ros.msg import AprilTagDetectionArray as AprilTagMsg
+from mirte_duckietown_msgs.msg import (
     LineSegmentList as LineSegmentMsg,
     Line as LineMsg,
+    ObstacleList as ObstacleMsg,
+    Lane as LaneMsg,
 )
-from apriltag_ros.msg import AprilTagDetectionArray as AprilTagMsg
-from ._common import LineSegment, Line, AprilTag
+from ._common import LineSegment, Line, Lane, AprilTag, TagDatabase, Obstacle
 
 
 class Subscriber:
@@ -26,6 +28,8 @@ class Subscriber:
     __bridge: CvBridge = CvBridge()
     __april_tags: list[AprilTag] = []
     __tag_life: int
+    __lane: Lane = None
+    __obstacles = []
 
     def __init__(self, tag_life=500):
         self.__tag_life = tag_life
@@ -46,6 +50,9 @@ class Subscriber:
                 data, desired_encoding="passthrough"
             )
 
+        def laneCb(data: LaneMsg):
+            self.__lane = Lane.fromMessage(data)
+
         # Callback for april tags
         def aprilTagCb(data: AprilTagMsg):
             new_tags = []
@@ -64,20 +71,36 @@ class Subscriber:
             # Update tags
             self.__april_tags = new_tags
 
-        # Initialise node and subscriptions
+        # Callback for obstacles
+        def obstacleCb(data: ObstacleMsg):
+            self.__obstacles = []
+            for obstacle in data.obstacles:
+                self.__obstacles.append(Obstacle.fromMessage(obstacle))
+
+        # Initialise node
         try:
+            print("starting rospy...")
             rospy.init_node("camera", anonymous=True)
         except rospy.exceptions.ROSException:
-            print("Node has already been initialized!")
+            print("rospy is aleady running!")
+
+        # Initialise subscribers
 
         rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
         rospy.Subscriber("stop_line", LineMsg, stopLineCb)
         rospy.Subscriber("webcam/image_raw", Image, imageCb)
+        rospy.Subscriber("lanes", LaneMsg, laneCb)
         rospy.Subscriber("tag_detections", AprilTagMsg, aprilTagCb)
+        rospy.Subscriber("/obstacles", ObstacleMsg, obstacleCb)
+
+        # Load tag database
+        print("loading april tags...")
+        TagDatabase()
 
         # Shutdown handler
         def shutdownHandler(signum, frame):
             rospy.signal_shutdown(f"signal: {signum}\nframe: {frame}")
+            print("stopping execution...")
             sys.exit()
 
         # Register shutdown handler
@@ -107,6 +130,14 @@ class Subscriber:
         """
         return self.__current_image
 
+    def getLane(self):
+        """Gets the current lane from ROS
+
+        Returns:
+            Lane: Current lane
+        """
+        return self.__lane
+
     def getAprilTags(self):
         """Gets the april tags from ROS
 
@@ -114,3 +145,11 @@ class Subscriber:
             list[AprilTag]: List of AprilTag objects
         """
         return self.__april_tags
+
+    def getObstacles(self):
+        """Gets the current obstacles from ROS
+
+        Returns:
+            list: List of Obstacle objects
+        """
+        return self.__obstacles

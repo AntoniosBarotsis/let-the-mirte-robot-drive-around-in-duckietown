@@ -2,8 +2,8 @@ use common::{
   geometry_msgs::{Point, Vector3},
   structs::colour::ColourEnum,
 };
-use ros::mirte_msgs::{Colour, Lane};
-use ros::mirte_msgs::{Line, LineSegment};
+use ros::mirte_duckietown_msgs::{Colour, Lane};
+use ros::mirte_duckietown_msgs::{Line, LineSegment};
 
 // The minimum length of an average line for it to be significant
 const MINIMUM_LENGTH: f64 = 0.15;
@@ -123,7 +123,7 @@ mod test {
     geometry_msgs::{Point, Vector3},
     structs::colour::ColourEnum,
   };
-  use ros::mirte_msgs::{Line, LineSegment};
+  use ros::mirte_duckietown_msgs::{Line, LineSegment};
 
   fn line(x1: f64, y1: f64, x2: f64, y2: f64, c: ColourEnum) -> LineSegment {
     LineSegment::new(c, Point::new(x1, y1), Point::new(x2, y2))

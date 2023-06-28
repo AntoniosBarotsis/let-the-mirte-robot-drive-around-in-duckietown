@@ -3,3 +3,4 @@
     <node pkg="mirte-rs" type="mirte-rs" name="duckietown_navigator">
     </node>
 </launch>
+

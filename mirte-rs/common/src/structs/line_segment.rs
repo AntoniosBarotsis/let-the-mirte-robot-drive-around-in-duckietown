@@ -1,6 +1,6 @@
 use crate::{
   geometry_msgs::{Point, Vector3},
-  mirte_msgs::{Line, LineSegment, LineSegmentList},
+  mirte_duckietown_msgs::{Line, LineSegment, LineSegmentList},
   IMAGE_CROP_HEIGHT,
 };
 

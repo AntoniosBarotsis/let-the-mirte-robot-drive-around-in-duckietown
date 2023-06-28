@@ -10,3 +10,4 @@ add_custom_target(mirte-rs
 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/cargo/release/mirte-rs ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/mirte-rs
 	COMMENT "Building mirte-rs"
 )
+

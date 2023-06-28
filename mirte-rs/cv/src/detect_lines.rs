@@ -1,6 +1,6 @@
 use common::{
   geometry_msgs::Point,
-  mirte_msgs::LineSegment,
+  mirte_duckietown_msgs::LineSegment,
   structs::{colour::ColourEnum, threshold::Threshold},
 };
 use opencv::{

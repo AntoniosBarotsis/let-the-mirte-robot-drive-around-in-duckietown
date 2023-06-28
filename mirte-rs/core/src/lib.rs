@@ -1,5 +1,8 @@
 pub mod detection;
 
+#[cfg(debug_assertions)]
+use std::time::Instant;
+
 use common::{
   debug, edebug,
   structs::{colour::ColourEnum, threshold::Threshold},
@@ -66,7 +69,8 @@ pub fn process_mat<S: std::hash::BuildHasher>(
       #[cfg(debug_assertions)]
       {
         use cv::{draw_lines::draw_lines, image::downscale};
-        use ros::mirte_msgs::LineSegment;
+        use ros::mirte_duckietown_msgs::LineSegment;
+
         let all_lines = [
           lines,
           lane.get_coloured_segments(ColourEnum::Green, ColourEnum::Orange, ColourEnum::Black),

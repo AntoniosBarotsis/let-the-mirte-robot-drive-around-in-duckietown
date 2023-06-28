@@ -1,5 +1,5 @@
 # TODO: Determine a MSRV and use that here instead
-image: antoniosbarotsis/mirte-rs:very-final
+image: antoniosbarotsis/mirte-rs:very-very-final-this-time
 
 variables:
   CARGO_HOME: $CI_PROJECT_DIR/.cargo
@@ -34,7 +34,7 @@ test:
     - cd mirte-rs
     - cargo test -r --verbose
     # - cd ..
-    # - python3 -m unittest discover ./python
+    # - python3 -m unittest discover ./python -b
 
 lint:
   stage: lint
@@ -46,5 +46,6 @@ lint:
     - cargo clippy --all-features -- -D warnings
     - cargo fmt --check
     - cd ..
-    - pip3 install pylint
+    - pip3 install black pylint
+    - black --check ./python
     - pylint --ignore='.venv' --recursive=y ./python

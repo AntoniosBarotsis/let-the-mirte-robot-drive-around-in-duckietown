@@ -11,7 +11,7 @@ The steps for compiling each crate are listed in detail on each crate's README.
 In addition to that, a [Dockerfile](./Dockerfile) is provided which includes all dependencies
 needed, we are using that in our CI workflow.
 
-### Compiling as ROS Node
+## Compiling as ROS Node
 
 This folder is a ROS package. In order to run it, it must be within your `catkin` workspace. You can either copy the folder there, or link it by running:
 
@@ -57,7 +57,7 @@ This resulting binary should be in `./target/release/mirte-rs`. To copy it over 
 machine, you can run 
 
 ```sh
-docker cp xcompile:~/target/release/mirte-rs .
+docker cp xcompile:/target/release/mirte-rs .
 ```
 
 You can now transfer the file over to Mirte via SSH

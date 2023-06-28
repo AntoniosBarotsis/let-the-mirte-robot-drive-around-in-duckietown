@@ -36,3 +36,5 @@ python/mirte_robot/__pycache__/
 python/mirte_duckietown/__pycache__/
 python/dist
 python/mirte.egg-info
+
+*.pyc

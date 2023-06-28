@@ -1,6 +1,6 @@
 use common::{
   geometry_msgs::Point,
-  mirte_msgs::{Object, Obstacle},
+  mirte_duckietown_msgs::{Object, Obstacle},
   structs::threshold::Threshold,
 };
 use opencv::{
@@ -24,7 +24,7 @@ pub static HSV_DUCK: Threshold = Threshold {
   upper: [45, 255, 255],
 };
 pub static HSV_MIRTE: Threshold = Threshold {
-  lower: [70, 100, 50],
+  lower: [70, 100, 30],
   upper: [100, 255, 255],
 };
 
@@ -39,7 +39,7 @@ pub static HSV_MIRTE: Threshold = Threshold {
 /// ```
 /// use cv::image::{dbg_mat, downscale_enhance_hsv};
 /// use cv::object::detect_obstacles;
-/// use common::mirte_msgs::{Object, Obstacle};
+/// use common::mirte_duckietown_msgs::{Object, Obstacle};
 /// use common::geometry_msgs::Point;
 ///
 /// let mat = dbg_mat("../assets/obstacles/obstacle_15.jpeg").expect("couldn't get the image");
@@ -53,9 +53,9 @@ pub static HSV_MIRTE: Threshold = Threshold {
 /// assert_eq!(duckstacles[0].object, Object { type_: Object::DUCK });
 /// assert_eq!(mirtstacles[0].object, Object { type_: Object::MIRTE });
 /// assert!(mirtstacles[0].location.x > 0.40 && mirtstacles[0].location.x < 0.50);
-/// assert!(mirtstacles[0].location.y > 0.45 && mirtstacles[0].location.y < 0.55);
-/// assert!(duckstacles[0].location.x > 0.40 && duckstacles[0].location.x < 0.50);
-/// assert!(duckstacles[0].location.y > 0.35 && duckstacles[0].location.y < 0.45);
+/// assert!(mirtstacles[0].location.y > 0.50 && mirtstacles[0].location.y < 0.65);
+/// assert!(duckstacles[0].location.x > 0.35 && duckstacles[0].location.x < 0.45);
+/// assert!(duckstacles[0].location.y > 0.25 && duckstacles[0].location.y < 0.40);
 /// ```
 pub fn detect_obstacles(img: &Mat) -> Result<Vec<Obstacle>, CvError> {
   let img_size = img.size()?;
@@ -78,7 +78,7 @@ pub fn detect_obstacles(img: &Mat) -> Result<Vec<Obstacle>, CvError> {
 /// ```
 /// use cv::image::{dbg_mat, downscale_enhance_hsv};
 /// use cv::object::get_duckies;
-/// use common::mirte_msgs::{Object, Obstacle};
+/// use common::mirte_duckietown_msgs::{Object, Obstacle};
 /// use common::geometry_msgs::Point;
 ///
 /// use opencv::{
@@ -93,8 +93,8 @@ pub fn detect_obstacles(img: &Mat) -> Result<Vec<Obstacle>, CvError> {
 ///
 /// assert_eq!(obstacles.len(), 1);
 /// assert_eq!(obstacles[0].object, Object { type_: Object::DUCK });
-/// assert!(obstacles[0].location.x > 0.40 && obstacles[0].location.x < 0.50);
-/// assert!(obstacles[0].location.y > 0.35 && obstacles[0].location.y < 0.45);
+/// assert!(obstacles[0].location.x > 0.30 && obstacles[0].location.x < 0.40);
+/// assert!(obstacles[0].location.y > 0.30 && obstacles[0].location.y < 0.40);
 /// ```
 pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   // Extract the colours
@@ -106,7 +106,7 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
   params.filter_by_color = true;
   params.blob_color = 255;
   params.filter_by_area = true;
-  params.min_area = 100.0; // 55 right now. Might change later if problem occur
+  params.min_area = 1000.0; // 100 right now. Might change later if problem occur
   params.max_area = 12_800.0; // 1/6th of the image
   params.filter_by_inertia = true;
   params.min_inertia_ratio = 0.25;
@@ -137,7 +137,7 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
 /// ```
 /// use cv::image::{dbg_mat, downscale_enhance_hsv};
 /// use cv::object::get_mirtes;
-/// use common::mirte_msgs::{Object, Obstacle};
+/// use common::mirte_duckietown_msgs::{Object, Obstacle};
 /// use common::geometry_msgs::Point;
 ///
 /// use opencv::{
@@ -153,7 +153,7 @@ pub fn get_duckies(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> 
 /// assert!(obstacles.len() >= 1);
 /// assert_eq!(obstacles[0].object, Object { type_: Object::MIRTE });
 /// assert!(obstacles[0].location.x > 0.40 && obstacles[0].location.x < 0.50);
-/// assert!(obstacles[0].location.y > 0.45 && obstacles[0].location.y < 0.55);
+/// assert!(obstacles[0].location.y > 0.50 && obstacles[0].location.y < 0.65);
 /// ```
 pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   // Extract the colours
@@ -168,8 +168,7 @@ pub fn get_mirtes(img: &Mat, img_size: Size) -> Result<Vec<Obstacle>, CvError> {
   params.max_area = 3072.0; // 1/25 of the image
   params.filter_by_inertia = true;
   params.min_inertia_ratio = 0.1;
-  params.filter_by_convexity = false;
-  params.max_convexity = 0.99;
+  params.filter_by_convexity = true;
   params.filter_by_circularity = false;
   params.min_circularity = 0.5;
 

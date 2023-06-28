@@ -1,4 +1,4 @@
-use crate::mirte_msgs::{Lane, Line, LineSegment};
+use crate::mirte_duckietown_msgs::{Lane, Line, LineSegment};
 
 use super::colour::ColourEnum;
 
