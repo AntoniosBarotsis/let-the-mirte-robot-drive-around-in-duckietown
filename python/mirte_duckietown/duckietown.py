@@ -117,25 +117,26 @@ class Camera:
             lane = self.__subscriber.getLane()
             if lane is not None:
                 # Variables
-                speed = 65
-                turn_speed = 10
-                turn_speed_corr = 5
-                off_lane_threshold = 0.5
-                off_lane_correction = 90
+                speed = 65  # Base speed
+                turn_speed = 10  # Added speed when turning
+                turn_speed_corr = 5  # Subtracted speed when turning
+                off_lane_threshold = 0.5  # Threshold for being off the lane
+                off_lane_correction = 90  # Maximum angle correction when off the lane
 
-                # calculate angle and correction
+                # Calculate angle and correction
                 angle = lane.centre_line.angle
                 start = lane.centre_line.start
-                start += 0.075  # small correction
-                # calculate lane offset, 0.5->no offset, 0/1->max offset
+                # Bias to the centre of the lane (camera view makes it look like it's on the right)
+                start += 0.075
+                # Calculate lane offset, 0.5->no offset, 0/1->max offset
                 offset = min(abs((2 * start) - 1), 1)
                 # start=0->on the right, start=1->on the left
-                if start < off_lane_threshold:  # on the right, so turn left
+                if start < off_lane_threshold:  # On the right, so turn left
                     angle -= off_lane_correction * offset
-                elif start > (1 - off_lane_threshold):  # on the left, so turn right
+                elif start > (1 - off_lane_threshold):  # On the left, so turn right
                     angle += off_lane_correction * offset
 
-                # calculate speed
+                # Calculate speed
                 speed_left = speed
                 speed_right = speed
 
