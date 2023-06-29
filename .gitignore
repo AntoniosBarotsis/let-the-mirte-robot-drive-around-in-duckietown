@@ -38,3 +38,5 @@ python/dist
 python/mirte.egg-info
 
 *.pyc
+
+mirte-documentation/_modules/mirte-python/mirte_robot/__pycache__/
