@@ -43,13 +43,8 @@ class Camera:
         # Don't yet follow the lane
         self.__following = False
 
-        # Start executing of the follower
-        # print("starting execution...\n")
-
-        # Run the follower in a separate thread
-        # if self.__robot is not None:
-
-    # 	 self.__thread = threading.Thread(target=self._follower)
+        # Set thread to none
+        self.__thread = None
 
     def getLines(self):
         """Gets line segments from the camera
