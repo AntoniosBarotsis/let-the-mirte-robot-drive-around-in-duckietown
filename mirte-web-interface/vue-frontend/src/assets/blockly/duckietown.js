@@ -192,5 +192,3 @@ export function load(Blockly) {
     return [code, Blockly.Python.ORDER_NONE];
   };
 }
-
-"sees_obstacle_on_lane", "sees_obstacle_on_left", "sees_obstacle_on_right";
