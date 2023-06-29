@@ -1,5 +1,5 @@
 use opencv::{
-  core::{convert_scale_abs, Size_, CV_32SC1},
+  core::{convert_scale_abs, Size_},
   imgcodecs::{imread, IMREAD_UNCHANGED},
   imgproc::{
     calc_hist, cvt_color, resize, COLOR_BGR2RGB, COLOR_HSV2BGR, COLOR_RGB2GRAY, COLOR_RGB2HSV,
@@ -77,9 +77,6 @@ pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
 pub fn enhance_contrast(img: &Mat) -> Result<Mat, CvError> {
   let mut gray_img = Mat::default();
   cvt_color(&img, &mut gray_img, COLOR_RGB2GRAY, 0)?;
-
-  let mut type_img = Mat::default();
-  gray_img.convert_to(&mut type_img, CV_32SC1, 1.0, 0.0)?;
 
   let mut hist = Mat::default();
 
