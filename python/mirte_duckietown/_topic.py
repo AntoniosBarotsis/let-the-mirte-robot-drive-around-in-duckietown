@@ -88,7 +88,6 @@ class Subscriber:
         rospy.Subscriber("/obstacles", ObstacleMsg, obstacleCb)
 
         # Load tag database
-        print("loading april tags...")
         TagDatabase()
 
         # Shutdown handler

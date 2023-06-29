@@ -158,7 +158,6 @@ class Camera:
         """Start following the lane using the camera, if the robot is initialized"""
         if self.__robot is None or self.__following:
             return
-        print("started following")
         self.__thread = threading.Thread(target=self._follower)
         self.__following = True
         # self.__thread.daemon = True
@@ -167,14 +166,10 @@ class Camera:
     def stopFollowing(self):
         """Stop following the lane using the camera, if the robot is initialized"""
         self.__following = False
-        print("Set __following to false")
         if self.__robot is not None:
-            print("Robot is not None, joining thread...")
             self.__thread.join()
-            print("Joined thread, zeroing motors...")
             self.__robot.setMotorSpeed("left", 0)
             self.__robot.setMotorSpeed("right", 0)
-            print("Motors zeroed")
 
     def getAprilTags(self):
         """Gets the april tags from the camera
