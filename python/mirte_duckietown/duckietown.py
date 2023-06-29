@@ -244,7 +244,7 @@ class Camera:
             bool: True if the obstacle is on the lane, False otherwise
         """
         # Check if obstacle is in front of the robot
-        if obstacle.location.y_coord < 0.5:
+        if obstacle.location.y_coord < 0.65:
             return False
         # Check if lane is available
         lane = self.getLane()
@@ -258,9 +258,6 @@ class Camera:
         # Check if obstacle is on lane
         left_x = intersectWithHorizontalLine(left_line, obstacle.location.y_coord)
         right_x = intersectWithHorizontalLine(right_line, obstacle.location.y_coord)
-        print(left_x)
-        print(right_x)
-        print(obstacle.location.x_coord)
         if left_x is None or right_x is None:
             return False
         return (
