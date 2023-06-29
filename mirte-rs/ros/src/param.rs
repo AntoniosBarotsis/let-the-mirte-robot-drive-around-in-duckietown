@@ -1,4 +1,3 @@
-use crate::init;
 use common::structs::{colour::ColourEnum, threshold::Threshold};
 use std::collections::HashMap;
 
@@ -6,7 +5,6 @@ use std::collections::HashMap;
 /// `/thresholds/yellow`. If it can't find the parameter, it uses the default threshold for that
 /// colour.
 pub fn get_thresholds() -> HashMap<ColourEnum, Threshold> {
-  init();
   [ColourEnum::White, ColourEnum::Yellow, ColourEnum::Red]
     .iter()
     .map(|&colour| {

@@ -19,7 +19,7 @@ use std::sync::Once;
 static INIT: Once = Once::new();
 
 /// Initializes the logger and the ROS node exactly once.
-pub(crate) fn init() {
+pub fn init() {
   INIT.call_once(|| {
     env_logger::init();
 
@@ -51,8 +51,6 @@ pub fn process_ros_image<T>(callback: T) -> Result<(), RosError>
 where
   T: Fn(Image) + Send + 'static,
 {
-  init();
-
   // Create subscriber
   // The subscriber is stopped when the returned object is destroyed
   let _subscriber_raii = rosrust::subscribe("/webcam/image_raw", 1, callback)
@@ -75,8 +73,6 @@ pub fn process_ros_image_one() -> Result<Image, RosError> {
   let arcmut: Arc<(Mutex<Image>, Condvar)> =
     Arc::new((Mutex::new(Image::default()), Condvar::new()));
   let arcmut_clone: Arc<(Mutex<Image>, Condvar)> = arcmut.clone();
-
-  init();
 
   // Create subscriber
   // The subscriber is stopped when the returned object is destroyed
