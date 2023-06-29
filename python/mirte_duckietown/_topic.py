@@ -82,7 +82,6 @@ class Subscriber:
 
         rospy.Subscriber("line_segments", LineSegmentMsg, lineSegmentCb)
         rospy.Subscriber("stop_line", LineMsg, stopLineCb)
-        # rospy.Subscriber("webcam/image_raw", Image, imageCb)
         rospy.Subscriber("lanes", LaneMsg, laneCb)
         rospy.Subscriber("tag_detections", AprilTagMsg, aprilTagCb)
         rospy.Subscriber("/obstacles", ObstacleMsg, obstacleCb)
