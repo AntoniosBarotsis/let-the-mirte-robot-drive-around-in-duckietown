@@ -64,7 +64,9 @@ def intersectWithHorizontalLine(line, height):
     Returns:
         float: The x value of the instersection
     """
-    # In case of a horizontal line, there is no intersection
+    # In case of a horizontal line, there could be not or infinitely many intersections
     if line.direction.y_coord == 0:
         return None
-    return (height - line.start) / line.direction.y_coord
+    return (line.direction.x_coord / line.direction.y_coord) * (
+        height - line.origin.y_coord
+    ) + line.origin.x_coord

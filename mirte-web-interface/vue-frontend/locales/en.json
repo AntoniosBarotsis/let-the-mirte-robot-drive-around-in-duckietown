@@ -122,6 +122,13 @@
     "PARKING": "parking",
     "STREET": "street",
     "STREET_SIGN": "sees %1 street sign",
-    "STREET_SIGN_TIP": "Tells whether Mirte sees the given street sign"
+    "STREET_SIGN_TIP": "Tells whether Mirte sees the given street sign",
+    "OBSTACLE": "sees a %1 on the %2",
+    "OBSTACLE_LEFT": "left",
+    "OBSTACLE_RIGHT": "right",
+    "OBSTACLE_ROAD": "road",
+    "OBJECT_MIRTE": "Mirte robot",
+    "OBJECT_DUCK": "duck",
+    "OBSTACLE_TIP": "Tells whether the given object is on the given side of the image"
   }
 }

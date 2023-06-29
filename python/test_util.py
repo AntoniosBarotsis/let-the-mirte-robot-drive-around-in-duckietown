@@ -9,10 +9,10 @@ class TestUtil(unittest.TestCase):
 
     def testIntersectWithHorizontalLine(self):
         """Test the intersectWithHorizontalLine method"""
-        line = Line(Point(0, 0), Vector(1, 2), 0, 0)
+        line = Line(Point(1, 0.5), Vector(1, 2), 0, 0)
 
         # Check if intersection with y=1 is calculated correctly
-        self.assertEqual(intersectWithHorizontalLine(line, 1), 0.5)
+        self.assertEqual(intersectWithHorizontalLine(line, 1), 1.25)
 
         # Test with a horizontal line
         line = Line(Point(0, 0), Vector(1, 0), 0, 0)
