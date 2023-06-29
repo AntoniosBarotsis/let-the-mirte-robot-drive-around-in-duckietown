@@ -1,6 +1,6 @@
-===========
-One example
-===========
+========
+Examples
+========
 
 This will show two examples for driving around in Duckietown. 
 One example will be very simple while the other one is more complicated.
