@@ -10,10 +10,6 @@ This documentation is automatically generated based on the source file.
    :members:
    :undoc-members:
 
-.. automodule:: robot_duckietown
-   :members:
-   :undoc-members:
-
 .. automodule:: sign
    :members:
    :undoc-members:
