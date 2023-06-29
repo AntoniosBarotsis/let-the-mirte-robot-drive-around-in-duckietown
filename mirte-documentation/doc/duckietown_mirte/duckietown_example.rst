@@ -51,7 +51,7 @@ This code does a lot and it contains something of everything. In short it does t
     #. If it is a T-intersection where going strait is not an option randomly choose between going left or right then follow the lane again
     #. If no sign is detected back up start following the lane again
 #. If a Duck is detected stop lane following and on start following the lane again once the Duck is no longer detected
-#. If a Parking sign is detected permanently stop following the lane
+#. If a street sign with the name DUDEK ST is detected permanently stop following the lane
 
 .. tabs:: 
 
@@ -103,7 +103,7 @@ This code does a lot and it contains something of everything. In short it does t
                 time.sleep(0.2)
 
 
-            while not (camera.seesSign(Sign.PARKING)):
+            while not (camera.seesStreet("DUDEK ST")):
                 if camera.seesStopLine():
                     camera.stopFollowing()
                     time.sleep(1)
