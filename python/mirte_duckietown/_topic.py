@@ -15,6 +15,7 @@ from mirte_duckietown_msgs.msg import (
 )
 from ._common import LineSegment, Line, Lane, AprilTag, TagDatabase, Obstacle
 
+
 class Subscriber:
     """ROS subscriber
 

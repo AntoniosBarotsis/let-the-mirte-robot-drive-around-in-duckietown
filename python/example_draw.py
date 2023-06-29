@@ -40,7 +40,7 @@ while True:
         (stop_line, (64, 255, 255)),
     ]
 
-    for (line, colour) in lines:
+    for line, colour in lines:
         if line is not None:
             start = intersectWithHorizontalLine(line, 1)
             end = intersectWithHorizontalLine(line, 0.58)
