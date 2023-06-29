@@ -121,39 +121,37 @@ class Camera:
                 turn_speed = 10
                 turn_speed_corr = 5
                 off_lane_threshold = 0.5
-                off_lane_correction = 30
+                off_lane_correction = 90
 
                 # calculate angle and correction
                 angle = lane.centre_line.angle
                 start = lane.centre_line.start
-                # calculate lane offset between [0,1] from [-1,1]
-                offset = abs(start)
-                if start < -off_lane_threshold:  # on the right, so turn left
+                start += 0.075  # small correction
+                # calculate lane offset, 0.5->no offset, 0/1->max offset
+                offset = min(abs((2 * start) - 1), 1)
+                # start=0->on the right, start=1->on the left
+                if start < off_lane_threshold:  # on the right, so turn left
                     angle -= off_lane_correction * offset
-                elif start > off_lane_threshold:  # on the left, so turn right
+                elif start > (1 - off_lane_threshold):  # on the left, so turn right
                     angle += off_lane_correction * offset
 
                 # calculate speed
                 speed_left = speed
                 speed_right = speed
 
-                # calculate "extremeness" of the angle
-                ratio = max(angle, 90) / 90
-
                 # Turn right when the angle is positive
                 if angle > 10:
-                    speed_left += int(turn_speed * ratio)
-                    speed_right -= int((turn_speed + turn_speed_corr) * ratio)
+                    speed_left += turn_speed
+                    speed_right -= (turn_speed + turn_speed_corr)
                 # Turn left when the angle is negative
                 elif angle < -10:
-                    speed_left -= int((turn_speed + turn_speed_corr) * ratio)
-                    speed_right += int(turn_speed * ratio)
+                    speed_left -= (turn_speed + turn_speed_corr)
+                    speed_right += turn_speed
 
                 # Set motor speeds
                 self.__robot.setMotorSpeed("left", speed_left)
                 self.__robot.setMotorSpeed("right", speed_right)
             self.__rospy_rate.sleep()
-        print("Stopped following in bg thread")
 
     def startFollowing(self):
         """Start following the lane using the camera, if the robot is initialized"""
