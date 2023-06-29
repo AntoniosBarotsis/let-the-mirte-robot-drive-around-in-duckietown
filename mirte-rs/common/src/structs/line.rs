@@ -13,7 +13,7 @@ impl Line {
     }
   }
 
-  pub fn from_dir(direction: Vector3) -> Self {
+  pub fn from_vec(direction: Vector3) -> Self {
     Self {
       origin: Point::ORIGIN,
       direction,
@@ -60,3 +60,81 @@ impl Line {
 }
 
 impl Copy for Line {}
+
+impl Line {
+  pub fn line_eq(&self, other: &Self) -> bool {
+    self.origin.point_eq(&other.origin) && self.direction.vec_eq(&other.direction)
+  }
+}
+
+#[cfg(test)]
+pub mod test {
+  use crate::{
+    float_eq,
+    geometry_msgs::{Point, Vector3},
+    mirte_duckietown_msgs::Line,
+  };
+
+  #[test]
+  fn create_line() {
+    let line = Line::new(Point::new(6.5, 3.0), Vector3::new(1.0, 1.0));
+    assert!(line.origin.point_eq(&Point::new(6.5, 3.0)));
+    assert!(line.direction.vec_eq(&Vector3::new(1.0, 1.0)));
+  }
+
+  #[test]
+  fn line_inf_slope() {
+    let line = Line::new(Point::new(5.0, 0.0), Vector3::new(0.0, 10.0));
+    let slope = line.slope();
+    assert!(float_eq(slope, f64::INFINITY));
+  }
+
+  #[test]
+  fn line_slope() {
+    let line = Line::new(Point::new(5.0, 0.0), Vector3::new(1.0, 10.0));
+    let slope = line.slope();
+    assert!(float_eq(slope, 10.0));
+  }
+
+  #[test]
+  #[allow(clippy::expect_used)]
+  fn intersect() {
+    let line1 = Line::new(Point::new(4.0, 0.0), Vector3::new(1.0, 1.0));
+    let line2 = Line::new(Point::new(0.0, 0.0), Vector3::new(1.0, -1.0));
+    let intersection = line1.intersect(&line2).expect("No intersection found!");
+    assert!(intersection.point_eq(&Point::new(2.0, -2.0)));
+  }
+
+  #[test]
+  #[allow(clippy::expect_used)]
+  fn intersect_with_vertical() {
+    let line1 = Line::new(Point::new(4.0, 0.0), Vector3::new(0.0, 1.0));
+    let line2 = Line::new(Point::new(0.0, 0.0), Vector3::new(1.0, 1.0));
+    let intersection = line1.intersect(&line2).expect("No intersection found!");
+    println!("{intersection:?}");
+    assert!(intersection.point_eq(&Point::new(4.0, 4.0)));
+  }
+
+  #[test]
+  fn intersect_with_identical() {
+    let line1 = Line::new(Point::new(4.0, 0.0), Vector3::new(1.0, 1.0));
+    let line2 = Line::new(Point::new(4.0, 0.0), Vector3::new(1.0, 1.0));
+    let intersection = line1.intersect(&line2);
+    assert!(intersection.is_none());
+  }
+
+  #[test]
+  fn intersect_with_same_slope() {
+    let line1 = Line::new(Point::new(4.0, 0.0), Vector3::new(1.0, 1.0));
+    let line2 = Line::new(Point::new(8.0, 0.0), Vector3::new(1.0, 1.0));
+    let intersection = line1.intersect(&line2);
+    assert!(intersection.is_none());
+  }
+
+  #[test]
+  fn create_line_from_vector() {
+    let vec = Vector3::new(10.0, -5.0);
+    let line = Line::from_vec(vec);
+    assert!(line.line_eq(&Line::new(Point::new(0.0, 0.0), Vector3::new(10.0, -5.0))),);
+  }
+}

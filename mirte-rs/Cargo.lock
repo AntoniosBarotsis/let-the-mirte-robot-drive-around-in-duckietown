@@ -357,6 +357,11 @@ dependencies = [
  "common",
  "cv",
  "ros",
+ "rosrust",
+ "rosrust_msg",
+ "rostest",
+ "rostest-macro",
+ "serial_test",
  "thiserror",
 ]
 

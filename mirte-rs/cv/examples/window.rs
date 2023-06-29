@@ -5,6 +5,7 @@ use cv::draw_lines::draw_lines;
 use cv::image::{downscale, read_image};
 use cv::{cv_error::CvError, image::downscale_enhance_hsv};
 use std::collections::HashMap;
+#[cfg(debug_assertions)]
 use std::time::Instant;
 
 /// Processes the input image from the assets folder and displays it in a window for an easier
@@ -14,6 +15,7 @@ fn main() -> Result<(), CvError> {
 
   let usable_img = downscale_enhance_hsv(&img)?;
 
+  #[cfg(debug_assertions)]
   let now = Instant::now();
 
   let colours = vec![ColourEnum::Yellow, ColourEnum::White];

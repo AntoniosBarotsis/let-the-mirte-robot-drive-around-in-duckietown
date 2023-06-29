@@ -11,7 +11,7 @@ use once_cell::sync::OnceCell;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use rosrust::Publisher;
 
-use crate::{init, RosError};
+use crate::RosError;
 
 use common::mirte_duckietown_msgs::{Lane, Line, LineSegmentList, ObstacleList};
 
@@ -26,8 +26,8 @@ pub const STOP_LINE_TOPIC_NAME: &str = "stop_line";
 ///
 /// # Notes
 ///
-/// This is a singleton so as to not spawn a needless amount of threads. The
-/// [`RosBgPublisher::get_or_create`] method takes care of that.
+/// Take care to not call [`RosBgPublisher::create`] more than once unless you need to. It should
+/// only be called once, unless it is needed for testing.
 #[allow(missing_debug_implementations)]
 pub struct RosBgPublisher {
   thread_pool: ThreadPool,
@@ -40,36 +40,31 @@ pub struct RosBgPublisher {
 #[allow(clippy::expect_used)]
 impl RosBgPublisher {
   /// Initializes or gets the existing instance of [`RosBgPublisher`].
-  pub fn get_or_create() -> &'static Self {
-    INSTANCE.get_or_init(|| {
-      init();
+  pub fn create() -> Self {
+    // Init publishers
+    let line_segment_publisher = rosrust::publish::<LineSegmentList>(LINE_SEGMENTS_TOPIC_NAME, 1)
+      .expect("Create LINE_SEGMENT_PUBLISHER");
+    let lane_publisher =
+      rosrust::publish::<Lane>(LANE_TOPIC_NAME, 1).expect("Create LANE_PUBLISHER");
+    let obstacle_publisher =
+      rosrust::publish::<ObstacleList>(OBSTACLE_TOPIC_NAME, 1).expect("Create OBSTACLE_PUBLISHER");
+    let stop_line_publisher =
+      rosrust::publish::<Line>(STOP_LINE_TOPIC_NAME, 1).expect("Create STOP_LINE_PUBLISHER");
 
-      // Init publishers
-      let line_segment_publisher =
-        rosrust::publish::<LineSegmentList>(LINE_SEGMENTS_TOPIC_NAME, 100)
-          .expect("Create LINE_SEGMENT_PUBLISHER");
-      let lane_publisher =
-        rosrust::publish::<Lane>(LANE_TOPIC_NAME, 100).expect("Create LANE_PUBLISHER");
-      let obstacle_publisher = rosrust::publish::<ObstacleList>(OBSTACLE_TOPIC_NAME, 100)
-        .expect("Create OBSTACLE_PUBLISHER");
-      let stop_line_publisher =
-        rosrust::publish::<Line>(STOP_LINE_TOPIC_NAME, 100).expect("Create STOP_LINE_PUBLISHER");
+    // Use 4 threads in the thread pool since *in theory* we shouldn't need more for the 4
+    // topics we have now.
+    let thread_pool = ThreadPoolBuilder::new()
+      .num_threads(4)
+      .build()
+      .expect("Could not initialize thread pool.");
 
-      // Use 2 threads in the thread pool since *in theory* we shouldn't need more for the 2
-      // topics we have now.
-      let thread_pool = ThreadPoolBuilder::new()
-        .num_threads(2)
-        .build()
-        .expect("Could not initialize thread pool.");
-
-      Self {
-        thread_pool,
-        line_segment_publisher,
-        lane_publisher,
-        obstacle_publisher,
-        stop_line_publisher,
-      }
-    })
+    Self {
+      thread_pool,
+      line_segment_publisher,
+      lane_publisher,
+      obstacle_publisher,
+      stop_line_publisher,
+    }
   }
 
   /// Publishes a line segment to the [`LINE_SEGMENTS_TOPIC_NAME`] ROS topic.
@@ -95,7 +90,7 @@ impl RosBgPublisher {
     self.publish_work(OBSTACLE_TOPIC_NAME.to_string(), msg, publisher_clone);
   }
 
-  /// Publishes a lane to the [`LANE_TOPIC_NAME`] ROS topic.
+  /// Publishes a lane to the [`STOP_LINE_TOPIC_NAME`] ROS topic.
   pub fn publish_stop_line(&self, msg: impl Into<Line> + Send + 'static) {
     // Clone is required as the thread might outlive &self.
     let publisher_clone = self.stop_line_publisher.clone();

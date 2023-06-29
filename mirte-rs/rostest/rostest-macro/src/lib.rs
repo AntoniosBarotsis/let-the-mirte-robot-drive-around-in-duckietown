@@ -9,7 +9,7 @@ pub fn ros_test(_attr: TokenStream, item: TokenStream) -> TokenStream {
   // Parse the input function
   let mut input = parse_macro_input!(item as ItemFn);
 
-  let init_code = quote!(let _lifetime_variable = test_framework::init(););
+  let init_code = quote!(let _lifetime_variable = rostest::init(););
   let init_element = syn::parse(TokenStream::from(init_code))
     .expect("Could not create init() syntax element to insert into AST");
   input.block.stmts.insert(0, init_element);
