@@ -41,7 +41,7 @@ class Camera:
         self.__stop_line_threshold_height = stop_line_threshold_height
 
         # Don't yet follow the lane
-        # self.__following = False
+        self.__following = False
 
         # Start executing of the follower
         # print("starting execution...\n")
@@ -49,7 +49,7 @@ class Camera:
         # Run the follower in a separate thread
         # if self.__robot is not None:
 
-    # 	self.__thread = threading.Thread(target=self._follower)
+    # 	 self.__thread = threading.Thread(target=self._follower)
 
     def getLines(self):
         """Gets line segments from the camera
@@ -158,11 +158,13 @@ class Camera:
                 self.__robot.setMotorSpeed("left", speed_left)
                 self.__robot.setMotorSpeed("right", speed_right)
             self.__rospy_rate.sleep()
+        print("Stopped following in bg thread")
 
     def startFollowing(self):
         """Start following the lane using the camera, if the robot is initialized"""
-        if self.__robot is None:
+        if self.__robot is None or self.__following:
             return
+        print("started following")
         self.__thread = threading.Thread(target=self._follower)
         self.__following = True
         # self.__thread.daemon = True
@@ -171,10 +173,14 @@ class Camera:
     def stopFollowing(self):
         """Stop following the lane using the camera, if the robot is initialized"""
         self.__following = False
+        print("Set __following to false")
         if self.__robot is not None:
+            print("Robot is not None, joining thread...")
             self.__thread.join()
+            print("Joined thread, zeroing motors...")
             self.__robot.setMotorSpeed("left", 0)
             self.__robot.setMotorSpeed("right", 0)
+            print("Motors zeroed")
 
     def getAprilTags(self):
         """Gets the april tags from the camera
@@ -268,10 +274,10 @@ class Camera:
         # Check if obstacle is on lane
         left_x = intersectWithHorizontalLine(left_line, obstacle.location.y_coord)
         right_x = intersectWithHorizontalLine(right_line, obstacle.location.y_coord)
-        print("left x intersection", left_x)
-        print("right x intersection", right_x)
-        print("obstacle x", obstacle.location.x_coord)
-        print("obstacle y", obstacle.location.y_coord)
+        # print("left x intersection", left_x)
+        # print("right x intersection", right_x)
+        # print("obstacle x", obstacle.location.x_coord)
+        # print("obstacle y", obstacle.location.y_coord)
         if left_x is None or right_x is None:
             return False
         return (
