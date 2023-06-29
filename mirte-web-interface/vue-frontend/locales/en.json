@@ -129,6 +129,6 @@
     "OBSTACLE_ROAD": "road",
     "OBJECT_MIRTE": "Mirte robot",
     "OBJECT_DUCK": "duck",
-    "OBSTACLE_TIP": "Tells whether the givin object is on the given side of the image"
+    "OBSTACLE_TIP": "Tells whether the given object is on the given side of the image"
   }
 }
