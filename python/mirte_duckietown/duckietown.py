@@ -274,10 +274,6 @@ class Camera:
         # Check if obstacle is on lane
         left_x = intersectWithHorizontalLine(left_line, obstacle.location.y_coord)
         right_x = intersectWithHorizontalLine(right_line, obstacle.location.y_coord)
-        # print("left x intersection", left_x)
-        # print("right x intersection", right_x)
-        # print("obstacle x", obstacle.location.x_coord)
-        # print("obstacle y", obstacle.location.y_coord)
         if left_x is None or right_x is None:
             return False
         return (

@@ -193,7 +193,7 @@ class TestCamera(unittest.TestCase):
 
         # Obstacle is visible, but not on the lane
         subscriber.getObstacles = MagicMock(
-            return_value=[Obstacle(15, Point(0, 0), Object.MIRTE)]
+            return_value=[Obstacle(15, Point(0.1, 0.1), Object.MIRTE)]
         )
         subscriber.getLane = MagicMock(
             return_value=Lane(
@@ -206,7 +206,7 @@ class TestCamera(unittest.TestCase):
 
         # Obstacle is visible on the lane
         subscriber.getObstacles = MagicMock(
-            return_value=[Obstacle(15, Point(0.5, 0.5), Object.MIRTE)]
+            return_value=[Obstacle(15, Point(0.45, 0.7), Object.MIRTE)]
         )
         subscriber.getLane = MagicMock(
             return_value=Lane(
@@ -215,7 +215,7 @@ class TestCamera(unittest.TestCase):
                 Line(Point(1, 1), Vector(-0.5, -1), 0, 0),
             )
         )
-        self.assertFalse(camera.seesObstacleOnLane(Object.MIRTE))
+        self.assertTrue(camera.seesObstacleOnLane(Object.MIRTE))
 
     def testSeesObstacleOnLeft(self):
         """Test the seesObstacleOnLeft method"""
