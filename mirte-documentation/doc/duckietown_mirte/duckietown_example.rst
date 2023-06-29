@@ -53,6 +53,8 @@ This code does a lot and it contains something of everything. In short it does t
 #. If a Duck is detected stop lane following and on start following the lane again once the Duck is no longer detected
 #. If a street sign with the name DUDEK ST is detected permanently stop following the lane
 
+**Important Notice: To make this example work you might have to change the speed of the motor a bit for turing left and right**
+
 .. tabs:: 
 
     .. group-tab:: Blockly
@@ -67,10 +69,10 @@ This code does a lot and it contains something of everything. In short it does t
             mirte=robot.createRobot()
             from mirte_duckietown import duckietown
             camera=duckietown.createCamera(mirte)
-            from mirte_duckietown.sign import Sign
-            import time
-            import random
             from mirte_duckietown.object import Object
+            import time
+            from mirte_duckietown.sign import Sign
+            import random
 
             # Makes Mirte turn left
             def turn_left():
@@ -104,7 +106,12 @@ This code does a lot and it contains something of everything. In short it does t
 
 
             while not (camera.seesStreet("DUDEK ST")):
-                if camera.seesStopLine():
+                camera.startFollowing()
+                if camera.seesObstacleOnLane(Object.DUCK):
+                    camera.stopFollowing()
+                    while camera.seesObstacleOnLane(Object.DUCK):
+                        time.sleep(1)
+                elif camera.seesStopLine():
                     camera.stopFollowing()
                     time.sleep(1)
                     if camera.seesSign(Sign.T_INTERSECTION):
@@ -124,14 +131,10 @@ This code does a lot and it contains something of everything. In short it does t
                             go_straight()
                     else:
                         go_back()
-                elif camera.seesObstacleOnLane(Object.DUCK):
-                    camera.stopFollowing()
-                    while camera.seesObstacleOnLane(Object.DUCK):
-                        time.sleep(1)
-                    time.sleep(0.03)
-                    camera.startFollowing()
+                time.sleep(0.03)
+            camera.stopFollowing()
             mirte.setMotorSpeed('left', 0)
-            mirte.setMotorSpeed('right', 0)
+            mirte.setMotorSpeed('right', 0)
 
 
 
