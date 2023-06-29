@@ -7,23 +7,23 @@
 //!
 //! ```toml
 //! [dev-dependencies]
-//! test-framework = { path = "../rostest" }
-//! rostest = { path = "../rostest/rostest-macro" }
+//! rostest = { path = "../rostest" }
+//! rostest_macro = { path = "../rostest/rostest-macro" }
 //! serial_test  = "2.0.0"
 //! ```
 //!
 //! ```
-//! use rostest-macro::ros_test;
-//! use rosrust_msg::std_msgs as msgs
+//! use rostest_macro::ros_test;
+//! use rosrust_msg::std_msgs as msgs;
 //!
 //! #[ros_test]
 //! fn test() {
 //!   // Init topics
-//!   let strings = test_framework::Topic::<msgs::String>::create("/test/strings");
-//!   let ints = test_framework::Topic::<msgs::UInt32>::create("/test/lengths");
+//!   let strings = rostest::Topic::<msgs::String>::create("/test/strings");
+//!   let ints = rostest::Topic::<msgs::UInt32>::create("/test/lengths");
 //!
 //!   // Create node
-//!   test_framework::instantiate_node(strlen);
+//!   rostest::instantiate_node(strlen);
 //!
 //!   // Publish message
 //!   let message = msgs::String {
@@ -38,17 +38,17 @@
 //! ```
 //! Testing ROS services of a node:
 //! ```
-//! use rostest-macro::ros_test;
-//! use rosrust_msg::roscpp_tutorials as msgs
+//! use rostest_macro::ros_test;
+//! use rosrust_msg::roscpp_tutorials as msgs;
 //!
 //! #[ros_test]
 //! fn test_service() {
 //!   // Init
 //!   let service =
-//!     test_framework::Service::<msgs::TwoInts>::create("/test/add");
+//!     rostest::Service::<msgs::TwoInts>::create("/test/add");
 //!
 //!   // Create node
-//!   test_framework::instantiate_node(add_service);
+//!   rostest::instantiate_node(add_service);
 //!
 //!   // Publish message & assert response
 //!   let message = msgs::TwoIntsReq { a: 9, b: 10 };
@@ -60,15 +60,15 @@
 //! Note that this function must not call `rosrust::init()` as this is done automatically by the test framework.
 //! The following is an example of the strlen node used by the first example:
 //! ```
-//! use rosrust_msg::std_msgs as msgs
+//! use rosrust_msg::std_msgs as msgs;
 //!
 //! /// A subscriber that listens to the '/test/strings' topic and publishes the length of the string to '/test/lengths'
 //! pub fn strlen() {
-//!   let publisher = publish("/test/lengths", 1).expect("Create publisher");
+//!   let publisher = rosrust::publish("/test/lengths", 1).expect("Create publisher");
 //!   publisher
 //!     .wait_for_subscribers(None)
 //!     .expect("wait for subscribers on /test/lengths");
-//!   let _subscriber_raii = subscribe(
+//!   let _subscriber_raii = rosrust::subscribe(
 //!     "/test/strings",
 //!     1,
 //!     move |msg: msgs::String| {
@@ -79,7 +79,7 @@
 //!     },
 //!   )
 //!   .expect("Create subscriber on /test/strings");
-//!   spin();
+//!   rosrust::spin();
 //! }
 //! ```
 //! # Notes
@@ -87,10 +87,10 @@
 //! - The ROSCORE process is launched automatically by the test framework, launching it on your machine will cause an error in the terminal, but the tests will still run.
 //! - Topics and services only accept one datatype, even across tests. This means that it is not possible to have "/test/input" be a topic of type `String` in one test and a topic of type `UInt32` in another test.
 //! - The ROSCORE process is kept alive by binding it to a variable called `_lifetime_variable` at the start of the test. This means you cannot use this variable name in your test.
+
 #![allow(dead_code, clippy::string_add)]
 
 use rosrust::{Client, Message, Publisher, ServicePair, Subscriber};
-use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
 
@@ -108,20 +108,39 @@ pub struct ProcessWrapper {
 /// Function that launches the ROSCORE process and initialized ROSRUST.
 /// Inserted automatically by the `#[ros_test]` macro.
 #[allow(clippy::expect_used)]
+#[allow(clippy::unwrap_used)]
 pub fn init() -> ProcessWrapper {
   //this will launch roscore if it isn't already running
-  let path = env::var_os("PATH").expect("`PATH` not found");
   let ros_base = env::var("CMAKE_PREFIX_PATH").expect("Could not get CMAKE_PREFIX_PATH");
-  let ros_path = ros_base.clone() + "/bin";
-  let ros_setup = ros_base + "/setup.bash";
+
+  // Put ros paths in PATH, to make sure `setup.bash` files are runnable
+  let path = env::var_os("PATH").expect("`PATH` not found");
   let mut paths = env::split_paths(&path).collect::<Vec<_>>();
-  paths.push(PathBuf::from(ros_path));
+  let ros_paths = env::split_paths(&ros_base)
+    .map(|mut path| {
+      path.push("bin");
+      path
+    })
+    .collect::<Vec<_>>();
+  paths.extend(ros_paths);
   let new_path = env::join_paths(paths).expect("Invalid character in the PATH variable");
   env::set_var("PATH", &new_path);
 
+  let ros_setups = env::split_paths(&ros_base)
+    .map(|mut path| {
+      path.push("setup.bash");
+      "source ".to_owned()
+        + path
+          .as_os_str()
+          .to_str()
+          .expect("Path should be valid unicode, as it was stored in an environment variable")
+    })
+    .collect::<Vec<String>>();
+  let setup_arg = ros_setups.join(" ");
+
   let ros_launch = Command::new("/bin/bash")
     .arg("-c")
-    .arg("source ".to_owned() + &ros_setup + "&& roscore")
+    .arg(setup_arg.clone() + " && roscore")
     .stdout(Stdio::null())
     .spawn()
     .expect("Could not launch ROS");
@@ -131,7 +150,7 @@ pub fn init() -> ProcessWrapper {
   while !init {
     init = Command::new("/bin/bash")
       .arg("-c")
-      .arg("source ".to_owned() + &ros_setup + "&& rostopic list")
+      .arg(setup_arg.clone() + " && rostopic list")
       .stdout(Stdio::null())
       .output()
       .expect("`rostopic list` exited with an error")
@@ -161,6 +180,7 @@ impl Drop for ProcessWrapper {
       nix::sys::signal::Signal::SIGINT,
     )
     .expect("send SIGINT to roscore");
+    thread::sleep(Duration::from_secs(1));
   }
 }
 
@@ -227,6 +247,16 @@ where
       .unwrap_or_else(|_| panic!("Could not send message to topic {}", &self.topic));
   }
 
+  /// Gets the most recently received message.
+  #[allow(clippy::expect_used)]
+  pub fn get_front_message(&self) -> T {
+    let messages = self.get_messages();
+    messages
+      .front()
+      .expect("Message queue was empty after timeout")
+      .to_owned()
+  }
+
   /// Gets received topic messages with a timeout of 1s.
   pub fn get_messages(&self) -> MutexGuard<'_, VecDeque<T>> {
     self.get_messages_timeout(Duration::from_secs(1))
@@ -248,7 +278,11 @@ where
       let elapsed = start.elapsed();
 
       // TODO: Return an error instead
-      assert!(elapsed <= timeout, "No message received.");
+      assert!(
+        elapsed <= timeout,
+        "No message received on {} within {timeout:?}",
+        self.topic
+      );
     }
 
     self
@@ -263,12 +297,11 @@ where
   #[allow(clippy::needless_pass_by_value)] // makes test code more readable
   #[allow(clippy::expect_used)]
   pub fn assert_message(&self, message: T) {
-    let messages = self.get_messages();
-    let actual = messages
-      .front()
-      .expect("Message queue was empty after timeout")
-      .to_owned();
-    assert_eq!(message, actual);
+    let actual = self.get_front_message();
+    assert_eq!(
+      message, actual,
+      "Received message was different from expected. Expected message on left, but received message on right"
+    );
   }
 }
 
@@ -330,4 +363,72 @@ pub fn instantiate_node_timeout(node_function: fn(), timeout: Duration) {
 /// Instantiates the node defined by the given function, then waits one second for it to spin up
 pub fn instantiate_node(node_function: fn()) {
   instantiate_node_timeout(node_function, Duration::from_secs(1));
+}
+
+#[cfg(test)]
+mod test {
+  // Required to make the #[ros_test] macro work, as it inserts a reference to `rostest` directly.
+  use crate as rostest;
+  use crate::{instantiate_node, Topic};
+  use rosrust_msg::std_msgs as msgs;
+  use rostest_macro::ros_test;
+
+  pub fn strlen() {
+    let publisher = rosrust::publish("/test/lengths", 1).expect("Create publisher");
+    publisher
+      .wait_for_subscribers(None)
+      .expect("wait for subscribers on /test/lengths");
+    let _subscriber_raii = rosrust::subscribe("/test/strings", 1, move |msg: msgs::String| {
+      let message = msgs::UInt32 {
+        #[allow(clippy::cast_possible_truncation)]
+        data: msg.data.len().to_owned() as u32,
+      };
+      let _ = publisher.send(message);
+    })
+    .expect("Create subscriber on /test/strings");
+    rosrust::spin();
+  }
+
+  #[ros_test]
+  fn test() {
+    // Init topics
+    let strings = Topic::<msgs::String>::create("/test/strings");
+    let ints = Topic::<msgs::UInt32>::create("/test/lengths");
+
+    // Create node
+    instantiate_node(strlen);
+
+    // Publish message
+    let message = msgs::String {
+      data: "Hello World".to_string(),
+    };
+    strings.ros_publish(message);
+
+    // Assert response
+    let expected = msgs::UInt32 { data: 11 };
+    ints.assert_message(expected);
+  }
+
+  // This test may look like a duplicate, but it is here to ensure tests don't interfere with
+  // eachother. There can be bugs where the first test works, but the second doesn't (or the other
+  // way around).
+  #[ros_test]
+  fn test2() {
+    // Init topics
+    let strings = Topic::<msgs::String>::create("/test/strings");
+    let ints = Topic::<msgs::UInt32>::create("/test/lengths");
+
+    // Create node
+    instantiate_node(strlen);
+
+    // Publish message
+    let message = msgs::String {
+      data: "Hello World".to_string(),
+    };
+    strings.ros_publish(message);
+
+    // Assert response
+    let expected = msgs::UInt32 { data: 11 };
+    ints.assert_message(expected);
+  }
 }

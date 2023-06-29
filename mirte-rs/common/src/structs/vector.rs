@@ -3,6 +3,7 @@ use std::{
   ops::{Add, Mul, Neg},
 };
 
+use crate::float_eq;
 use crate::geometry_msgs::{Point, Vector3};
 
 impl Vector3 {
@@ -20,6 +21,10 @@ impl Vector3 {
 
   pub fn length(&self) -> f64 {
     f64::sqrt(self.squared_length())
+  }
+
+  pub fn vec_eq(&self, other: &Self) -> bool {
+    float_eq(self.x, other.x) && float_eq(self.y, other.y) && float_eq(self.z, other.z)
   }
 }
 
@@ -52,5 +57,38 @@ impl Neg for Vector3 {
 impl Sum for Vector3 {
   fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
     iter.fold(Self::new(0.0, 0.0), |acc, x| acc + x)
+  }
+}
+
+#[cfg(test)]
+pub mod test {
+  use crate::{
+    float_eq,
+    geometry_msgs::{Point, Vector3},
+  };
+
+  #[test]
+  fn create_vec() {
+    let vec = Vector3::new(10.0, -5.0);
+    assert!(vec.vec_eq(&Vector3::new(10.0, -5.0)));
+  }
+
+  #[test]
+  fn create_vec_from_point() {
+    let point = Point::new(10.0, -5.0);
+    let vec = Vector3::from_point(point);
+    assert!(vec.vec_eq(&Vector3::new(10.0, -5.0)));
+  }
+
+  #[test]
+  fn compute_squared_length() {
+    let vec = Vector3::new(10.0, -5.0);
+    assert!(float_eq(vec.squared_length(), 125.0));
+  }
+
+  #[test]
+  fn compute_length() {
+    let vec = Vector3::new(3.0, -4.0);
+    assert!(float_eq(vec.length(), 5.0));
   }
 }

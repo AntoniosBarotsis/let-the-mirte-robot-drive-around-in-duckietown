@@ -1,5 +1,6 @@
 use common::debug;
 use cv::image::read_image;
+use ros::publishers::RosBgPublisher;
 use std::collections::HashMap;
 use std::env;
 
@@ -11,8 +12,9 @@ fn main() {
     std::process::exit(1);
   });
   let img = read_image(&path).unwrap_or_else(|_| panic!("Unable to get image from {path}"));
+  let publisher = RosBgPublisher::create();
 
   loop {
-    core::process_mat(&img.clone(), &HashMap::new());
+    core::process_mat(&img.clone(), &HashMap::new(), &publisher);
   }
 }

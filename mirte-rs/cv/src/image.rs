@@ -9,8 +9,8 @@ use opencv::{
 };
 
 use crate::{cv_error::CvError, image_part::ImagePart};
+use common::IMAGE_CROP_HEIGHT;
 
-pub const CROP_HEIGHT: f32 = 0.58;
 // Change this factor for the contrast clipping
 pub const CLIP_FACTOR: f32 = 100.0;
 
@@ -42,7 +42,7 @@ pub fn read_image(path: &str) -> Result<Mat, CvError> {
 /// ```
 pub fn crop_image(img: &mut Mat, keep: ImagePart) -> Result<Mat, CvError> {
   #[allow(clippy::cast_possible_truncation, clippy::cast_precision_loss)]
-  let new_height = (img.size()?.height as f32 * CROP_HEIGHT) as i32;
+  let new_height = (img.size()?.height as f32 * IMAGE_CROP_HEIGHT) as i32;
 
   let crop = match keep {
     ImagePart::Top => img.adjust_roi(0, -new_height, 0, 0),
