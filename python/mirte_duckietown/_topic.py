@@ -4,7 +4,7 @@ import signal
 import sys
 import rospy
 
-# from cv_bridge import CvBridge
+from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from apriltag_ros.msg import AprilTagDetectionArray as AprilTagMsg
 from mirte_duckietown_msgs.msg import (
@@ -14,7 +14,6 @@ from mirte_duckietown_msgs.msg import (
     Lane as LaneMsg,
 )
 from ._common import LineSegment, Line, Lane, AprilTag, TagDatabase, Obstacle
-
 
 class Subscriber:
     """ROS subscriber
@@ -26,7 +25,7 @@ class Subscriber:
     __line_segments: list[LineSegment] = []
     __stop_line: Line = None
     __current_image: Image = None
-    # __bridge: CvBridge = CvBridge()
+    __bridge: CvBridge = None
     __april_tags: list[AprilTag] = []
     __tag_life: int
     __lane: Lane = None
@@ -44,12 +43,6 @@ class Subscriber:
         # Callback for stop line
         def stopLineCb(data: LineMsg):
             self.__stop_line = Line.fromMessage(data)
-
-        # Callback for image
-        # def imageCb(data: Image):
-        #    self.__current_image = self.__bridge.imgmsg_to_cv2(
-        #        data, desired_encoding="passthrough"
-        #    )
 
         def laneCb(data: LaneMsg):
             self.__lane = Lane.fromMessage(data)
@@ -129,6 +122,17 @@ class Subscriber:
         Returns:
             Image: Current image
         """
+        if self.__bridge is None:
+            self.__bridge = CvBridge()
+
+            # Callback for image
+            def imageCb(data: Image):
+                self.__current_image = self.__bridge.imgmsg_to_cv2(
+                    data, desired_encoding="passthrough"
+                )
+
+            rospy.Subscriber("webcam/image_raw", Image, imageCb)
+
         return self.__current_image
 
     def getLane(self):
