@@ -122,6 +122,13 @@
     "PARKING": "parkeer",
     "STREET": "straatnaam",
     "STREET_SIGN": "ziet %1 straatnaambord",
-    "STREET_SIGN_TIP": "Vertelt of Mirte het gegeven straatnaambord ziet"
+    "STREET_SIGN_TIP": "Vertelt of Mirte het gegeven straatnaambord ziet",
+    "OBSTACLE": "ziet een %1 %2",
+    "OBSTACLE_LEFT": "links",
+    "OBSTACLE_RIGHT": "rechts",
+    "OBSTACLE_ROAD": "op de weg",
+    "OBJECT_MIRTE": "Mirte robot",
+    "OBJECT_DUCK": "eend",
+    "OBSTACLE_TIP": "Vertelt of het gegeven object zich begeeft op de geven helft van de afbeelding"
   }
 }

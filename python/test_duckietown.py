@@ -8,11 +8,14 @@ from mirte_duckietown._common import (
     Point,
     LineSegment,
     Colour,
+    Lane,
     Line,
     Vector,
     AprilTag,
+    Obstacle,
 )
 from mirte_duckietown.sign import Sign
+from mirte_duckietown.object import Object
 
 
 class TestCamera(unittest.TestCase):
@@ -193,6 +196,83 @@ class TestCamera(unittest.TestCase):
         self.assertTrue(camera.seesStreet("DUDEK ST"))
         self.assertTrue(camera.seesStreet("dudek st."))
         self.assertTrue(camera.seesStreet("dUdEk St"))
+
+    def testSeesObstacleOnLane(self):
+        """Test the seesObstacleOnLane method"""
+        subscriber = MagicMock(spec=Subscriber)
+        camera = Camera(subscriber=subscriber)
+
+        # No Obstacles are visible
+        subscriber.getObstacles = MagicMock(return_value=[])
+        self.assertFalse(camera.seesObstacleOnLane(Object.MIRTE))
+
+        # Obstacle is visible, but not on the lane
+        subscriber.getObstacles = MagicMock(
+            return_value=[Obstacle(15, Point(0.1, 0.1), Object.MIRTE)]
+        )
+        subscriber.getLane = MagicMock(
+            return_value=Lane(
+                Line(Point(0, 1), Vector(0.5, -1), 0, 0),
+                Line(Point(0.5, 1), Vector(0, -1), 0, 0),
+                Line(Point(1, 1), Vector(-0.5, -1), 0, 0),
+            )
+        )
+        self.assertFalse(camera.seesObstacleOnLane(Object.MIRTE))
+
+        # Obstacle is visible on the lane
+        subscriber.getObstacles = MagicMock(
+            return_value=[Obstacle(15, Point(0.45, 0.7), Object.MIRTE)]
+        )
+        subscriber.getLane = MagicMock(
+            return_value=Lane(
+                Line(Point(0, 1), Vector(0.5, -1), 0, 0),
+                Line(Point(0.5, 1), Vector(0, -1), 0, 0),
+                Line(Point(1, 1), Vector(-0.5, -1), 0, 0),
+            )
+        )
+        self.assertTrue(camera.seesObstacleOnLane(Object.MIRTE))
+
+    def testSeesObstacleOnLeft(self):
+        """Test the seesObstacleOnLeft method"""
+        subscriber = MagicMock(spec=Subscriber)
+        camera = Camera(subscriber=subscriber)
+
+        # No Obstacles are visible
+        subscriber.getObstacles = MagicMock(return_value=[])
+        self.assertFalse(camera.seesObstacleOnLeft(Object.MIRTE))
+
+        # Obstacle is visible, but not on the left
+        subscriber.getObstacles = MagicMock(
+            return_value=[Obstacle(15, Point(1, 0), Object.MIRTE)]
+        )
+        self.assertFalse(camera.seesObstacleOnLeft(Object.MIRTE))
+
+        # Obstacle is visible on the left
+        subscriber.getObstacles = MagicMock(
+            return_value=[Obstacle(15, Point(0, 0), Object.MIRTE)]
+        )
+        self.assertTrue(camera.seesObstacleOnLeft(Object.MIRTE))
+
+    def testSeesObstacleOnRight(self):
+        """Test the seesObstacleOnRight method"""
+        subscriber = MagicMock(spec=Subscriber)
+        camera = Camera(subscriber=subscriber)
+
+        # No Obstacles are visible
+        subscriber.getObstacles = MagicMock(return_value=[])
+        self.assertFalse(camera.seesObstacleOnRight(Object.MIRTE))
+
+        # Obstacle is visible, but not on the right
+        subscriber.getObstacles = MagicMock(
+            return_value=[Obstacle(15, Point(0, 0), Object.MIRTE)]
+        )
+        self.assertFalse(camera.seesObstacleOnRight(Object.MIRTE))
+
+        # Obstacle is visible on the right
+        subscriber.getObstacles = MagicMock(
+            return_value=[Obstacle(15, Point(1, 0), Object.MIRTE)]
+        )
+        self.assertTrue(camera.seesObstacleOnRight(Object.MIRTE))
 
 
 if __name__ == "__main__":
