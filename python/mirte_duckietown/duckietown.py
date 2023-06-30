@@ -3,6 +3,7 @@ import threading
 import rospy
 from ._topic import Subscriber
 from ._util import intersectWithHorizontalLine
+from .object import Object
 
 
 class Camera:
@@ -12,11 +13,7 @@ class Camera:
     """
 
     def __init__(
-        self,
-        robot=None,
-        subscriber=None,
-        stop_line_threshold_height=0.75,
-        tag_life=500,
+        self, robot=None, subscriber=None, stop_line_threshold_height=0.8, tag_life=500
     ):
         """Initialises a new camera
 
@@ -46,12 +43,8 @@ class Camera:
         # Don't yet follow the lane
         self.__following = False
 
-        # Start executing of the follower
-        print("starting execution...\n")
-
-        # Run the follower in a separate thread
-        if self.__robot is not None:
-            threading.Thread(target=self._follower).start()
+        # Set thread to none
+        self.__thread = None
 
     def getLines(self):
         """Gets line segments from the camera
@@ -120,27 +113,33 @@ class Camera:
 
     def _follower(self):
         """Follows the lane using the camera"""
-        while not rospy.is_shutdown():
+        while self.__following:
             lane = self.__subscriber.getLane()
-            if self.__following and lane is not None:
+            if lane is not None:
                 # Variables
-                speed = 65
-                turn_speed = 10
-                turn_speed_corr = 5
-                off_lane_threshold = 0.5
-                off_lane_correction = 30
+                speed = 65  # Base speed
+                turn_speed = 10  # Added speed when turning
+                turn_speed_corr = 5  # Subtracted speed when turning
+                off_lane_threshold = 0.5  # Threshold for being off the lane
+                off_lane_correction = 90  # Maximum angle correction when off the lane
 
                 # Calculate angle and correction
                 angle = lane.centre_line.angle
                 start = lane.centre_line.start
-                if start < -off_lane_threshold:  # on the right, so turn left
-                    angle -= off_lane_correction
-                elif start > off_lane_threshold:  # on the left, so turn right
-                    angle += off_lane_correction
+                # Bias to the centre of the lane (camera view makes it look like it's on the right)
+                start += 0.075
+                # Calculate lane offset, 0.5->no offset, 0/1->max offset
+                offset = min(abs((2 * start) - 1), 1)
+                # start=0->on the right, start=1->on the left
+                if start < off_lane_threshold:  # On the right, so turn left
+                    angle -= off_lane_correction * offset
+                elif start > (1 - off_lane_threshold):  # On the left, so turn right
+                    angle += off_lane_correction * offset
 
-                # calculate speed
+                # Calculate speed
                 speed_left = speed
                 speed_right = speed
+
                 # Turn right when the angle is positive
                 if angle > 10:
                     speed_left += turn_speed
@@ -157,14 +156,18 @@ class Camera:
 
     def startFollowing(self):
         """Start following the lane using the camera, if the robot is initialized"""
-        if self.__robot is None:
+        if self.__robot is None or self.__following:
             return
+        self.__thread = threading.Thread(target=self._follower)
         self.__following = True
+        # self.__thread.daemon = True
+        self.__thread.start()
 
     def stopFollowing(self):
         """Stop following the lane using the camera, if the robot is initialized"""
         self.__following = False
         if self.__robot is not None:
+            self.__thread.join()
             self.__robot.setMotorSpeed("left", 0)
             self.__robot.setMotorSpeed("right", 0)
 
@@ -244,7 +247,9 @@ class Camera:
             bool: True if the obstacle is on the lane, False otherwise
         """
         # Check if obstacle is in front of the robot
-        if obstacle.location.y_coord < 0.65:
+        if obstacle.object == Object.DUCK and obstacle.location.y_coord < 0.6:
+            return False
+        if obstacle.object == Object.MIRTE and obstacle.location.y_coord < 0.5:
             return False
         # Check if lane is available
         lane = self.getLane()

@@ -3,13 +3,7 @@ from datetime import datetime, timedelta
 from freezegun import freeze_time
 
 from mirte_duckietown.object import Object
-from mirte_duckietown._common import (
-    LineSegment,
-    Colour,
-    Line,
-    AprilTag,
-    Obstacle,
-)
+from mirte_duckietown._common import LineSegment, Colour, Line, AprilTag, Obstacle
 from mirte_duckietown.sign import Sign
 from mirte_duckietown_msgs.msg import (
     LineSegment as LineSegmentMsg,
