@@ -15,6 +15,7 @@ rm -rfv !("mirte_msgs")
 cd ../../
 catkin_make # or catkin build
 source devel/setup.bash
+source /opt/ros/noetic/setup.bash
 cd ../../
 
 
